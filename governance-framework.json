@@ -1,0 +1,37 @@
+{
+  "@context": ["https://github.com/hyperledger/aries-rfcs/blob/master/0430-machine-readable-governance-frameworks/context.jsonld"],
+  "name": "Sample Governance File",
+  "version": "0.1",
+  "description": "Issuance and verification of Sample Credentials to demonstrate governance frameworks. Provides a source of truth of issuers and verifiers",
+  "last_updated": "2020-11-02",
+  "docs_uri": "",
+  "data_uri": "",
+  "schemas": ["4CLG5pU5v294VdkMWxSByu:2:SampleCredential:1.0"],
+  "roles": ["issuer", "verifier"],
+  "define": [
+    {
+      "name": "Cardea",
+      "id": "GwE4EzQx733ERwNhEGNgAUSccwez2MqW4RuDECTw1nUy",
+      "describe": {
+        "label": "Cardea Issuer",
+        "sublabel": "The Cardea Project",
+        "website": "cardea.app",
+        "email": "email@cardea.app"
+      }
+    },
+    {
+      "name": "Cardea_Verifier",
+      "id": "Es849T3x93PERgNhEGNgAU48euez2MqW4RuDECTw1nHr",
+      "describe": {
+        "label": "Cardea Verifier",
+        "sublabel": "The Cardea Project",
+        "website": "cardea.app",
+        "email": "email@cardea.app"
+      }
+    }
+  ], 
+  "rules": [
+    {"when": {"name": "Cardea"}, "thus": "issuer"},
+    {"when": {"name": "Cardea_Verifier"}, "thus": "verifier"}
+  ]
+}

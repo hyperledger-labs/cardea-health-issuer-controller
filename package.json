@@ -1,0 +1,51 @@
+{
+  "name": "cardea-health-enterprise-agent-controller",
+  "version": "0.1.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "dependencies": {
+    "axios": "^0.20.0",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.19.0",
+    "cookie": "^0.4.1",
+    "cookie-parser": "^1.4.5",
+    "db-migrate": "^0.11.11",
+    "db-migrate-pg": "^1.2.2",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-session": "^1.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "nodemailer": "^6.4.16",
+    "passport": "^0.4.1",
+    "passport-local": "^1.0.0",
+    "pg": "^8.4.0",
+    "pg-hstore": "^2.3.3",
+    "sequelize": "^6.3.5",
+    "uuid": "^8.3.2",
+    "ws": "^7.3.1"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^8.3.5",
+    "@commitlint/config-conventional": "^8.3.4",
+    "husky": "^4.2.5",
+    "jest": "^26.6.3",
+    "nodemon": "^2.0.4",
+    "prettier": "2.0.5"
+  },
+  "scripts": {
+    "migrate_down": "node node_modules/db-migrate/bin/db-migrate down -c 1 --config ./database.json",
+    "migrate_up": "node node_modules/db-migrate/bin/db-migrate up -c 1 --config ./database.json",
+    "migrate_up_all": "node node_modules/db-migrate/bin/db-migrate up --config ./database.json",
+    "style-watch": "onchange '**/*.js' -- prettier --write {{changed}}",
+    "style-check": "prettier --check '**/*.js'",
+    "style-format": "prettier --write '**/*.js'",
+    "dev": "nodemon index.js",
+    "first-time-setup": "node ./scripts/firstTimeSetup.js",
+    "test": "jest"
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  }
+}

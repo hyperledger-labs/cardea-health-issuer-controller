@@ -1,0 +1,11 @@
+{
+  "defaultEnv":"test",
+  "test": {
+    "driver": "pg",
+    "host": "lab-db",
+    "schema": "public",
+    "database": "development",
+    "user": "development",
+    "password": "development"
+  }
+}
