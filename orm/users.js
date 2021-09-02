@@ -303,7 +303,7 @@ const updateUserInfo = async function (
       },
     )
 
-    const user = readUser(user_id)
+    const user = await readUser(user_id)
 
     console.log(`User updated successfully.`)
     return user

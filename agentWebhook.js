@@ -6,6 +6,8 @@ const router = express.Router()
 const Contacts = require('./agentLogic/contacts.js')
 const Credentials = require('./agentLogic/credentials.js')
 const Demographics = require('./agentLogic/demographics.js')
+
+var ExternalRecords = null
 const Passports = require('./agentLogic/passports.js')
 const BasicMessages = require('./agentLogic/basicMessages.js')
 const Presentations = require('./agentLogic/presentations.js')
@@ -18,6 +20,9 @@ router.post('/topic/connections', async (req, res, next) => {
   console.log(connectionMessage)
 
   res.status(200).send('Ok')
+
+  // (eldersonar) Send a proof request to the established connection
+  Presentations.requestIdentityPresentation(connectionMessage.connection_id)
 
   await Contacts.adminMessage(connectionMessage)
 })
@@ -77,19 +82,22 @@ router.post('/topic/data-transfer/:goalCode', async (req, res, next) => {
 
     let contact = await Contacts.getContactByConnection(connection_id, [])
 
-    Demographics.updateOrCreateDemographic(
+    await Demographics.updateOrCreateDemographic(
       contact.contact_id,
       data.email,
       data.phone,
       data.address,
     )
+
+    // Issue External Records if needed
+    ExternalRecords.internalContactUpdate(contact.contact_id)
   } else if (req.params.goalCode === 'transfer.passportdata') {
     let connection_id = req.body.connection_id
     let data = req.body.data[0].data.json
 
     let contact = await Contacts.getContactByConnection(connection_id, [])
 
-    Passports.updateOrCreatePassport(
+    await Passports.updateOrCreatePassport(
       contact.contact_id,
       data.passport_number,
       data.surname,
@@ -105,7 +113,9 @@ router.post('/topic/data-transfer/:goalCode', async (req, res, next) => {
       data.authority,
       data.photo,
     )
-    // console.log(req.body.data[0].data.json)
+
+    // Issue External Records if needed
+    ExternalRecords.internalContactUpdate(contact.contact_id)
   } else {
   }
 
@@ -113,3 +123,5 @@ router.post('/topic/data-transfer/:goalCode', async (req, res, next) => {
 })
 
 module.exports = router
+
+ExternalRecords = require('./agentLogic/externalRecords.js')

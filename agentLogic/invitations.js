@@ -95,12 +95,12 @@ const acceptInvitation = async (invitation_url) => {
   try {
     // Decoding the invitation url
     const url = new URL(invitation_url)
-    const encodedParam = url.searchParams.get("c_i")
+    const encodedParam = url.searchParams.get('c_i')
     const buff = Buffer.from(encodedParam, 'base64')
     const decodedInvitation = buff.toString('utf-8')
 
     const invitationMessage = await AdminAPI.Connections.acceptInvitation(
-      decodedInvitation
+      decodedInvitation,
     )
 
     // Return some info about the new connection formed by accepting the invite so we can take further action

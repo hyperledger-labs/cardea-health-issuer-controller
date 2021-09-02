@@ -146,7 +146,8 @@ const autoIssueCredential = async (
 ) => {
   try {
     // Perform Validations
-    if (schemaName === 'Covid_19_Lab_Result') {
+
+    if (schemaName === 'Lab_Result') {
       let found = false
       const searchCredentials = await getCredentialsByConnectionId(connectionID)
 
@@ -154,7 +155,7 @@ const autoIssueCredential = async (
         if (searchCredentials[i].dataValues.connection_id === connectionID) {
           if (
             searchCredentials[i].dataValues.schema_id ===
-            'X2JpGAqC7ZFY4hwKG6kLw9:2:Test_ID:1.2'
+            process.env.SCHEMA_LAB_ORDER         
           ) {
             found = true
           }
@@ -255,6 +256,8 @@ const autoIssueCredential = async (
       false,
       false,
     )
+
+    return response
   } catch (error) {
     console.error('Error Issuing Credential')
     throw error
