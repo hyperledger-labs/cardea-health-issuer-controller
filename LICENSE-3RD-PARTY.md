@@ -11,6 +11,8 @@ See also: https://mit-license.org/
 * [Axios](https://github.com/axios/axios)
 * [bcryptjs](https://github.com/kelektiv/node.bcrypt.js)
 * [body-parser](https://github.com/expressjs/body-parser)
+* [cookie](https://github.com/jshttp/cookie)
+* [cookie-parser](https://github.com/expressjs/cookie-parser)
 * [db-migrate](https://github.com/db-migrate/node-db-migrate)
 * [db-migrate-pg](https://github.com/db-migrate/pg)
 * [express-session](https://github.com/expressjs/session)
@@ -19,10 +21,13 @@ See also: https://mit-license.org/
 * [nodemon](https://github.com/remy/nodemon/)
 * [passport](https://github.com/jaredhanson/passport)
 * [passport-local](https://github.com/jaredhanson/passport-local)
+* [pg](https://github.com/brianc/node-postgres)
+* [pg-hstore](https://github.com/scarney81/pg-hstore)
 * [Prettier](https://github.com/prettier/prettier)
 * [Sequelize](https://sequelize.org/master/)
 * [UUID](https://github.com/uuidjs/uuid)
 * [wait-for-it](https://github.com/vishnubob/wait-for-it)
+* [winston](https://github.com/winstonjs/winston)
 * [ws](https://github.com/websockets/ws)
 
 ### BSD 2-Clause "Simplified" License

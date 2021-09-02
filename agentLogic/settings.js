@@ -68,6 +68,16 @@ const setOrganization = async (data = {}) => {
   }
 }
 
+const getSchemas = async () => {
+  return {
+    SCHEMA_LAB_ORDER:process.env.SCHEMA_LAB_ORDER,
+    SCHEMA_LAB_RESULT:process.env.SCHEMA_LAB_RESULT,
+    SCHEMA_VACCINATION:process.env.SCHEMA_VACCINATION,
+    SCHEMA_VACCINE_EXEMPTION:process.env.SCHEMA_VACCINE_EXEMPTION
+  }
+
+}
+
 module.exports = {
   getTheme,
   setTheme,
@@ -75,4 +85,5 @@ module.exports = {
   setSMTP,
   getOrganization,
   setOrganization,
+  getSchemas,
 }

@@ -7,6 +7,7 @@ const check = require('./canUser')
 const rules = require('./rbac-rules')
 const cookie = require('cookie')
 const cookieParser = require('cookie-parser')
+
 let userCookieParsed = undefined
 
 wss = new WebSocket.Server({server: server, path: '/api/ws'})
@@ -358,6 +359,8 @@ const messageHandler = async (ws, context, type, data = {}) => {
                 data.phone,
                 data.address,
               )
+
+              ExternalRecords.internalContactUpdate(data.contact_id)
             } else {
               sendMessage(ws, 'DEMOGRAPHICS', 'DEMOGRAPHICS_ERROR', {
                 error:
@@ -392,6 +395,8 @@ const messageHandler = async (ws, context, type, data = {}) => {
               data.authority,
               data.photo,
             )
+            ExternalRecords.internalContactUpdate(data.contact_id)
+
             break
 
           default:
@@ -433,7 +438,18 @@ const messageHandler = async (ws, context, type, data = {}) => {
               sendMessage(ws, 'SETTINGS', 'SETTINGS_THEME', currentTheme)
             else
               sendMessage(ws, 'SETTINGS', 'SETTINGS_ERROR', {
-                error: "ERROR: theme couldn't be fetched.",
+                error: "ERROR: UI theme couldn't be fetched.",
+              })
+            break
+
+          case 'GET_SCHEMAS':
+            console.log('GET_SCHEMAS')
+            const currentSchemas = await Settings.getSchemas()
+            if (currentSchemas)
+              sendMessage(ws, 'SETTINGS', 'SETTINGS_SCHEMAS', currentSchemas)
+            else
+              sendMessage(ws, 'SETTINGS', 'SETTINGS_ERROR', {
+                error: "ERROR: Credential schemas couldn't be fetched.",
               })
             break
 
@@ -551,6 +567,7 @@ const messageHandler = async (ws, context, type, data = {}) => {
       case 'CREDENTIALS':
         switch (type) {
           case 'ISSUE_USING_SCHEMA':
+            // TODO Kim process Test ID
             if (check(rules, userCookieParsed, 'credentials:issue')) {
               await Credentials.autoIssueCredential(
                 data.connectionID,
@@ -622,3 +639,4 @@ const Images = require('./agentLogic/images')
 const Settings = require('./agentLogic/settings')
 const Users = require('./agentLogic/users')
 const Roles = require('./agentLogic/roles')
+const ExternalRecords = require('./agentLogic/externalRecords.js')

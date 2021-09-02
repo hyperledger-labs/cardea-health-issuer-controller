@@ -36,7 +36,7 @@ const acceptInvitation = async (invitation) => {
     console.log('Accepting Invitation')
 
     let parsedInvitation = JSON.parse(invitation)
-  
+
     const invitationMessage = await sendAdminMessage(
       'post',
       `/connections/receive-invitation`,
@@ -44,7 +44,7 @@ const acceptInvitation = async (invitation) => {
         alias: parsedInvitation.label,
         auto_accept: true,
       },
-      parsedInvitation
+      parsedInvitation,
     )
 
     return invitationMessage
