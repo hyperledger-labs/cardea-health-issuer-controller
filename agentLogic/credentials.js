@@ -155,7 +155,7 @@ const autoIssueCredential = async (
         if (searchCredentials[i].dataValues.connection_id === connectionID) {
           if (
             searchCredentials[i].dataValues.schema_id ===
-            process.env.SCHEMA_LAB_ORDER         
+            process.env.SCHEMA_LAB_ORDER
           ) {
             found = true
           }

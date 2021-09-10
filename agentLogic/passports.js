@@ -42,7 +42,9 @@ const updateOrCreatePassport = async function (
       'Passport',
     ])
 
-    Websockets.sendMessageToAll('CONTACTS', 'CONTACTS', {contacts: [contact]})
+    Websockets.sendMessageToAll('CONTACTS', 'CONTACT_CREATED_OR_UPDATED', {
+      contacts: [contact],
+    })
   } catch (error) {
     console.error('Error Fetching Contacts')
     throw error

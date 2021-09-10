@@ -22,8 +22,9 @@ router.post('/topic/connections', async (req, res, next) => {
   res.status(200).send('Ok')
 
   // (eldersonar) Send a proof request to the established connection
-  if (connectionMessage.state === "active")
+  if (connectionMessage.state === 'active') {
     Presentations.requestIdentityPresentation(connectionMessage.connection_id)
+  }
 
   await Contacts.adminMessage(connectionMessage)
 })

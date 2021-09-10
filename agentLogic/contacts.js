@@ -160,7 +160,9 @@ const adminMessage = async (connectionMessage) => {
       ['Demographic', 'Passport'],
     )
 
-    Websockets.sendMessageToAll('CONTACTS', 'CONTACTS', {contacts: [contact]})
+    Websockets.sendMessageToAll('CONTACTS', 'CONTACT_CREATED_OR_UPDATED', {
+      contacts: [contact],
+    })
   } catch (error) {
     console.error('Error Storing Connection Message')
     throw error
