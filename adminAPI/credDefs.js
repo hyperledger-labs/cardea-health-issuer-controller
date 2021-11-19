@@ -56,8 +56,8 @@ const fetchCredDef = async (cred_def_id) => {
 const createCredDef = async (
   tag,
   schema_id,
-  revocation_registry_size = 0,
-  support_revocation = false,
+  revocation_registry_size = 0, // value must be integer between 4 and 32768 inclusively. Send only if support_revocation is set to true. We would want to select a size probably somewhere in the range of 100 but it's highly dependent on how many credentials the issuer intends to issue
+  support_revocation = false, // Send only if support_revocation is set to true
 ) => {
   try {
     console.log('Creating Credential Definition')
@@ -66,7 +66,7 @@ const createCredDef = async (
       'post',
       `/credential-definitions`,
       {},
-      {tag, schema_id, revocation_registry_size, support_revocation},
+      {tag, schema_id}, // revocation_registry_size, support_revocation
     )
 
     return credDefID.credential_definition_id
