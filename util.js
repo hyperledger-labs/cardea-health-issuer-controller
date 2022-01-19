@@ -10,6 +10,11 @@ const encodeBase64 = (message) => {
   return Buffer.from(message).toString('base64')
 }
 
+const encodeBase64Image = (image) => {
+  console.log('Encoding image to Base64')
+  return Buffer.from(image.substring(image.indexOf(',') + 1), 'base64')
+}
+
 // Regular expressions
 
 function validateEmail(email) {
@@ -28,10 +33,29 @@ function validatePassword(password) {
   return re.test(String(password))
 }
 
+function validateLogo(logo) {
+  const re = /\.(jpe?g|png|gif)$/gi // Only .png, .jpeg, .jpg, .webp
+  return re.test(String(logo))
+}
+
+function validateFavIcon(favicon) {
+  const re = /\.(ico)$/gi // Only .ico
+  return re.test(String(favicon))
+}
+
+function validateLogo192And512(logo) {
+  const re = /\.(png)$/gi // Only .png
+  return re.test(String(logo))
+}
+
 module.exports = {
   decodeBase64,
   encodeBase64,
+  encodeBase64Image,
   validateEmail,
   validateAlphaNumeric,
   validatePassword,
+  validateLogo,
+  validateFavIcon,
+  validateLogo192And512,
 }

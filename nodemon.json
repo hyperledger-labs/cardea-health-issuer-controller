@@ -1,0 +1,6 @@
+{
+    "ignore": [
+        "*.manifest.json",
+	"web/*"
+    ]
+}

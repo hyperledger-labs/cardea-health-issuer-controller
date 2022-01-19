@@ -15,21 +15,17 @@ exports.setup = function (options, seedLink) {
 }
 
 exports.up = function (db) {
-  return db.createTable('held_credentials', {
-    credential_id: {type: 'text', primaryKey: true, unique: true},
-    schema_id: 'text',
-    credential_definition_id: 'text',
-    rev_reg: 'json',
-    revoc_reg_id: 'text',
-    witness: 'json',
-    signature: 'json',
-    signature_correctness_proof: 'json',
-    values: 'json',
+  return db.createTable('sessions', {
+    sid: {type: 'text', primaryKey: true, unique: true},
+    expires: 'timestamptz',
+    data: 'text',
+    createdAt: 'timestamptz',
+    updatedAt: 'timestamptz',
   })
 }
 
 exports.down = function (db) {
-  return db.dropTable('held_credentials')
+  return db.dropTable('sessions')
 }
 
 exports._meta = {
