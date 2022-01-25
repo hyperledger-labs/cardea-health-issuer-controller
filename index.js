@@ -11,9 +11,6 @@ const Sequelize = require('sequelize')
 // initalize sequelize with session store
 const SequelizeStore = require('connect-session-sequelize')(session.Store)
 
-const Contacts = require('./orm/contacts')
-const ContactsCompiled = require('./orm/contactsCompiled')
-
 const Images = require('./agentLogic/images')
 
 // Import environment variables for use via an .env file in a non-containerized context
