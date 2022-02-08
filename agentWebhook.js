@@ -1,5 +1,8 @@
+require('dotenv').config()
+
 const Websockets = require('./websockets.js')
 
+const base64url = require('base64url')
 const express = require('express')
 const router = express.Router()
 
@@ -22,7 +25,7 @@ router.post('/topic/connections', async (req, res, next) => {
   res.status(200).send('Ok')
 
   // (eldersonar) Send a proof request to the established connection
-  if (connectionMessage.state === "active")
+  if (connectionMessage.state === 'active')
     Presentations.requestIdentityPresentation(connectionMessage.connection_id)
 
   await Contacts.adminMessage(connectionMessage)
@@ -119,6 +122,26 @@ router.post('/topic/data-transfer/:goalCode', async (req, res, next) => {
     ExternalRecords.internalContactUpdate(contact.contact_id)
   } else {
   }
+
+  res.status(200).send('Ok')
+})
+
+router.post('/topic/oob-invitation/', async (req, res, next) => {
+  console.log(
+    'Aries Cloud Agent Webhook Message----Create Out-Of-Band Message------',
+  )
+
+  console.log('OOB Details:')
+  const OOBMessage = req.body
+  console.log(OOBMessage)
+
+  // const JSONInvitation = JSON.stringify(OOBMessage.invitation).trim()
+  // const encodedInvitation = base64url(JSONInvitation)
+  // const OOBInvitationURL = `${process.env.AGENT_TUNNEL_HOST}/ssi?oob=${encodedInvitation}`
+
+  // Websockets.sendMessageToAll('INVITATIONS', 'INVITATION', {
+  //   invitation_record: OOBInvitationURL,
+  // })
 
   res.status(200).send('Ok')
 })
