@@ -2,10 +2,10 @@
   "defaultEnv":"test",
   "test": {
     "driver": "pg",
-    "host": "lab-db",
+    "host": {"ENV": "DB_HOST"},
     "schema": "public",
-    "database": "development",
-    "user": "development",
-    "password": "development"
+    "database": {"ENV": "DB"},
+    "user": {"ENV": "DB_USERNAME"},
+    "password": {"ENV": "DB_PASSWORD"}
   }
 }
