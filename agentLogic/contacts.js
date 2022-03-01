@@ -158,7 +158,7 @@ const adminMessage = async (connectionMessage) => {
     if (connectionMessage.state === 'active') {
       QuestionAnswer.askQuestion(
         connectionMessage.connection_id,
-        'Have you received a Medical Release credential from the Bronx RHIO before?',
+        'Have you received a Medical Release credential from Cardea Lab before?',
         'Please select an option below:',
         [
           {text: 'I need a new credential'},

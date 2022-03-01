@@ -60,10 +60,15 @@ app.use(
 )
 
 // (eldersonar) Create database
-const sequelize = new Sequelize(process.env.DB, process.env.DB_USERNAME, process.env.DB_PASSWORD, {
-  host: process.env.DB_HOST,
-  dialect: 'postgres',
-})
+const sequelize = new Sequelize(
+  process.env.DB,
+  process.env.DB_USERNAME,
+  process.env.DB_PASSWORD,
+  {
+    host: process.env.DB_HOST,
+    dialect: 'postgres',
+  },
+)
 
 const myStore = new SequelizeStore({
   db: sequelize,

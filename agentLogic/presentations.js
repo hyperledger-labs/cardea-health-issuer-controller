@@ -278,7 +278,7 @@ const adminMessage = async (message) => {
         },
         {
           name: 'credential_issuer_name',
-          value: 'Bronx RHIO',
+          value: 'Cardea Lab',
         },
         {
           name: 'credential_issue_date',
