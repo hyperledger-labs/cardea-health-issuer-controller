@@ -1,4 +1,7 @@
 // Utilities:
+
+const crypto = require('crypto')
+
 // Encode and decode Base64
 const decodeBase64 = (encodedMessage) => {
   console.log('Decoding encoded Base64 message')
@@ -49,6 +52,21 @@ function validateLogo192And512(logo) {
   return re.test(String(logo))
 }
 
+// String AES256 (cbc) encryption
+const encrypt = (val, IV) => {
+  let cipher = crypto.createCipheriv('aes-256-cbc', process.env.ENC_KEY, IV)
+  let encrypted = cipher.update(val, 'utf8', 'base64')
+  encrypted += cipher.final('base64')
+  return encrypted
+}
+
+// String AES256 (cbc) decryption
+const decrypt = (encrypted, IV) => {
+  let decipher = crypto.createDecipheriv('aes-256-cbc', process.env.ENC_KEY, IV)
+  let decrypted = decipher.update(encrypted, 'base64', 'utf8')
+  return decrypted + decipher.final('utf8')
+}
+
 module.exports = {
   decodeBase64,
   encodeBase64,
@@ -59,4 +77,6 @@ module.exports = {
   validateLogo,
   validateFavIcon,
   validateLogo192And512,
+  encrypt,
+  decrypt,
 }

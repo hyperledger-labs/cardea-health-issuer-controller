@@ -67,7 +67,7 @@ readSMTP = async function () {
     })
     return smtp[0]
   } catch (error) {
-    console.error('Could not find organization name in the database: ', error)
+    console.error('Could not find smtp settings in the database: ', error)
   }
 }
 

@@ -1,5 +1,7 @@
+const crypto = require('crypto')
 const Settings = require('../orm/settings')
 const fs = require('fs')
+const Util = require('../util')
 
 // Perform Agent Business Logic
 
@@ -38,6 +40,12 @@ const getSMTP = async () => {
 
 const setSMTP = async (data = {}) => {
   try {
+    const IV = crypto.randomBytes(8).toString('hex')
+    const encryptedPassword = Util.encrypt(data.auth.pass, IV)
+
+    data.IV = IV
+    data.auth.pass = encryptedPassword
+
     await Settings.updateSMTP(data)
     const updatedSMTP = await Settings.readSMTP()
     return updatedSMTP
