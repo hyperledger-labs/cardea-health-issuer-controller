@@ -1,37 +1,403 @@
 {
-  "@context": ["https://github.com/hyperledger/aries-rfcs/blob/master/0430-machine-readable-governance-frameworks/context.jsonld"],
-  "name": "Sample Governance File",
+  "@context": [
+    "https://github.com/hyperledger/aries-rfcs/blob/main/concepts/0430-machine-readable-governance-frameworks/context.jsonld"
+  ],
+  "name": "Aruba COVID Governance",
   "version": "0.1",
-  "description": "Issuance and verification of Sample Credentials to demonstrate governance frameworks. Provides a source of truth of issuers and verifiers",
-  "last_updated": "2020-11-02",
-  "docs_uri": "",
-  "data_uri": "",
-  "schemas": ["4CLG5pU5v294VdkMWxSByu:2:SampleCredential:1.0"],
-  "roles": ["issuer", "verifier"],
-  "define": [
+  "format": "1.0",
+  "id": "<uuid>",
+  "description": "This document describes COVID health and travel governance for the nation of Aruba in a machine readable way.",
+  "last_updated": "2021-06-10",
+  "docs_uri": "need_to_create",
+  "data_uri": "need_to_create",
+  "topics": [
+    "medical, travel"
+  ],
+  "jurisdictions": [
+    "US>NY>New York City",
+    "AW"
+  ],
+  "geos": [
+    "USA",
+    "Aruba"
+  ],
+  "schemas": [
     {
-      "name": "Cardea",
-      "id": "GwE4EzQx733ERwNhEGNgAUSccwez2MqW4RuDECTw1nUy",
+      "id": "4CLG5pU5v294VdkMWxSByu:2:Email:1.0",
+      "name": "Validated Email",
+      "verification": "hl:zm9YZpCjPLPJ4Epc:z3TSgXTuaHxY2tsArhUreJ4ixgw9NW7DYuQ9QTPQyLHy"
+    },
+    {
+      "id": "4CLG5pU5v294VdkMWxSByu:2:SMS:1.0",
+      "name": "SMS",
+      "verification": "hl:2lksjfdskljdf4432234lsakfHDHd"
+    },
+    {
+      "id": "4CLG5pU5v294VdkMWxSByu:2:Medical_Release:1.0",
+      "name": "Medical Release",
+      "verification": "hl:zm9YZpCjPLPJ4Epc:z3TSgXTuaHxY2tsArhUreJ4ixgw9NW7DYuQ9QTPQyLHy"
+    },
+    {
+      "id": "RuuJwd3JMffNwZ43DcJKN1:2:Lab_Order:1.4",
+      "name": "Lab Order"
+    },
+    {
+      "id": "RuuJwd3JMffNwZ43DcJKN1:2:Lab_Result:1.4",
+      "name": "Lab Result"
+    },
+    {
+      "id": "RuuJwd3JMffNwZ43DcJKN1:2:Vaccination:1.4",
+      "name": "Vaccine"
+    },
+    {
+      "id": "RuuJwd3JMffNwZ43DcJKN1:2:Vaccine_Exemption:1.4",
+      "name": "Vaccine Exemption"
+    },
+    {
+      "id": "RuuJwd3JMffNwZ43DcJKN1:2:Trusted_Traveler:1.4",
+      "name": "Trusted Traveler"
+    }
+  ],
+  "participants": [
+    {
+      "name": "Aruba Government",
+      "id": "J1pp5Ro5Xf6qtF281xknFs",
       "describe": {
-        "label": "Cardea Issuer",
-        "sublabel": "The Cardea Project",
-        "website": "cardea.app",
-        "email": "email@cardea.app"
+        "label": "Aruba",
+        "sublabel": "Aruba Government",
+        "website": "issuinggovernmentsite.org",
+        "email": "credential_manager@issuinggovernmentsite.org"
       }
     },
     {
-      "name": "Cardea_Verifier",
-      "id": "Es849T3x93PERgNhEGNgAU48euez2MqW4RuDECTw1nHr",
+      "name": "General Obeorthot Hospital of Aruba",
+      "id": "CD8bhSTAYPtPQD7Nvvnp6B",
       "describe": {
-        "label": "Cardea Verifier",
-        "sublabel": "The Cardea Project",
-        "website": "cardea.app",
-        "email": "email@cardea.app"
+        "label": "Obeorthot Hospital",
+        "sublabel": "General Obeorthot Hospital of Aruba",
+        "website": "issuinglabsite.com",
+        "email": "credential_manager@issuinglabsite.com"
+      }
+    },
+    {
+      "name": "Hilton Casino",
+      "id": "did:example:casino",
+      "describe": {
+        "label": "Hilton Resort and Casino",
+        "sublabel": "Verifying Org",
+        "website": "verifyingorgsite.com",
+        "email": "verifying_manager@verifyingorgsite.com"
       }
     }
-  ], 
-  "rules": [
-    {"when": {"name": "Cardea"}, "thus": "issuer"},
-    {"when": {"name": "Cardea_Verifier"}, "thus": "verifier"}
+  ],
+  "roles": [
+    "holder",
+    "health_issuer",
+    "travel_issuer",
+    "health_verifier",
+    "travel_verifier",
+    "hospitality_verifier"
+  ],
+  "permissions": [
+    {
+      "grant": ["health_issuer"],
+      "when": {
+        "any": [
+          {"id": "did:example:hospital"},
+          {"id": "CD8bhSTAYPtPQD7Nvvnp6B"}
+        ]
+      }
+    },
+    {
+      "grant": ["travel_issuer"],
+      "when": {
+        "any": [
+          {"id": "J1pp5Ro5Xf6qtF281xknFs"}
+        ]
+      }
+    },
+    {
+      "grant": ["health_verifier"],
+      "when": {
+        "any": [
+          {"id": "J1pp5Ro5Xf6qtF281xknFs"}
+        ]
+      }
+    },
+    {
+      "grant": ["travel_verifier"],
+      "when": {
+        "any": [
+          {"id": "J1pp5Ro5Xf6qtF281xknFs"}
+        ]
+      }
+    },
+    {
+      "grant": ["hospitality_verifier"],
+      "when": {
+        "any": [
+          {"id": "did:example:casino"}
+        ]
+      }
+    }
+  ],
+  "actions": [
+      {
+        "name": "connect",
+        "protocol": "https://didcomm.org/connections/1.0/",
+        "startmessage": "invitation",
+        "details": {}
+      },
+      {
+        "name": "issue_lab_order",
+        "protocol": "https://didcomm.org/issue-credential/1.0/",
+        "startmessage": "offer-credential",
+        "details": {
+          "schema": "RuuJwd3JMffNwZ43DcJKN1:2:Lab_Order:1.4",
+          "presentation_definition": "hl:zm9YZpCjPLPJ4Epc:z3TSgaEFFHxY2tsArhUreJ4ixgw9NW7DYuQ9QTPUJFDD"
+        }
+      },
+      {
+        "name": "issue_lab_result",
+        "protocol": "https://didcomm.org/issue-credential/1.0/",
+        "startmessage": "offer-credential",
+        "details": {
+          "schema": "RuuJwd3JMffNwZ43DcJKN1:2:Lab_Result:1.4",
+          "presentation_definition": "hl:zm9YZpCjPLPJ4Epc:z3TSgXTuaHxY2tsArhUreJ4ixgw9NW7DYuQ9QTPQOPPS"
+        }
+      },
+      {
+        "name": "issue_vaccine",
+        "protocol": "https://didcomm.org/issue-credential/1.0/",
+        "startmessage": "offer-credential",
+        "details": {
+          "schema": "RuuJwd3JMffNwZ43DcJKN1:2:Vaccination:1.4",
+          "presentation_definition": "hl:zm9YZpCjPLPJ4Epc:z3TSgXTuaHxY2tsArhUreJ4ixgw9NW7DYuQ9QTPQJKDe"
+        }
+      },
+      {
+        "name": "issue_vaccine_exemption",
+        "protocol": "https://didcomm.org/issue-credential/1.0/",
+        "startmessage": "offer-credential",
+        "details": {
+          "schema": "RuuJwd3JMffNwZ43DcJKN1:2:Vaccine_Exemption:1.4",
+          "presentation_definition": "hl:zm9YZpCjPLPJ4Epc:z3TSgXTuaHxY2tsArhUreJ4ixgw9NW7DYuQ9QTPQMJQd"
+        }
+      },
+      {
+        "name": "issue_trusted_traveler",
+        "protocol": "https://didcomm.org/issue-credential/1.0/",
+        "startmessage": "offer-credential",
+        "details": {
+          "schema": "RuuJwd3JMffNwZ43DcJKN1:2:Trusted_Traveler:1.4",
+          "presentation_definition": "http://localhost:3100/api/presentation-exchange" 
+        }
+      },
+      {
+        "name": "verify_identity",
+        "protocol": "https://didcomm.org/present-proof/1.0/",
+        "startmessage": "request-presentation",
+        "details": {}
+      },
+      {
+        "name": "verify_lab_order",
+        "protocol": "https://didcomm.org/present-proof/1.0/",
+        "startmessage": "request-presentation",
+        "details": {
+          "schema": "RuuJwd3JMffNwZ43DcJKN1:2:Lab_Order:1.4"
+        }
+      },
+      {
+        "name": "verify_lab_result",
+        "protocol": "https://didcomm.org/present-proof/1.0/",
+        "startmessage": "request-presentation",
+        "details": {
+          "schema": "RuuJwd3JMffNwZ43DcJKN1:2:Lab_Result:1.4"
+        }
+      },
+      {
+        "name": "verify_vaccine",
+        "protocol": "https://didcomm.org/present-proof/1.0/",
+        "startmessage": "request-presentation",
+        "details": {
+          "schema": "RuuJwd3JMffNwZ43DcJKN1:2:Vaccination:1.4"
+        }
+      },
+      {
+        "name": "verify_vaccine_exemption",
+        "protocol": "https://didcomm.org/present-proof/1.0/",
+        "startmessage": "request-presentation",
+        "details": {
+          "schema": "RuuJwd3JMffNwZ43DcJKN1:2:Vaccine_Exemption:1.4"
+        }
+      },
+      {
+        "name": "verify_trusted_traveler",
+        "protocol": "https://didcomm.org/present-proof/1.0/",
+        "startmessage": "request-presentation",
+        "details": {
+          "schema": "RuuJwd3JMffNwZ43DcJKN1:2:Trusted_Traveler:1.4",
+          "presentation_definition": [
+            {
+              "travel_verifier": "hl:zm9YZpCjPLPJ4Epc:z3TSgXTuaHxY2tsArhUreJ4ixgw9NW7DYuQ9QTPQyLHy"
+            },
+            {
+              "hospitality_verifier": "hl:zm9YZpCjPLPJ4Epc:z3TSgXTuaHxY2tsArhUreJ4ixgw9NW7DYuQ9QTPQyLHy"
+            }
+          ]
+        }
+      }
+    ],
+  "privileges": [
+    {
+      "grant": [
+        "issue_lab_order"
+      ],
+      "when": {
+        "any": [
+          {
+            "role": "health_issuer"
+          }
+        ]
+      }
+    },
+    {
+      "grant": [
+        "issue_lab_result"
+      ],
+      "when": {
+        "any": [
+          {
+            "role": "health_issuer"
+          }
+        ]
+      }
+    },
+    {
+      "grant": [
+        "issue_vaccine"
+      ],
+      "when": {
+        "any": [
+          {
+            "role": "health_issuer"
+          }
+        ]
+      }
+    },
+    {
+      "grant": [
+        "issue_vaccine_exemption"
+      ],
+      "when": {
+        "any": [
+          {
+            "role": "health_issuer"
+          },
+          {
+            "role": "holder"
+          }
+        ]
+      }
+    },
+    {
+      "grant": [
+        "issue_trusted_traveler"
+      ],
+      "when": {
+        "any": [
+          {
+            "role": "travel_issuer"
+          }
+        ]
+      }
+    },
+    {
+      "grant": [
+        "verify_identity"
+      ],
+      "when": {
+        "any": [
+          {
+            "role": "health_issuer"
+          },
+          {
+            "role": "travel_issuer"
+          },
+          {
+            "role": "health_verifier"
+          },
+          {
+            "role": "travel_verifier"
+          },
+          {
+            "role": "hospitality_verifier"
+          }
+        ]
+      }
+    },
+    {
+      "grant": [
+        "verify_lab_order"
+      ],
+      "when": {
+        "any": [
+          {
+            "role": "health_verifier"
+          }
+        ]
+      }
+    },
+    {
+      "grant": [
+        "verify_lab_result"
+      ],
+      "when": {
+        "any": [
+          {
+            "role": "health_verifier"
+          }
+        ]
+      }
+    },
+    {
+      "grant": [
+        "verify_vaccine"
+      ],
+      "when": {
+        "any": [
+          {
+            "role": "health_verifier"
+          }
+        ]
+      }
+    },
+    {
+      "grant": [
+        "verify_vaccine_exemption"
+      ],
+      "when": {
+        "any": [
+          {
+            "role": "health_verifier"
+          }
+        ]
+      }
+    },
+    {
+      "grant": [
+        "verify_trusted_traveler"
+      ],
+      "when": {
+        "any": [
+          {
+            "role": "travel_verifier"
+          },
+          {
+            "role": "hospitality_verifier"
+          }
+        ]
+      }
+    }
   ]
 }

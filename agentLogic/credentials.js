@@ -146,30 +146,29 @@ const autoIssueCredential = async (
 ) => {
   try {
     // Perform Validations
+    // if (schemaName === 'Lab_Result') {
+    //   let found = false
+    //   const searchCredentials = await getCredentialsByConnectionId(connectionID)
 
-    if (schemaName === 'Lab_Result') {
-      let found = false
-      const searchCredentials = await getCredentialsByConnectionId(connectionID)
-
-      for (i = 0; i < searchCredentials.length; i++) {
-        if (searchCredentials[i].dataValues.connection_id === connectionID) {
-          if (
-            searchCredentials[i].dataValues.schema_id ===
-            process.env.SCHEMA_LAB_ORDER         
-          ) {
-            found = true
-          }
-        }
-      }
-      if (found) {
-        console.log('Validation Succeeded: Pre-requisite credential found')
-      } else {
-        throw new ControllerError(
-          9,
-          'Validation Failed: Pre-requisite credential missing',
-        )
-      }
-    }
+    //   for (i = 0; i < searchCredentials.length; i++) {
+    //     if (searchCredentials[i].dataValues.connection_id === connectionID) {
+    //       if (
+    //         searchCredentials[i].dataValues.schema_id ===
+    //         process.env.SCHEMA_LAB_ORDER
+    //       ) {
+    //         found = true
+    //       }
+    //     }
+    //   }
+    //   if (found) {
+    //     console.log('Validation Succeeded: Pre-requisite credential found')
+    //   } else {
+    //     throw new ControllerError(
+    //       9,
+    //       'Validation Failed: Pre-requisite credential missing',
+    //     )
+    //   }
+    // }
 
     // Validate Connection
     const connection = await Contacts.fetchConnection(connectionID)

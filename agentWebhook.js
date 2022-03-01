@@ -6,11 +6,10 @@ const router = express.Router()
 const Contacts = require('./agentLogic/contacts.js')
 const Credentials = require('./agentLogic/credentials.js')
 const Demographics = require('./agentLogic/demographics.js')
-
 var ExternalRecords = null
-const Passports = require('./agentLogic/passports.js')
 const BasicMessages = require('./agentLogic/basicMessages.js')
 const Presentations = require('./agentLogic/presentations.js')
+const QuestionAnswer = require('./agentLogic/questionAnswer')
 
 router.post('/topic/connections', async (req, res, next) => {
   console.log('Aries Cloud Agent Webhook Message----Connection------')
@@ -20,10 +19,6 @@ router.post('/topic/connections', async (req, res, next) => {
   console.log(connectionMessage)
 
   res.status(200).send('Ok')
-
-  // (eldersonar) Send a proof request to the established connection
-  if (connectionMessage.state === "active")
-    Presentations.requestIdentityPresentation(connectionMessage.connection_id)
 
   await Contacts.adminMessage(connectionMessage)
 })
@@ -46,6 +41,13 @@ router.post('/topic/present_proof', async (req, res, next) => {
   console.log('Presentation Details:')
   const presMessage = req.body
   console.log(presMessage)
+
+  // (AmmonBurgi) Store the presentation on the opening state. Update the presentation on the other states.
+  if (presMessage.state === 'request_sent') {
+    await Presentations.createPresentationReports(presMessage)
+  } else {
+    await Presentations.updatePresentationReports(presMessage)
+  }
 
   res.status(200).send('Ok')
   await Presentations.adminMessage(presMessage)
@@ -71,56 +73,55 @@ router.post('/topic/data-transfer', async (req, res, next) => {
   res.status(200).send('Ok')
 })
 
-router.post('/topic/data-transfer/:goalCode', async (req, res, next) => {
-  console.log(
-    'Aries Cloud Agent Webhook Message----Data Transfer goalCode------',
-  )
+// (mikekebert) Not used
+// router.post('/topic/data-transfer/:goalCode', async (req, res, next) => {
+//   console.log(
+//     'Aries Cloud Agent Webhook Message----Data Transfer goalCode------',
+//   )
 
-  console.log('Message Details:', req.params.goalCode)
-  if (req.params.goalCode === 'transfer.demographicdata') {
-    let connection_id = req.body.connection_id
-    let data = req.body.data[0].data.json
+//   console.log('Message Details:', req.params.goalCode)
+//   if (req.params.goalCode === 'transfer.demographicdata') {
+//     let connection_id = req.body.connection_id
+//     let data = req.body.data[0].data.json
 
-    let contact = await Contacts.getContactByConnection(connection_id, [])
+//     let contact = await Contacts.getContactByConnection(connection_id, [])
 
-    await Demographics.updateOrCreateDemographic(
-      contact.contact_id,
-      data.email,
-      data.phone,
-      data.address,
-    )
+//     await Demographics.updateOrCreateDemographic(
+//       contact.contact_id,
+//       data.patient_surnames,
+//       data.patient_given_names,
+//       data.patient_date_of_birth,
+//       data.patient_gender_legal,
+//       data.patient_street_address,
+//       data.patient_city,
+//       data.patient_state_province_region,
+//       data.patient_postalcode,
+//       data.patient_country,
+//       data.patient_phone,
+//       data.patient_email,
+//       data.medical_release_id,
+//     )
 
-    // Issue External Records if needed
-    ExternalRecords.internalContactUpdate(contact.contact_id)
-  } else if (req.params.goalCode === 'transfer.passportdata') {
-    let connection_id = req.body.connection_id
-    let data = req.body.data[0].data.json
+//     // Issue External Records if needed
+//     ExternalRecords.internalContactUpdate(contact.contact_id)
+//   } else {
+//   }
 
-    let contact = await Contacts.getContactByConnection(connection_id, [])
+//   res.status(200).send('Ok')
+// })
 
-    await Passports.updateOrCreatePassport(
-      contact.contact_id,
-      data.passport_number,
-      data.surname,
-      data.given_names,
-      data.sex,
-      data.date_of_birth,
-      data.place_of_birth,
-      data.nationality,
-      data.date_of_issue,
-      data.date_of_expiration,
-      data.type,
-      data.code,
-      data.authority,
-      data.photo,
-    )
+router.post('/topic/questionanswer', async (req, res, next) => {
+  console.log('Aries Cloud Agent Webhook Message----Q&A Answer------')
 
-    // Issue External Records if needed
-    ExternalRecords.internalContactUpdate(contact.contact_id)
-  } else {
-  }
+  console.log('Message Details:')
+  const answer = req.body
+  console.log(answer)
 
   res.status(200).send('Ok')
+
+  if (answer.state === 'answered') {
+    await QuestionAnswer.adminMessage(answer)
+  }
 })
 
 module.exports = router

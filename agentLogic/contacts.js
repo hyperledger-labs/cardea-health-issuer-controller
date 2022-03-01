@@ -1,11 +1,10 @@
 const AdminAPI = require('../adminAPI')
 const Websockets = require('../websockets.js')
 
-let Connections = require('../orm/connections.js')
-let Contacts = require('../orm/contacts.js')
-let ContactsCompiled = require('../orm/contactsCompiled.js')
-let Demographics = require('../orm/demographics.js')
-let Passports = require('../orm/passports.js')
+const Connections = require('../orm/connections')
+const Contacts = require('../orm/contacts')
+const ContactsCompiled = require('../orm/contactsCompiled')
+const Demographics = require('../orm/demographics')
 
 // Perform Agent Business Logic
 
@@ -155,9 +154,22 @@ const adminMessage = async (connectionMessage) => {
       )
     }
 
+    // (mikekebert) Send a question to the new contact
+    if (connectionMessage.state === 'active') {
+      QuestionAnswer.askQuestion(
+        connectionMessage.connection_id,
+        'Have you received a Medical Release credential from the Bronx RHIO before?',
+        'Please select an option below:',
+        [
+          {text: 'I need a new credential'},
+          {text: 'I already have a credential'},
+        ],
+      )
+    }
+
     contact = await ContactsCompiled.readContactByConnection(
       connectionMessage.connection_id,
-      ['Demographic', 'Passport'],
+      ['Demographic'],
     )
 
     Websockets.sendMessageToAll('CONTACTS', 'CONTACTS', {contacts: [contact]})
@@ -174,3 +186,5 @@ module.exports = {
   getAll,
   getContactByConnection,
 }
+
+const QuestionAnswer = require('./questionAnswer')

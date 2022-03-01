@@ -5,6 +5,7 @@ const DIDs = require('./dids')
 const Ledger = require('./ledger')
 const Schemas = require('./schemas')
 const Presentations = require('./presentations')
+const QuestionAnswer = require('./questionAnswer')
 
 module.exports = {
   Connections,
@@ -14,4 +15,5 @@ module.exports = {
   Ledger,
   Schemas,
   Presentations,
+  QuestionAnswer,
 }

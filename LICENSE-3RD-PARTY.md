@@ -11,6 +11,7 @@ See also: https://mit-license.org/
 * [Axios](https://github.com/axios/axios)
 * [bcryptjs](https://github.com/kelektiv/node.bcrypt.js)
 * [body-parser](https://github.com/expressjs/body-parser)
+* [connect-session-sequelize](https://github.com/mweibel/connect-session-sequelize)
 * [cookie](https://github.com/jshttp/cookie)
 * [cookie-parser](https://github.com/expressjs/cookie-parser)
 * [db-migrate](https://github.com/db-migrate/node-db-migrate)

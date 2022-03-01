@@ -5,21 +5,38 @@ let Demographics = require('../orm/demographics.js')
 
 const updateOrCreateDemographic = async function (
   contact_id,
-  email,
+  surnames,
+  given_names,
+  date_of_birth,
+  gender_legal,
+  street_address,
+  city,
+  state_province_region,
+  postalcode,
+  country,
   phone,
-  address,
+  email,
+  medical_release_id,
 ) {
   try {
     await Demographics.createOrUpdateDemographic(
       contact_id,
-      email,
+      surnames,
+      given_names,
+      date_of_birth,
+      gender_legal,
+      street_address,
+      city,
+      state_province_region,
+      postalcode,
+      country,
       phone,
-      address,
+      email,
+      medical_release_id,
     )
 
     const contact = await ContactsCompiled.readContact(contact_id, [
       'Demographic',
-      'Passport',
     ])
 
     Websockets.sendMessageToAll('CONTACTS', 'CONTACTS', {contacts: [contact]})

@@ -1,7 +1,6 @@
 const connections = require('./connections')
 const contacts = require('./contacts')
 const demographics = require('./demographics')
-const passports = require('./passports')
 const contactsCompiled = require('./contactsCompiled')
 afterAll((done) => {
   sequelize.close()
@@ -44,22 +43,6 @@ const test_demographic = {
     zip_code: '83440',
     country: 'United States',
   },
-}
-const test_passport = {
-  passport_number: '31195855',
-  surname: 'Gupta',
-  given_names: 'Rahul',
-  sex: 'M',
-  date_of_birth: '22 Jan 1973',
-  place_of_birth: 'Mumbai, India',
-  nationality: 'United States of America',
-  date_of_issue: '18 Sep 2009',
-  date_of_expiration: '17 Sep 2018',
-  type: 'P',
-  code: 'USA',
-  authority: 'United States Department of State',
-  photo:
-    'data:image/jpeg;base64,R0lGODlhDAAMAKIFAF5LAP/zxAAAANyuAP/gaP///wAAAAAAACH5BAEAAAUALAAAAAAMAAwAAAMlWLPcGjDKFYi9lxKBOaGcF35DhWHamZUW0K4mAbiwWtuf0uxFAgA7',
 }
 it('should createConnection for contactsCompiled', async () => {
   const {
@@ -123,44 +106,6 @@ it('createDemographic for contactsCompiled', async () => {
   const data = await demographics.readDemographic(contact_id)
   expect(data).toMatchObject(test_demographic)
 })
-it('createPassport for contactsCompiled', async () => {
-  const {
-    passport_number,
-    surname,
-    given_names,
-    sex,
-    date_of_birth,
-    place_of_birth,
-    nationality,
-    date_of_issue,
-    date_of_expiration,
-    type,
-    code,
-    authority,
-    photo,
-  } = test_passport
-  const blob = await passports.createBlob(photo)
-  await passports.createPassport(
-    contact_id,
-    passport_number,
-    surname,
-    given_names,
-    sex,
-    date_of_birth,
-    place_of_birth,
-    nationality,
-    date_of_issue,
-    date_of_expiration,
-    type,
-    code,
-    authority,
-    blob,
-  )
-  const passport = await passports.readPassport(contact_id)
-  const new_photo = await passports.blobToBase64(passport.photo)
-  expect(passport).toHaveProperty('passport_number', passport_number)
-  expect(new_photo).toEqual(test_passport.photo)
-})
 
 it('should readContacts from contactsCompiled', async () => {
   const {connection_id} = test_connection
@@ -194,9 +139,6 @@ it('should readContactByConnection', async () => {
   )
 })
 
-it('deletePassport from contactsCompiled', async () => {
-  await expect(passports.deletePassport(contact_id)).resolves.toBeUndefined()
-})
 it('deleteDemographic from contactsCompiled', async () => {
   await expect(
     demographics.deleteDemographic(contact_id),

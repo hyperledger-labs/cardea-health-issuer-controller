@@ -1,5 +1,5 @@
 {
-  "name": "cardea-health-enterprise-agent-controller",
+  "name": "bronx-rhio-health-issuer-controller",
   "version": "0.1.0",
   "private": true,
   "license": "Apache-2.0",
@@ -7,6 +7,7 @@
     "axios": "^0.20.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
+    "connect-session-sequelize": "^7.1.2",
     "cookie": "^0.4.1",
     "cookie-parser": "^1.4.5",
     "db-migrate": "^0.11.11",
@@ -41,6 +42,7 @@
     "style-check": "prettier --check '**/*.js'",
     "style-format": "prettier --write '**/*.js'",
     "dev": "nodemon index.js",
+    "start": "node index.js",
     "first-time-setup": "node ./scripts/firstTimeSetup.js",
     "test": "jest"
   },

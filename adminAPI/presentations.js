@@ -118,7 +118,6 @@ const requestProof = async (
   }
 }
 
-
 module.exports = {
   requestPresentation,
   requestProof,
