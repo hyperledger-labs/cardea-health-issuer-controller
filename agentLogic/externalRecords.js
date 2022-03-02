@@ -243,9 +243,9 @@ const issueCredential = async (cid, externalRecordId, schemaId, data) => {
 
           var cred = await Credentials.autoIssueCredential(
             connection.connection_id,
-            undefined, 
-            undefined, 
-            schemaId, 
+            undefined,
+            undefined,
+            schemaId,
             schemaId.split(':')[3],
             schemaId.split(':')[2],
             schemaId.split(':')[0],
@@ -295,8 +295,12 @@ const issueCredential = async (cid, externalRecordId, schemaId, data) => {
   }
 }
 
-const internalContactUpdateSchema = async (contact, contact_id, cid, schema) => {
-
+const internalContactUpdateSchema = async (
+  contact,
+  contact_id,
+  cid,
+  schema,
+) => {
   // Subscribe to future records
   await recordsSubscribe(cid, schema['schema_id'], null, null)
 
@@ -304,32 +308,31 @@ const internalContactUpdateSchema = async (contact, contact_id, cid, schema) => 
   var record_results = await recordsRequest(cid, schema['schema_id'])
 
   if (record_results == null) {
-    logger.info({"msg": "No record_result!", contact_id: contact_id})
+    logger.info({msg: 'No record_result!', contact_id: contact_id})
     return
   }
 
   for (var j = 0; j < record_results.length; j++) {
-    var record_result = record_results[j];
+    var record_result = record_results[j]
 
     var connection = contact.Connections[0]
 
     var attributes = []
 
-    for (var i = 0; i < schema['attributes'].length ; i++)
-    {
-      var name = schema['attributes'][i];
+    for (var i = 0; i < schema['attributes'].length; i++) {
+      var name = schema['attributes'][i]
       attributes.push({
         name: name,
-        value: record_result['result_attributes'][name]
+        value: record_result['result_attributes'][name],
       })
     }
 
     try {
       var cred = await Credentials.autoIssueCredential(
         connection.connection_id,
-        undefined, 
-        undefined, 
-        schema['schema_id'], 
+        undefined,
+        undefined,
+        schema['schema_id'],
         schema['schema_id'].split(':')[3],
         schema['schema_id'].split(':')[2],
         schema['schema_id'].split(':')[0],
@@ -337,19 +340,25 @@ const internalContactUpdateSchema = async (contact, contact_id, cid, schema) => 
         attributes,
       )
 
-      var external_contact_credential = { 
-        'external_contact_id': cid,
-        'connection_id': connection.connection_id,
-        'external_record_id': record_result['result_attributes'][schema['record_id']],
-        'schema_id': schema['schema_id'],
-        'credential_exchange_id': cred.credential_definition_id,
+      var external_contact_credential = {
+        external_contact_id: cid,
+        connection_id: connection.connection_id,
+        external_record_id:
+          record_result['result_attributes'][schema['record_id']],
+        schema_id: schema['schema_id'],
+        credential_exchange_id: cred.credential_definition_id,
       }
 
-      await ExternalContactCredential.ExternalContactCredential.create(external_contact_credential);
-      
+      await ExternalContactCredential.ExternalContactCredential.create(
+        external_contact_credential,
+      )
     } catch (error) {
       // TODO something interesting with this error
-      logger.error({"msg": error, contact_id: contact_id, connection_id: connection.connection_id})
+      logger.error({
+        msg: error,
+        contact_id: contact_id,
+        connection_id: connection.connection_id,
+      })
     }
   }
 }
@@ -429,12 +438,14 @@ const internalContactUpdate = async (contact_id) => {
 
   var schema_keys = Object.keys(schemas)
 
-  for (var i = 0; i < schema_keys.length; i ++)
-  {
-    await internalContactUpdateSchema(contact, contact_id, cid, schemas[schema_keys[i]])
+  for (var i = 0; i < schema_keys.length; i++) {
+    await internalContactUpdateSchema(
+      contact,
+      contact_id,
+      cid,
+      schemas[schema_keys[i]],
+    )
   }
-
-
 }
 
 module.exports = {

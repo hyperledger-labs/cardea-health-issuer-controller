@@ -126,26 +126,6 @@ router.post('/topic/data-transfer/:goalCode', async (req, res, next) => {
   res.status(200).send('Ok')
 })
 
-router.post('/topic/oob-invitation/', async (req, res, next) => {
-  console.log(
-    'Aries Cloud Agent Webhook Message----Create Out-Of-Band Message------',
-  )
-
-  console.log('OOB Details:')
-  const OOBMessage = req.body
-  console.log(OOBMessage)
-
-  // const JSONInvitation = JSON.stringify(OOBMessage.invitation).trim()
-  // const encodedInvitation = base64url(JSONInvitation)
-  // const OOBInvitationURL = `${process.env.AGENT_TUNNEL_HOST}/ssi?oob=${encodedInvitation}`
-
-  // Websockets.sendMessageToAll('INVITATIONS', 'INVITATION', {
-  //   invitation_record: OOBInvitationURL,
-  // })
-
-  res.status(200).send('Ok')
-})
-
 module.exports = router
 
 ExternalRecords = require('./agentLogic/externalRecords.js')

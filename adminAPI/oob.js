@@ -1,7 +1,7 @@
 const sendAdminMessage = require('./transport')
 
 //Send an out-of-band message
-const createOutOfBand = async () => {
+const createOOBInvitation = async () => {
   try {
     console.log('Generate OOB Message:')
 
@@ -10,8 +10,11 @@ const createOutOfBand = async () => {
       '/out-of-band/create-invitation',
       {},
       {
+        //(AmmonBurgi) The Connections protocol and/or the DIDExchange protocol can be listed below. If both protocols are listed the order does matter.
+        handshake_protocols: [
+          'did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/connections/1.0',
+        ],
         use_public_did: false,
-        include_handshake: true,
       },
     )
 
@@ -22,7 +25,7 @@ const createOutOfBand = async () => {
   }
 }
 
-const acceptOutOfBandInvitation = async (invitation) => {
+const acceptOOBInvitation = async (invitation) => {
   try {
     console.log('Accepting out-of-band invitation.')
     let parsedInvitation = JSON.parse(invitation)
@@ -30,7 +33,9 @@ const acceptOutOfBandInvitation = async (invitation) => {
     const invitationMessage = await sendAdminMessage(
       'post',
       `/out-of-band/receive-invitation`,
-      {},
+      {
+        auto_accept: true,
+      },
       parsedInvitation,
     )
 
@@ -42,6 +47,6 @@ const acceptOutOfBandInvitation = async (invitation) => {
 }
 
 module.exports = {
-  createOutOfBand,
-  acceptOutOfBandInvitation,
+  createOOBInvitation,
+  acceptOOBInvitation,
 }

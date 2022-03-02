@@ -272,6 +272,49 @@ const messageHandler = async (ws, context, type, data = {}) => {
         }
         break
 
+      case 'INVITATIONS':
+        switch (type) {
+          case 'CREATE_SINGLE_USE':
+            if (check(rules, userCookieParsed, 'invitations:create')) {
+              var invitation
+              if (data.workflow) {
+                invitation = await Invitations.createPersistentSingleUseInvitation(
+                  data.workflow,
+                )
+              } else {
+                invitation = await Invitations.createSingleUseInvitation()
+              }
+              sendMessage(ws, 'INVITATIONS', 'INVITATION', {
+                invitation_record: invitation,
+              })
+            } else {
+              sendMessage(ws, 'INVITATIONS', 'INVITATIONS_ERROR', {
+                error: 'ERROR: You are not authorized to create invitations.',
+              })
+            }
+            break
+
+          case 'ACCEPT_INVITATION':
+            if (check(rules, userCookieParsed, 'invitations:accept')) {
+              let invitation = await Invitations.acceptInvitation(data)
+
+              // sendMessage(ws, 'INVITATIONS', 'INVITATION', {
+              //   invitation_record: invitation,
+              // })
+            } else {
+              sendMessage(ws, 'INVITATIONS', 'INVITATIONS_ERROR', {
+                error: 'ERROR: You are not authorized to accept invitations.',
+              })
+            }
+            break
+
+          default:
+            console.error(`Unrecognized Message Type: ${type}`)
+            sendErrorMessage(ws, 1, 'Unrecognized Message Type')
+            break
+        }
+        break
+
       case 'CONTACTS':
         switch (type) {
           case 'GET_ALL':
@@ -337,7 +380,7 @@ const messageHandler = async (ws, context, type, data = {}) => {
         switch (type) {
           case 'CREATE_INVITATION':
             if (check(rules, userCookieParsed, 'invitations:create')) {
-              let invitation = await Invitations.createOutOfBand()
+              let invitation = await Invitations.createOutOfBandInvitation()
 
               sendMessage(ws, 'OUT_OF_BAND', 'INVITATION', {
                 invitation_record: invitation,
@@ -357,6 +400,7 @@ const messageHandler = async (ws, context, type, data = {}) => {
                 error: 'ERROR: You are not authorized to accept invitations.',
               })
             }
+            break
 
           default:
             console.error(`Unrecognized Message Type: ${type}`)
