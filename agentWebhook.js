@@ -43,7 +43,7 @@ router.post('/topic/present_proof', async (req, res, next) => {
   console.log(presMessage)
 
   // (AmmonBurgi) Store the presentation on the opening state. Update the presentation on the other states.
-  if (presMessage.state === 'request_sent') {
+  if (presMessage.state === 'request_sent' || presMessage.state === 'request_received') {
     await Presentations.createPresentationReports(presMessage)
   } else {
     await Presentations.updatePresentationReports(presMessage)
