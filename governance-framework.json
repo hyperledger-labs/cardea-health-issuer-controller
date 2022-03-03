@@ -2,11 +2,11 @@
   "@context": [
     "https://github.com/hyperledger/aries-rfcs/blob/main/concepts/0430-machine-readable-governance-frameworks/context.jsonld"
   ],
-  "name": "Aruba COVID Governance",
+  "name": "Cardea COVID Governance",
   "version": "0.1",
   "format": "1.0",
   "id": "<uuid>",
-  "description": "This document describes COVID health and travel governance for the nation of Aruba in a machine readable way.",
+  "description": "This document describes COVID health and travel governance in a machine readable way.",
   "last_updated": "2021-06-10",
   "docs_uri": "need_to_create",
   "data_uri": "need_to_create",
@@ -60,21 +60,21 @@
   ],
   "participants": [
     {
-      "name": "Aruba Government",
-      "id": "J1pp5Ro5Xf6qtF281xknFs",
+      "name": "Government of <your country here>",
+      "id": "F3qZ8YSpgXLdLqcEC6GSFi",
       "describe": {
-        "label": "Aruba",
-        "sublabel": "Aruba Government",
+        "label": "<your country here>",
+        "sublabel": "Government of <your country here>",
         "website": "issuinggovernmentsite.org",
         "email": "credential_manager@issuinggovernmentsite.org"
       }
     },
     {
-      "name": "General Obeorthot Hospital of Aruba",
-      "id": "CD8bhSTAYPtPQD7Nvvnp6B",
+      "name": "General Obeorthot Hospital of <your country here>",
+      "id": "FE9ge78jQSzYU4YrKuKzUG",
       "describe": {
         "label": "Obeorthot Hospital",
-        "sublabel": "General Obeorthot Hospital of Aruba",
+        "sublabel": "General Obeorthot Hospital of <your country here>",
         "website": "issuinglabsite.com",
         "email": "credential_manager@issuinglabsite.com"
       }
@@ -104,7 +104,7 @@
       "when": {
         "any": [
           {"id": "did:example:hospital"},
-          {"id": "CD8bhSTAYPtPQD7Nvvnp6B"}
+          {"id": "FE9ge78jQSzYU4YrKuKzUG"}
         ]
       }
     },
@@ -112,7 +112,7 @@
       "grant": ["travel_issuer"],
       "when": {
         "any": [
-          {"id": "J1pp5Ro5Xf6qtF281xknFs"}
+          {"id": "F3qZ8YSpgXLdLqcEC6GSFi"}
         ]
       }
     },
@@ -120,7 +120,7 @@
       "grant": ["health_verifier"],
       "when": {
         "any": [
-          {"id": "J1pp5Ro5Xf6qtF281xknFs"}
+          {"id": "F3qZ8YSpgXLdLqcEC6GSFi"}
         ]
       }
     },
@@ -128,7 +128,7 @@
       "grant": ["travel_verifier"],
       "when": {
         "any": [
-          {"id": "J1pp5Ro5Xf6qtF281xknFs"}
+          {"id": "F3qZ8YSpgXLdLqcEC6GSFi"}
         ]
       }
     },
@@ -396,6 +396,315 @@
           {
             "role": "hospitality_verifier"
           }
+        ]
+      }
+    }
+  ],
+  "command_drive": [
+    {
+      "name": "connect-holder-health-issuer",
+      "role": [
+        "health_issuer"
+      ],
+      "initial": true,
+      "type": "protocol",
+      "data": {
+        "protocol": "https://didcomm.org/connections/1.0/",
+        "startmessage": "invitation"
+      },
+      "next": {
+        "success": "ask-demographics",
+        "error": "some-kind-of-error-handler..."
+      }
+    },
+    {
+      "name": "ask-demographics",
+      "role": [
+        "health_issuer"
+      ],
+      "type": "protocol",
+      "data": {
+        "protocol": "https://didcomm.org/questionAnswer/1.0/",
+        "startmessage": "question",
+        "question_answer": [
+          {
+            "question": "Have you received a Medical Release credential from the <your lab participant name here> before?"
+          },
+          {
+            "question_detail": "Please select an option below:"
+          },
+          {
+            "valid_responses": [
+              {
+                "text": "I need a new credential"
+              },
+              {
+                "text": "I already have a credential"
+              }
+            ]
+          }
+        ]
+      },
+      "next": {
+        "success": "decision-medical-release-option",
+        "error": "some-kind-of-error-handler..."
+      }
+    },
+    {
+      "name": "decision-medical-release-option",
+      "role": [
+        "health_issuer"
+      ],
+      "type": "decision",
+      "data": {
+        "input_name": "medical_release_option",
+        "options": [
+          {
+            "values": [
+              "I need a new credential"
+            ],
+            "next": "request-identity-presentation"
+          },
+          {
+            "values": [
+              "I already have a credential"
+            ],
+            "next": "request-presentation"
+          }
+        ]
+      },
+      "next": {
+        "success": "default",
+        "error": "some-kind-of-error-handler..."
+      }
+    },
+    {
+      "name": "request-identity-presentation",
+      "role": [
+        "health_issuer"
+      ],
+      "type": "protocol",
+      "data": {
+        "protocol": "https://didcomm.org/present-proof/1.0/",
+        "startmessage": ["request-presentation"]
+      },
+      "next": {
+        "success": "decision-country-of-origin",
+        "error": "some-kind-of-error-handler..."
+      }
+    },
+    {
+      "name": "request-presentation",
+      "role": [
+        "health_issuer"
+      ],
+      "type": "protocol",
+      "data": {
+        "protocol": "https://didcomm.org/present-proof/1.0/",
+        "startmessage": ["request-presentation"]
+      },
+      "next": {
+        "success": "decision-country-of-origin",
+        "error": "some-kind-of-error-handler..."
+      }
+    },
+    {
+      "name": "decision-country-of-origin",
+      "role": [
+        "health_issuer"
+      ],
+      "type": "decision",
+      "data": {
+        "input_name": "country_of_origin",
+        "options": [
+          {
+            "values": [
+            ],
+            "next": "reject-country"
+          },
+          {
+            "values": [
+            ],
+            "next": "select-health-credentials"
+          }
+        ]
+      },
+      "next": {
+        "success": "select-health-credentials",
+        "error": "some-kind-of-error-handler..."
+      }
+    },
+    {
+      "name": "select-health-credentials",
+      "role": [
+        "health_issuer"
+      ],
+      "type": "decision",
+      "data": {
+        "input_name": "requested_health_credential",
+        "options": [
+          {
+            "values": [
+              "lab_result"
+            ],
+            "next": "validate-lab-result"
+          },
+          {
+            "values": [
+              "exemption"
+            ],
+            "next": "validate-exemption"
+          },
+          {
+            "values": [
+              "vaccination"
+            ],
+            "next": "validate-vaccination"
+          }
+        ]
+      },
+      "next": {
+        "success": "lab_result",
+        "error": "some-kind-of-error-handler..."
+      }
+    },
+    {
+      "name": "issue-lab-result",
+      "role": [
+        "health_issuer"
+      ],
+      "type": "protocol",
+      "data": {
+        "schema": "RuuJwd3JMffNwZ43DcJKN1:2:Lab_Result:1.4",
+        "protocol": "https://didcomm.org/issue-credential/1.0/",
+        "startmessage": "offer-credential"
+      },
+      "next": {
+        "success": "request-health-proof",
+        "error": "some-kind-of-error-handler..."
+      }
+    },
+    {
+      "name": "issue-exemption",
+      "role": [
+        "health_issuer"
+      ],
+      "type": "protocol",
+      "data": {
+        "schema": "RuuJwd3JMffNwZ43DcJKN1:2:Exemption:1.4",
+        "protocol": "https://didcomm.org/issue-credential/1.0/",
+        "startmessage": "offer-credential"
+      },
+      "next": {
+        "success": "request-health-proof",
+        "error": "some-kind-of-error-handler..."
+      }
+    },
+    {
+      "name": "issue-vaccination",
+      "role": [
+        "health_issuer"
+      ],
+      "type": "protocol",
+      "data": {
+        "schema": "RuuJwd3JMffNwZ43DcJKN1:2:Vaccination:1.4",
+        "protocol": "https://didcomm.org/issue-credential/1.0/",
+        "startmessage": "offer-credential"
+      },
+      "next": {
+        "success": "request-health-proof",
+        "error": "some-kind-of-error-handler..."
+      }
+    },
+    {
+      "name": "request-health-proof",
+      "role": [
+        "travel_issuer"
+      ],
+      "initial": true,
+      "type": "protocol",
+      "data": {
+        "protocol": "https://didcomm.org/issue-credential/1.0/",
+        "startmessage": "request-presentation",
+        "presentation_definition": "http://localhost:3100/api/presentation-exchange"
+      },
+      "next": {
+        "success": "verify-health-credential",
+        "error": "some-kind-of-error-handler..."
+      }
+    },
+    {
+      "name": "verify-health-credential",
+      "role": [
+        "travel_issuer"
+      ],
+      "type": "protocol",
+      "data": {
+        "protocol": "https://didcomm.org/present-proof/1.0/",
+        "startmessage": "request-presentation",
+        "presentation_definition": "http://localhost:3100/api/presentation-exchange"
+      },
+      "next": {
+        "success": "validate-health-credential",
+        "error": "some-kind-of-error-handler..."
+      }
+    },
+    {
+      "name": "validate-health-credential",
+      "role": [
+        "travel_issuer"
+      ],
+      "type": "protocol",
+      "data": {
+        "presentation_definition": "http://localhost:3100/api/presentation-exchange"
+      },
+      "next": {
+        "success": "issue-trusted-traveler",
+        "error": "some-kind-of-error-handler..."
+      }
+    },
+    {
+      "name": "issue-trusted-traveler",
+      "role": [
+        "travel_issuer"
+      ],
+      "initial": true,
+      "type": "protocol",
+      "data": {
+        "protocol": "https://didcomm.org/issue-credential/1.0/",
+        "startmessage": "offer-credential",
+        "schema": "RuuJwd3JMffNwZ43DcJKN1:2:Trusted_Traveler:1.4"
+      }
+    },
+    {
+      "name": "reject-country",
+      "role": [
+        "travel-issuer"
+      ],
+      "type": "protocol",
+      "data": {
+        "protocol": "https://didcomm.org/basic-message/1.0/",
+        "startmessage": "send-message",
+        "content": "We're sorry, your country is not approved for entry by the government of <your country here>"
+      }
+    },
+    {
+      "name": "submit-payment",
+      "role": [
+        "point-of-sale"
+      ],
+      "type": "api",
+      "data": {
+        "api": "https://paymentmagic.com",
+        "method": "POST",
+        "attributes": [
+          "customer_name",
+          "customer_date_of_birth",
+          "customer_billing_address",
+          "customer_shipping_address",
+          "credit_card_number",
+          "credit_card_expiration",
+          "credit_card_security_code"
         ]
       }
     }
