@@ -10,7 +10,7 @@ const cookieParser = require('cookie-parser')
 
 let userRoles = []
 
-wss = new WebSocket.Server({ server: server, path: '/api/ws' })
+wss = new WebSocket.Server({server: server, path: '/api/ws'})
 console.log('Websockets Setup')
 
 // Send a message to all connected clients
@@ -21,7 +21,7 @@ const sendMessageToAll = (context, type, data = {}) => {
     wss.clients.forEach(function each(client) {
       if (client.readyState === WebSocket.OPEN) {
         console.log('Sending Message to Client')
-        client.send(JSON.stringify({ context, type, data }))
+        client.send(JSON.stringify({context, type, data}))
       } else {
         console.log('Client Not Ready')
       }
@@ -83,7 +83,7 @@ wss.on('connection', async (ws, req) => {
     userBySession.dataValues.Roles.forEach((element) =>
       userRoles.push(element.role_name),
     )
-  } catch (error) { }
+  } catch (error) {}
 
   ws.on('message', async (message) => {
     const clientOrigin = req.headers.origin
@@ -150,7 +150,7 @@ wss.on('connection', async (ws, req) => {
 const sendMessage = (ws, context, type, data = {}) => {
   console.log(`Sending Message to websocket client of type: ${type}`)
   try {
-    ws.send(JSON.stringify({ context, type, data }))
+    ws.send(JSON.stringify({context, type, data}))
   } catch (error) {
     console.error(error)
     throw error
@@ -162,7 +162,7 @@ const sendErrorMessage = (ws, errorCode, errorReason) => {
   try {
     console.log('Sending Error Message')
 
-    sendMessage(ws, 'ERROR', 'SERVER_ERROR', { errorCode, errorReason })
+    sendMessage(ws, 'ERROR', 'SERVER_ERROR', {errorCode, errorReason})
   } catch (error) {
     console.error('Error Sending Error Message to Client')
     console.error(error)
@@ -179,7 +179,7 @@ const messageHandler = async (ws, context, type, data = {}) => {
           case 'GET_ALL':
             if (check(rules, userRoles, 'users:read')) {
               const users = await Users.getAll()
-              sendMessage(ws, 'USERS', 'USERS', { users })
+              sendMessage(ws, 'USERS', 'USERS', {users})
             } else {
               sendMessage(ws, 'USERS', 'USER_ERROR', {
                 error: 'ERROR: You are not authorized to fetch users.',
@@ -189,17 +189,17 @@ const messageHandler = async (ws, context, type, data = {}) => {
 
           case 'GET':
             const user = await Users.getUser(data.user_id)
-            sendMessage(ws, 'USERS', 'USERS', { users: [user] })
+            sendMessage(ws, 'USERS', 'USERS', {users: [user]})
             break
 
           case 'GET_USER_BY_TOKEN':
             const userByToken = await Users.getUserByToken(data)
-            sendMessage(ws, 'USERS', 'USER', { user: [userByToken] })
+            sendMessage(ws, 'USERS', 'USER', {user: [userByToken]})
             break
 
           case 'GET_USER_BY_EMAIL':
             const userByEmail = await Users.getUserByEmail(data)
-            sendMessage(ws, 'USERS', 'USER', { user: [userByEmail] })
+            sendMessage(ws, 'USERS', 'USER', {user: [userByEmail]})
             break
 
           case 'CREATE':
@@ -322,7 +322,7 @@ const messageHandler = async (ws, context, type, data = {}) => {
           case 'GET_ALL':
             if (check(rules, userRoles, 'roles:read')) {
               const roles = await Roles.getAll()
-              sendMessage(ws, 'ROLES', 'ROLES', { roles })
+              sendMessage(ws, 'ROLES', 'ROLES', {roles})
             } else {
               sendMessage(ws, 'USERS', 'USER_ERROR', {
                 error: 'ERROR: You are not authorized to fetch roles.',
@@ -332,7 +332,7 @@ const messageHandler = async (ws, context, type, data = {}) => {
 
           case 'GET':
             const role = await Roles.getRole(data.role_id)
-            sendMessage(ws, 'ROLES', 'ROLES', { roles: [role] })
+            sendMessage(ws, 'ROLES', 'ROLES', {roles: [role]})
             break
 
           default:
@@ -390,7 +390,7 @@ const messageHandler = async (ws, context, type, data = {}) => {
           case 'GET_ALL':
             if (check(rules, userRoles, 'contacts:read')) {
               const contacts = await Contacts.getAll(data.additional_tables)
-              sendMessage(ws, 'CONTACTS', 'CONTACTS', { contacts })
+              sendMessage(ws, 'CONTACTS', 'CONTACTS', {contacts})
             } else {
               sendMessage(ws, 'CONTACTS', 'CONTACTS_ERROR', {
                 error: 'ERROR: You are not authorized to fetch contacts.',
@@ -403,7 +403,7 @@ const messageHandler = async (ws, context, type, data = {}) => {
               data.contact_id,
               data.additional_tables,
             )
-            sendMessage(ws, 'CONTACTS', 'CONTACTS', { contacts: [contact] })
+            sendMessage(ws, 'CONTACTS', 'CONTACTS', {contacts: [contact]})
             break
 
           default:
