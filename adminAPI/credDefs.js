@@ -62,12 +62,23 @@ const createCredDef = async (
   try {
     console.log('Creating Credential Definition')
 
-    const credDefID = await sendAdminMessage(
-      'post',
-      `/credential-definitions`,
-      {},
-      {tag, schema_id}, // revocation_registry_size, support_revocation
-    )
+    let credDefID = ''
+
+    if (support_revocation && revocation_registry_size) {
+      credDefID = await sendAdminMessage(
+        'post',
+        `/credential-definitions`,
+        {},
+        {tag, schema_id, revocation_registry_size, support_revocation},
+      )
+    } else {
+      credDefID = await sendAdminMessage(
+        'post',
+        `/credential-definitions`,
+        {},
+        {tag, schema_id}, //, revocation_registry_size, support_revocation
+      )
+    }
 
     return credDefID.credential_definition_id
   } catch (error) {

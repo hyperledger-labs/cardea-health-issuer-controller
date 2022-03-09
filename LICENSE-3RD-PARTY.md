@@ -9,8 +9,10 @@ This software project includes the following third-party or open-source tools, c
 See also: https://mit-license.org/
 
 * [Axios](https://github.com/axios/axios)
+* [base64url](https://github.com/brianloveswords/base64url)
 * [bcryptjs](https://github.com/kelektiv/node.bcrypt.js)
 * [body-parser](https://github.com/expressjs/body-parser)
+* [connect-session-sequelize](https://github.com/mweibel/connect-session-sequelize)
 * [cookie](https://github.com/jshttp/cookie)
 * [cookie-parser](https://github.com/expressjs/cookie-parser)
 * [db-migrate](https://github.com/db-migrate/node-db-migrate)

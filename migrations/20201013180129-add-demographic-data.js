@@ -17,9 +17,18 @@ exports.setup = function (options, seedLink) {
 exports.up = function (db) {
   return db.createTable('demographic_data', {
     contact_id: {type: 'int', primaryKey: true, unique: true},
-    email: 'text',
+    surnames: 'text',
+    given_names: 'text',
+    date_of_birth: 'text',
+    gender_legal: 'text',
+    street_address: 'text',
+    city: 'text',
+    state_province_region: 'text',
+    postalcode: 'text',
+    country: 'text',
     phone: 'text',
-    address: 'json',
+    email: 'text',
+    medical_release_id: 'text',
     created_at: 'timestamptz',
     updated_at: 'timestamptz',
   })

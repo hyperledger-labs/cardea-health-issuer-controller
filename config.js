@@ -26,8 +26,8 @@ module.exports = {
       }),
     ],
   }),
-  'externalRecords': null,
-	/*
+  externalRecords: null,
+  /*
   'externalRecords': {
     'module': "enterprise-external-records-module",
     'moduleConf': {

@@ -1,9 +1,11 @@
-const check = (rules, user, actions) => {
+const check = (rules, userRoles, actions) => {
   // Get user roles
 
-  let roles = user.roles
+  if (!userRoles) {
+    return false
+  }
 
-  if (!user) return false
+  let roles = userRoles
 
   // Handle multiple roles by casting roles into array
   roles = roles instanceof Array ? roles : [roles]
