@@ -144,6 +144,8 @@ wss.on('connection', async (ws, req) => {
   ws.on('pong', (data) => {
     console.log('Pong')
   })
+
+  sendMessage(ws, 'SERVER', 'WEBSOCKET_READY')
 })
 
 // Send an outbound message to a websocket client
