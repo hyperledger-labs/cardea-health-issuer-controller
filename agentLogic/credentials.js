@@ -2,10 +2,15 @@ const ControllerError = require('../errors.js')
 
 const AdminAPI = require('../adminAPI')
 const Websockets = require('../websockets.js')
+
+const ConnectionStates = require('../agentLogic/connectionStates')
+
 const CredDefs = require('./credDefs.js')
 const Contacts = require('./contacts.js')
 const DIDs = require('./dids.js')
 const Schemas = require('./schemas.js')
+
+const ActionProcessor = require('../governance/actionProcessor')
 
 const Credentials = require('../orm/credentials.js')
 
@@ -119,6 +124,30 @@ const adminMessage = async (credentialIssuanceMessage) => {
         credentialIssuanceMessage.created_at,
         credentialIssuanceMessage.updated_at,
       )
+    }
+
+     // Go to the next step
+     if (credentialIssuanceMessage.state === 'credential_acked') {
+      // (eldersonar) First, get connection current state name by id
+      const currentState = await ConnectionStates.getConnectionStates(
+        credentialIssuanceMessage.connection_id,
+        'action',
+      )
+
+      // (eldersonar) Writing connection data to DB
+      await ConnectionStates.updateOrCreateConnectionState(
+        credentialIssuanceMessage.connection_id,
+        'action',
+        {
+          step_name: currentState.value.step_name,
+          data: {
+            credentialIssuanceMessageState: credentialIssuanceMessage.state,
+          },
+        },
+      )
+
+      // (eldersonar) Trigger next step in rules engine
+      ActionProcessor.actionComplete(credentialIssuanceMessage.connection_id)
     }
 
     if (credentialIssuanceMessage.role === 'issuer') {

@@ -13,6 +13,16 @@ let userRoles = []
 wss = new WebSocket.Server({server: server, path: '/api/ws'})
 console.log('Websockets Setup')
 
+const getGovernance = async () => {
+  try {
+    const governance = await Governance.getGovernance()
+
+    return governance
+  } catch (err) {
+    console.log(err)
+  }
+}
+
 // Send a message to all connected clients
 const sendMessageToAll = (context, type, data = {}) => {
   try {
@@ -352,7 +362,12 @@ const messageHandler = async (ws, context, type, data = {}) => {
                   data.workflow,
                 )
               } else {
-                invitation = await Invitations.createSingleUseInvitation()
+                // invitation = await Invitations.createSingleUseInvitation()
+                // (Eldersonar) Trigger the initial step
+                invitation = await ActionProcessor.actionStart(
+                  null,
+                  'connect-holder-health-issuer',
+                )
               }
               sendMessage(ws, 'INVITATIONS', 'INVITATION', {
                 invitation_record: invitation,
@@ -771,17 +786,38 @@ const messageHandler = async (ws, context, type, data = {}) => {
           case 'ISSUE_USING_SCHEMA':
             // TODO Kim process Test ID
             if (check(rules, userRoles, 'credentials:issue')) {
-              await Credentials.autoIssueCredential(
-                data.connectionID,
-                data.issuerDID,
-                data.credDefID,
-                data.schemaID,
-                data.schemaVersion,
-                data.schemaName,
-                data.schemaIssuerDID,
-                data.comment,
-                data.attributes,
-              )
+              const governance = await getGovernance()
+              let actionName = null
+
+              // (eldersonar) Get step name by schema ID
+              if (governance) {
+                console.log(governance)
+                for (i = 0; i < governance.actions.length; i++) {
+                  // Get the initial block for the proper role
+                  if (governance.actions[i].data.schema === data.schemaID) {
+                    actionName = governance.actions[i].name
+                  }
+                }
+
+                // (eldersonar) Update connection state
+                await ActionProcessor.updateConnectionState(
+                  data.connectionID,
+                  'action',
+                  actionName,
+                )
+
+                // (eldersonar) Update connnection data
+                await ActionProcessor.updateConnectionData(
+                  data.connectionID,
+                  'form_data',
+                  data,
+                )
+
+                // (eldersonar) Trigger next step in rules engine
+                ActionProcessor.actionStart(data.connectionID)
+              } else {
+                console.log('No governance for credential issuance flow')
+              }
             } else {
               sendMessage(ws, 'CREDENTIALS', 'CREDENTIALS_ERROR', {
                 error: 'ERROR: You are not authorized to issue credentials.',
@@ -901,6 +937,7 @@ module.exports = {
   sendMessageToAll,
 }
 
+const ActionProcessor = require('./governance/actionProcessor')
 const Invitations = require('./agentLogic/invitations')
 const Demographics = require('./agentLogic/demographics')
 const Contacts = require('./agentLogic/contacts')
