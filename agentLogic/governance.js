@@ -24,10 +24,7 @@ const getGovernance = async () => {
       // url: 'http://localhost:3100/api/governance-framework',
       url: `${process.env.GOVERNANCE_PATH}`,
       httpsAgent: agent,
-      // url: 'https://government.black.indiciotech.io/api/governance-framework'
     }).then((res) => {
-      console.log('......................................')
-      console.log(res.data)
       return res.data
     })
     return response
@@ -48,7 +45,7 @@ const getPresentationDefinition = async () => {
     const governance = await getGovernance()
 
     // Presentation definition file
-    const pdfLink = governance.actions.find(
+    const pdfLink = governance.protocols.find(
       (item) => item.name === 'issue_trusted_traveler',
     ).details.presentation_definition
 
@@ -284,11 +281,11 @@ const getActions = async () => {
       if (!governance || Object.keys(governance).length === 0) {
         console.log("the file is empty or doesn't exist")
         return {error: 'noGov'}
-      } else if (!governance.hasOwnProperty('actions')) {
+      } else if (!governance.hasOwnProperty('protocols')) {
         console.log('the are no actions')
         return {error: 'noActions'}
       } else {
-        return governance.actions
+        return governance.protocols
       }
     }
   } catch (error) {
