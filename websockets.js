@@ -183,6 +183,7 @@ const sendErrorMessage = (ws, errorCode, errorReason) => {
 const messageHandler = async (ws, context, type, data = {}) => {
   try {
     console.log(`New Message with context: '${context}' and type: '${type}'`)
+
     switch (context) {
       case 'USERS':
         switch (type) {
@@ -905,6 +906,34 @@ const messageHandler = async (ws, context, type, data = {}) => {
               }
             } else {
               sendMessage(ws, 'GOVERNANCE', 'PRIVILEGES_ERROR', {
+                error: 'ERROR: You are not authorized to create invitations.',
+              })
+            }
+            break
+
+          default:
+            console.error(`Unrecognized Message Type: ${type}`)
+            sendErrorMessage(ws, 1, 'Unrecognized Message Type')
+            break
+        }
+        break
+
+      case 'TEST_ATOMIC_FUNCTIONS':
+        switch (type) {
+          case 'SEND_BASIC_MESSAGE':
+            if (check(rules, userRoles, 'invitations:create')) {
+              // (Eldersonar) Trigger the initial step
+
+              await ActionProcessor.actionStart(
+                data.connection_id,
+                'send-basic-message',
+              )
+
+              // sendMessage(ws, 'INVITATIONS', 'INVITATION', {
+              //   invitation_record: invitation,
+              // })
+            } else {
+              sendMessage(ws, 'INVITATIONS', 'INVITATIONS_ERROR', {
                 error: 'ERROR: You are not authorized to create invitations.',
               })
             }

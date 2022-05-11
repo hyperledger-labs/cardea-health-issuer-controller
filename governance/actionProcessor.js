@@ -1,5 +1,6 @@
 const ConnectionsState = require('../agentLogic/connectionStates')
 const Governance = require('../agentLogic/governance')
+const AdminAPI = require('../adminAPI')
 const Util = require('../util')
 
 const updateConnectionState = async (connection_id, key, step_name, data) => {
@@ -103,6 +104,13 @@ const actionStart = async (connection_id, stepName) => {
 
       // TODO: switch to the protocol instead
       switch (step[0].data.protocol) {
+        case 'https://didcomm.org/basic-message/1.0/':
+          console.log('basic message from actionProcessor')
+          await AdminAPI.Connections.sendBasicMessage(connection_id, {
+            content: step[0].data.content,
+          })
+          break
+
         case 'https://didcomm.org/connections/1.0/':
           console.log('invitation')
           invitation = await AgentLogic.Invitations.createSingleUseInvitation()

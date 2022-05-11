@@ -56,7 +56,8 @@ app.use('/api/second-controller', (req, res) => {
 
 app.use(
   '/api/governance-framework',
-  express.static('governance-framework.json'),
+  // express.static('governance-framework.json'),
+  express.static('governance-framework-basic-message.json'),
 )
 
 // (eldersonar) Create database
