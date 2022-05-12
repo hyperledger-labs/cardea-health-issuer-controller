@@ -437,21 +437,37 @@
         }
       },
       {
-        "name": "send-basic-message",
-        "role": [
-          "health_issuer"
-        ],
-        "initial": true,
-        "type": "protocol",
-        "data": {
-          "protocol": "https://didcomm.org/basic-message/1.0/",
-          "startmessage": "basic-message",
-          "content": "Test message from basic message"
-        },
-        "next": {
-          "success": "ask-demographics",
-          "error": "some-kind-of-error-handler..."
-        }
+        "name": "ask-demographics",
+      "role": [
+        "health_issuer"
+      ],
+      "type": "protocol",
+      "data": {
+        "protocol": "https://didcomm.org/questionAnswer/1.0/",
+        "startmessage": "question",
+        "question_answer": [
+          {
+            "question": "Have you received a question from ask question button?"
+          },
+          {
+            "question_detail": "Please select an option below:"
+          },
+          {
+            "valid_responses": [
+              {
+                "text": "Yes"
+              },
+              {
+                "text": "No"
+              }
+            ]
+          }
+        ]
+      },
+      "next": {
+        "success": "decision-medical-release-option",
+        "error": "some-kind-of-error-handler..."
+      }
       }
     ]
   }

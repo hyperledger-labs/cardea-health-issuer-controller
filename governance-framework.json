@@ -863,7 +863,7 @@
       "data": {
         "protocol": "https://didcomm.org/basic-message/1.0/",
         "startmessage": "basic-message",
-        "content": "Test message from any protocol"
+        "content": "Test message from send basic message button"
       },
       "next": {
         "success": "ask-demographics",
