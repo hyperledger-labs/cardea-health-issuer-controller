@@ -1,5 +1,6 @@
 const axios = require('axios')
 const DIDs = require('../adminAPI/dids.js')
+const GovernanceFiles = require('../orm/governance')
 
 // (eldersonar) Set up the ssl check flag for testing if SSL cert is expired during live test
 // If not set, this code will use default settings for axios calls
@@ -23,8 +24,8 @@ const getGovernance = async () => {
       method: 'GET',
       // url: 'http://localhost:3100/api/governance-framework',
       url: `${process.env.GOVERNANCE_PATH}`,
+      // url: `${process.env.GOVERNANCE_PATH}`,
       httpsAgent: agent,
-      // url: 'https://government.black.indiciotech.io/api/governance-framework'
     }).then((res) => {
       console.log('......................................')
       console.log(res.data)
@@ -96,13 +97,13 @@ const getDID = async () => {
 const getParticipantByDID = async () => {
   try {
     const did = await getDID()
-    if (!did) return {error: 'noDID'}
+    if (!did) return { error: 'noDID' }
     else {
       const governance = await getGovernance()
 
       if (!governance || Object.keys(governance).length === 0) {
         console.log("the file is empty or doesn't exist")
-        return {error: 'noGov'}
+        return { error: 'noGov' }
       } else if (
         // (eldersonar) Are we still doing this???
 
@@ -116,7 +117,7 @@ const getParticipantByDID = async () => {
       ) {
         // (eldersonar) TODO: rename the return value
         console.log('the file is not empty, but lacks core data')
-        return {error: 'limitedGov'}
+        return { error: 'limitedGov' }
       } else {
         let participant = governance.participants.find((o) => o.id === did)
 
@@ -154,14 +155,14 @@ const getPrivilegesByRoles = async () => {
   try {
     const did = await getDID()
 
-    if (!did) return {error: 'noDID'}
+    if (!did) return { error: 'noDID' }
     else {
       const governance = await getGovernance()
 
       // (eldersonar) missing or empty governance
       if (!governance || Object.keys(governance).length === 0) {
         console.log("the file is empty or doesn't exist")
-        return {error: 'noGov'}
+        return { error: 'noGov' }
         // (eldersonar) partial governance
       } else if (
         // !governance.hasOwnProperty('participants') ||
@@ -172,14 +173,14 @@ const getPrivilegesByRoles = async () => {
       ) {
         console.log('the file is not empty, but lacks core data')
         // return { error: "limitedGov" }
-        return {error: 'noPrivileges'}
+        return { error: 'noPrivileges' }
         // (eldersonar) You have a pass
       } else {
         const permissions = await getPermissionsByDID()
 
         if (!permissions || permissions.length == 0)
           // return { error: 'noPermissions' }
-          return {error: 'noPrivileges'}
+          return { error: 'noPrivileges' }
         else {
           let privileges = []
 
@@ -197,7 +198,7 @@ const getPrivilegesByRoles = async () => {
           }
 
           if (!privileges || privileges.length == 0)
-            return {error: 'noPrivileges'}
+            return { error: 'noPrivileges' }
           else {
             const uniquePrivileges = [...new Set(privileges)]
 
@@ -217,14 +218,14 @@ const getActionsByPrivileges = async () => {
   try {
     const did = await getDID()
 
-    if (!did) return {error: 'noDID'}
+    if (!did) return { error: 'noDID' }
     else {
       const governance = await getGovernance()
 
       // (eldersonar) missing or empty governance
       if (!governance || Object.keys(governance).length === 0) {
         console.log("the file is empty or doesn't exist")
-        return {error: 'noGov'}
+        return { error: 'noGov' }
         // (eldersonar) partial governance
       } else if (
         // !governance.hasOwnProperty('participants') ||
@@ -235,16 +236,16 @@ const getActionsByPrivileges = async () => {
       ) {
         console.log('the file is not empty, but lacks core data')
         // return { error: "limitedGov" }
-        return {error: 'noPrivileges'}
+        return { error: 'noPrivileges' }
         // (eldersonar) Pass granted
       } else {
         const privileges = await getPrivilegesByRoles()
         const actionsArr = await getActions()
 
         if (!privileges || privileges.length == 0) {
-          return {error: 'noPrivileges'}
+          return { error: 'noPrivileges' }
         } else if (!actionsArr || actionsArr.length == 0) {
-          return {error: 'noActionsArr'}
+          return { error: 'noActionsArr' }
         } else {
           let actions = []
 
@@ -258,7 +259,7 @@ const getActionsByPrivileges = async () => {
           }
 
           // (eldersonar) Filter unique actions
-          if (!actions || actions.length == 0) return {error: 'noActions'}
+          if (!actions || actions.length == 0) return { error: 'noActions' }
           else {
             const uniqueActions = [...new Set(actions)]
 
@@ -277,16 +278,16 @@ const getActionsByPrivileges = async () => {
 const getActions = async () => {
   try {
     const did = await getDID()
-    if (!did) return {error: 'noDID'}
+    if (!did) return { error: 'noDID' }
     else {
       const governance = await getGovernance()
 
       if (!governance || Object.keys(governance).length === 0) {
         console.log("the file is empty or doesn't exist")
-        return {error: 'noGov'}
+        return { error: 'noGov' }
       } else if (!governance.hasOwnProperty('actions')) {
         console.log('the are no actions')
-        return {error: 'noActions'}
+        return { error: 'noActions' }
       } else {
         return governance.actions
       }
@@ -301,22 +302,84 @@ const getActions = async () => {
 const getParticipants = async () => {
   try {
     const did = await getDID()
-    if (!did) return {error: 'noDID'}
+    if (!did) return { error: 'noDID' }
     else {
       const governance = await getGovernance()
 
       if (!governance || Object.keys(governance).length === 0) {
         console.log("the file is empty or doesn't exist")
-        return {error: 'noGov'}
+        return { error: 'noGov' }
       } else if (!governance.hasOwnProperty('participants')) {
         console.log('the are no participants')
-        return {error: 'noParticipants'}
+        return { error: 'noParticipants' }
       } else {
         return governance.participants
       }
     }
   } catch (error) {
     console.error('Error fetching participants')
+    throw error
+  }
+}
+
+
+
+
+
+
+
+
+// Perform Agent Business Logic
+const updateOrCreateGovernanceFile = async function (
+  governance_path,
+  governance_file = {},
+) {
+  try {
+    await GovernanceFiles.createOrUpdateGovernanceFile(
+      governance_path,
+      governance_file,
+    )
+
+    const governanceFile = await GovernanceFiles.readGovernanceFile(
+      governance_path,
+    )
+
+    return governanceFile
+  } catch (error) {
+    console.error('Error Fetching Governance File')
+    throw error
+  }
+}
+
+const getGovernanceFile = async (governance_path) => {
+  try {
+    const governanceFile = await GovernanceFiles.readGovernanceFile(
+      governance_path,
+    )
+
+    return governanceFile
+  } catch (error) {
+    console.error('Error Fetching Governance File')
+    throw error
+  }
+}
+
+const getAll = async () => {
+  try {
+    const connectionStates = await GovernanceFiles.readGovernanceFiles()
+
+    return connectionStates
+  } catch (error) {
+    console.error('Error Fetching Governance Files')
+    throw error
+  }
+}
+
+const removeGovernanceFile = async function (governance_path) {
+  try {
+    await GovernanceFiles.deleteGovernanceFile(governance_path)
+  } catch (error) {
+    console.error('Error Removing Governance File')
     throw error
   }
 }
@@ -331,4 +394,9 @@ module.exports = {
   getActionsByPrivileges,
   getActions,
   getDID,
+
+  updateOrCreateGovernanceFile,
+  getGovernanceFile,
+  getAll,
+  removeGovernanceFile
 }
