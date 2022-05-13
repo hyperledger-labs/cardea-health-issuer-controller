@@ -957,6 +957,25 @@ const messageHandler = async (ws, context, type, data = {}) => {
             }
             break
 
+          case 'REQUEST_DEMOGRAPHICS':
+            if (check(rules, userRoles, 'invitations:create')) {
+              // (Eldersonar) Trigger the initial step
+
+              await ActionProcessor.actionStart(
+                data.connection_id,
+                'request-identity-presentation',
+              )
+
+              // sendMessage(ws, 'INVITATIONS', 'INVITATION', {
+              //   invitation_record: invitation,
+              // })
+            } else {
+              sendMessage(ws, 'INVITATIONS', 'INVITATIONS_ERROR', {
+                error: 'ERROR: You are not authorized to create invitations.',
+              })
+            }
+            break
+
           default:
             console.error(`Unrecognized Message Type: ${type}`)
             sendErrorMessage(ws, 1, 'Unrecognized Message Type')
