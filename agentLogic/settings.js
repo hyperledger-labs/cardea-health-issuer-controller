@@ -121,6 +121,28 @@ const setManifest = async (short_name, name, theme_color, bg_color) => {
   }
 }
 
+// Governance
+const getSelectedGovernance = async () => {
+  try {
+    const selectedGovernance = await Settings.readSelectedGovernance()
+    return selectedGovernance
+  } catch (error) {
+    console.error('Error getting selected governance path')
+    throw error
+  }
+}
+
+const setSelectedGovernance = async (data = {}) => {
+  try {
+    await Settings.updateSelectedGovernance(data)
+    const selectedGovernance = await Settings.readOrganization()
+    return selectedGovernance
+  } catch (error) {
+    console.error('Error updating selected governance path')
+    throw error
+  }
+}
+
 const getSchemas = async () => {
   return {
     SCHEMA_LAB_ORDER: process.env.SCHEMA_LAB_ORDER,
@@ -140,4 +162,6 @@ module.exports = {
   setOrganization,
   setManifest,
   getSchemas,
+  getSelectedGovernance,
+  setSelectedGovernance,
 }

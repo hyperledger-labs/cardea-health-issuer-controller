@@ -607,6 +607,7 @@ const messageHandler = async (ws, context, type, data = {}) => {
           case 'GET_ORGANIZATION':
             console.log('GET_ORGANIZATION')
             const currentOrganization = await Settings.getOrganization()
+
             if (currentOrganization)
               sendMessage(
                 ws,
@@ -646,6 +647,46 @@ const messageHandler = async (ws, context, type, data = {}) => {
                 error: 'ERROR: You are not authorized to update the manifest.',
               })
             }
+            break
+
+          case 'SET_SELECTED_GOVERNANCE':
+            if (check(rules, userRoles, 'settings:update')) {
+              console.log('SET_SELECTED_GOVERNANCE')
+              const selectedGovernance = await Settings.setSelectedGovernance(data)
+              if (selectedGovernance) {
+                sendMessageToAll('GOVERNANCE', 'SELECTED_GOVERNANCE', {
+                  selected_governance: { label: process.env.SELECTED_GOVERNANCE, value: process.env.SELECTED_GOVERNANCE }
+                })
+                sendMessage(
+                  ws,
+                  'SETTINGS',
+                  'SETTINGS_SUCCESS',
+                  'Selected governance path was successfully updated!',
+                )
+              } else
+                sendMessage(ws, 'SETTINGS', 'SETTINGS_ERROR', {
+                  error: "ERROR: selected governance path can't be updated.",
+                })
+            } else {
+              sendMessage(ws, 'SETTINGS', 'SETTINGS_ERROR', {
+                error:
+                  'ERROR: You are not authorized to update the selected governance path.',
+              })
+            }
+            break
+
+          case 'GET_SELECTED_GOVERNANCE':
+            console.log('GET_SELECTED_GOVERNANCE')
+            const selectedGovernance = await Settings.getSelectedGovernance()
+
+            if (selectedGovernance)
+              sendMessageToAll('GOVERNANCE', 'SELECTED_GOVERNANCE', {
+                selected_governance: { label: selectedGovernance.value.governance_path, value: selectedGovernance.value.governance_path }
+              })
+            else
+              sendMessage(ws, 'SETTINGS', 'SETTINGS_ERROR', {
+                error: "ERROR: selected governance path couldn't be fetched.",
+              })
             break
         }
         break
@@ -926,7 +967,7 @@ const messageHandler = async (ws, context, type, data = {}) => {
             console.log("SELECTED_GOVERNANCE: " + process.env.SELECTED_GOVERNANCE)
             // const governancePaths = await Governance.getAll()
             sendMessageToAll('GOVERNANCE', 'SELECTED_GOVERNANCE', {
-              selected_governance: {label: process.env.SELECTED_GOVERNANCE, value: process.env.SELECTED_GOVERNANCE}
+              selected_governance: { label: process.env.SELECTED_GOVERNANCE, value: process.env.SELECTED_GOVERNANCE }
             })
             break
 
@@ -934,7 +975,7 @@ const messageHandler = async (ws, context, type, data = {}) => {
             console.log("+++++++++++++++++++++++++++++++++")
             console.log("SELECTED_GOVERNANCE: " + process.env.SELECTED_GOVERNANCE)
             sendMessageToAll('GOVERNANCE', 'SELECTED_GOVERNANCE', {
-              selected_governance: {label: process.env.SELECTED_GOVERNANCE, value: process.env.SELECTED_GOVERNANCE}
+              selected_governance: { label: process.env.SELECTED_GOVERNANCE, value: process.env.SELECTED_GOVERNANCE }
             })
             break
 
