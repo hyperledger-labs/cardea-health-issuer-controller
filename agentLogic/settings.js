@@ -135,7 +135,8 @@ const getSelectedGovernance = async () => {
 const setSelectedGovernance = async (data = {}) => {
   try {
     await Settings.updateSelectedGovernance(data)
-    const selectedGovernance = await Settings.readOrganization()
+    const selectedGovernance = await Settings.readSelectedGovernance()
+
     return selectedGovernance
   } catch (error) {
     console.error('Error updating selected governance path')

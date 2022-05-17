@@ -142,6 +142,7 @@ updateSelectedGovernance = async function (value) {
       },
     )
     console.log('Selected governance path updated successfully.')
+    return selectedGovernance
   } catch (error) {
     console.error('Error updating the selected governance path: ', error)
   }

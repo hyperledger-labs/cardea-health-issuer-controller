@@ -655,17 +655,16 @@ const messageHandler = async (ws, context, type, data = {}) => {
               const selectedGovernance = await Settings.setSelectedGovernance(data)
               if (selectedGovernance) {
                 sendMessageToAll('GOVERNANCE', 'SELECTED_GOVERNANCE', {
-                  selected_governance: { label: process.env.SELECTED_GOVERNANCE, value: process.env.SELECTED_GOVERNANCE }
+                  selected_governance: { label: selectedGovernance.value, value: selectedGovernance.value }
                 })
-                sendMessage(
-                  ws,
+                sendMessageToAll(
                   'SETTINGS',
                   'SETTINGS_SUCCESS',
                   'Selected governance path was successfully updated!',
                 )
               } else
                 sendMessage(ws, 'SETTINGS', 'SETTINGS_ERROR', {
-                  error: "ERROR: selected governance path can't be updated.",
+                  error: "ERROR: couldn't update selected governance.",
                 })
             } else {
               sendMessage(ws, 'SETTINGS', 'SETTINGS_ERROR', {
@@ -681,7 +680,7 @@ const messageHandler = async (ws, context, type, data = {}) => {
 
             if (selectedGovernance)
               sendMessageToAll('GOVERNANCE', 'SELECTED_GOVERNANCE', {
-                selected_governance: { label: selectedGovernance.value.governance_path, value: selectedGovernance.value.governance_path }
+                selected_governance: { label: selectedGovernance.value, value: selectedGovernance.value }
               })
             else
               sendMessage(ws, 'SETTINGS', 'SETTINGS_ERROR', {
@@ -919,64 +918,17 @@ const messageHandler = async (ws, context, type, data = {}) => {
 
           case 'ADD_GOVERNANCE':
             console.log('ADD_GOVERNANCE')
-            // if (check(rules, userRoles, 'invitations:create')) {
-            console.log("data.governancePathdata.governancePath", data)
-            const governanceOptions = await Governance.updateOrCreateGovernanceFile(data)
+            const newGovernance = await Governance.updateOrCreateGovernanceFile(data)
 
-            sendMessage(ws, 'GOVERNANCE', 'GOVERNANCE_OPTIONS', {
-              governance_paths: governanceOptions
-            })
-
-            // const privileges = await Governance.getPrivilegesByRoles()
-            // if (privileges.error === 'noDID') {
-            //   console.log('No public did anchored')
-            //   sendMessage(ws, 'GOVERNANCE', 'PRIVILEGES_ERROR', {
-            //     error: 'ERROR: You need to anchor your DID',
-            //   })
-            // } else if (privileges.error === 'noPermissions') {
-            //   console.log('No permissions set')
-            //   sendMessage(ws, 'GOVERNANCE', 'PRIVILEGES_ERROR', {
-            //     error: 'ERROR: Governance permissions are not set',
-            //   })
-            // } else if (privileges.error === 'noPrivileges') {
-            //   console.log('No privileges set')
-            //   sendMessage(ws, 'GOVERNANCE', 'PRIVILEGES_ERROR', {
-            //     error: 'ERROR: Governance privileges are not set',
-            //   })
-            // } else if (!privileges) {
-            //   console.log('ERROR: privileges undefined error')
-            //   sendMessage(ws, 'GOVERNANCE', 'PRIVILEGES_ERROR', {
-            //     error: 'ERROR: privileges undefined error',
-            //   })
-            // } else {
-            //   sendMessage(ws, 'GOVERNANCE', 'PRIVILEGES_SUCCESS', {
-            //     privileges,
-            //   })
-            // }
-
-            // } else {
-            //   sendMessage(ws, 'GOVERNANCE', 'PRIVILEGES_ERROR', {
-            //     error: 'ERROR: You are not authorized to create invitations.',
-            //   })
-            // }
-            break
-
-          case 'SAVE_GOVERNANCE_CHOICE':
-            process.env.SELECTED_GOVERNANCE = data
-            console.log("---------------------------------")
-            console.log("SELECTED_GOVERNANCE: " + process.env.SELECTED_GOVERNANCE)
-            // const governancePaths = await Governance.getAll()
-            sendMessageToAll('GOVERNANCE', 'SELECTED_GOVERNANCE', {
-              selected_governance: { label: process.env.SELECTED_GOVERNANCE, value: process.env.SELECTED_GOVERNANCE }
-            })
-            break
-
-          case 'GET_SELECTED_PATH':
-            console.log("+++++++++++++++++++++++++++++++++")
-            console.log("SELECTED_GOVERNANCE: " + process.env.SELECTED_GOVERNANCE)
-            sendMessageToAll('GOVERNANCE', 'SELECTED_GOVERNANCE', {
-              selected_governance: { label: process.env.SELECTED_GOVERNANCE, value: process.env.SELECTED_GOVERNANCE }
-            })
+            if (newGovernance) {
+              sendMessage(ws, 'GOVERNANCE', 'GOVERNANCE_OPTION_ADDED', {
+                governance_path: newGovernance
+              })
+            } else {
+              sendMessage(ws, 'GOVERNANCE', 'PRIVILEGES_ERROR', {
+                error: 'ERROR: New governance couldn\'t be added.',
+              })
+            }
             break
 
           case 'GET_ALL':

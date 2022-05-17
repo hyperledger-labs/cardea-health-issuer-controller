@@ -322,14 +322,6 @@ const getParticipants = async () => {
   }
 }
 
-
-
-
-
-
-
-
-// Perform Agent Business Logic
 const updateOrCreateGovernanceFile = async function (
   governance_path,
   governance_file = {},
@@ -366,9 +358,12 @@ const getGovernanceFile = async (governance_path) => {
 
 const getAll = async () => {
   try {
-    const connectionStates = await GovernanceFiles.readGovernanceFiles()
+    const governanceOptions = await GovernanceFiles.readGovernanceFiles()
 
-    return connectionStates
+    // (eldersonar) remove governance-framework object from return
+    governanceOptions.forEach(function(governanceOption){ governanceOption.governance_file = {} })
+
+    return governanceOptions
   } catch (error) {
     console.error('Error Fetching Governance Files')
     throw error
