@@ -71,6 +71,8 @@ const actionStart = async (connection_id, stepName) => {
       // Get the initial block for the proper role
       if (governance.actions[i].name === stepName) {
         step.push(governance.actions[i])
+      } else {
+        return {error: 'action not found'}
       }
     }
   } else if (currentState) {
@@ -148,7 +150,6 @@ const actionStart = async (connection_id, stepName) => {
           break
 
         case 'https://didcomm.org/issue-credential/1.0/':
-          console.log('issue credential')
           await AgentLogic.Credentials.autoIssueCredential(
             connection_id,
             undefined,

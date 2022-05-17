@@ -876,7 +876,7 @@ const messageHandler = async (ws, context, type, data = {}) => {
       case 'GOVERNANCE':
         switch (type) {
           case 'GET_PRIVILEGES':
-            console.log('GET_PRIVILEGES')
+            console.log('+++++++++++GET_PRIVILEGES')
             if (check(rules, userRoles, 'invitations:create')) {
               const privileges = await Governance.getPrivilegesByRoles()
               if (privileges.error === 'noDID') {
@@ -942,10 +942,24 @@ const messageHandler = async (ws, context, type, data = {}) => {
             if (check(rules, userRoles, 'invitations:create')) {
               // (Eldersonar) Trigger the initial step
 
-              await ActionProcessor.actionStart(
+              const actionValidation = await ActionProcessor.actionStart(
                 data.connection_id,
                 'ask-demographics',
               )
+              if (actionValidation.error) {
+                sendMessage(ws, 'GOVERNANCE', 'ACTION_ERROR', {
+                  error:
+                    'ERROR: Governance action was not found. Please check your governance file.',
+                })
+              }
+
+              // else {
+              //   sendMessage(ws, 'GOVERNANCE', 'ACTION_SUCCESS', {
+              //     error:
+              //       'ERROR: Governance action was not found. Please check your governance file.',
+              //   })
+              // }
+              console.log('log of actionValidation', actionValidation)
 
               // sendMessage(ws, 'INVITATIONS', 'INVITATION', {
               //   invitation_record: invitation,
@@ -964,6 +978,44 @@ const messageHandler = async (ws, context, type, data = {}) => {
               await ActionProcessor.actionStart(
                 data.connection_id,
                 'request-identity-presentation',
+              )
+
+              // sendMessage(ws, 'INVITATIONS', 'INVITATION', {
+              //   invitation_record: invitation,
+              // })
+            } else {
+              sendMessage(ws, 'INVITATIONS', 'INVITATIONS_ERROR', {
+                error: 'ERROR: You are not authorized to create invitations.',
+              })
+            }
+            break
+
+          // case 'REQUEST_MEDICAL_RELEASE':
+          //   if (check(rules, userRoles, 'invitations:create')) {
+          //     // (Eldersonar) Trigger the initial step
+
+          //     await ActionProcessor.actionStart(
+          //       data.connection_id,
+          //       'issue-medical-release',
+          //     )
+
+          //     // sendMessage(ws, 'INVITATIONS', 'INVITATION', {
+          //     //   invitation_record: invitation,
+          //     // })
+          //   } else {
+          //     sendMessage(ws, 'INVITATIONS', 'INVITATIONS_ERROR', {
+          //       error: 'ERROR: You are not authorized to create invitations.',
+          //     })
+          //   }
+          //   break
+
+          case 'REQUEST_MEDICAL_RELEASE':
+            if (check(rules, userRoles, 'invitations:create')) {
+              // (Eldersonar) Trigger the initial step
+
+              await ActionProcessor.actionStart(
+                data.connection_id,
+                'request-presentation',
               )
 
               // sendMessage(ws, 'INVITATIONS', 'INVITATION', {

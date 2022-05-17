@@ -68,7 +68,7 @@
     },
     {
       "name": "General Obeorthot Hospital of Aruba",
-      "id": "54uE1eUm2Z7aknC5nwBQLs",
+      "id": "HE3CPe7bE66K8SQvi3DVe7",
       "describe": {
         "label": "Obeorthot Hospital",
         "sublabel": "General Obeorthot Hospital of Aruba",
@@ -106,7 +106,7 @@
             "id": "did:example:hospital"
           },
           {
-            "id": "54uE1eUm2Z7aknC5nwBQLs"
+            "id": "HE3CPe7bE66K8SQvi3DVe7"
           }
         ]
       }
