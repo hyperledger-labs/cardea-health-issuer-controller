@@ -179,6 +179,25 @@ const sendErrorMessage = (ws, errorCode, errorReason) => {
   }
 }
 
+const atomicFunctionMessage = (actionValidation, type) => {
+  console.log(`Sending Message to websocket client of type: ${type}`)
+  try {
+    if (actionValidation && actionValidation.error) {
+      sendMessage(ws, 'GOVERNANCE', 'ACTION_ERROR', {
+        error:
+          'ERROR: Governance action was not found. Please check your governance file.',
+      })
+    } else {
+      sendMessage(ws, 'GOVERNANCE', 'ACTION_SUCCESS', {
+        notice: `${type.split('_').join(' ')} was successfully sent!`,
+      })
+    }
+  } catch (error) {
+    console.error(error)
+    throw error
+  }
+}
+
 // Handle inbound messages
 const messageHandler = async (ws, context, type, data = {}) => {
   try {
@@ -354,6 +373,7 @@ const messageHandler = async (ws, context, type, data = {}) => {
         break
 
       case 'INVITATIONS':
+        console.log('this is invitations context')
         switch (type) {
           case 'CREATE_SINGLE_USE':
             if (check(rules, userRoles, 'invitations:create')) {
@@ -365,6 +385,7 @@ const messageHandler = async (ws, context, type, data = {}) => {
               } else {
                 // invitation = await Invitations.createSingleUseInvitation()
                 // (Eldersonar) Trigger the initial step
+                console.log('we are in invitation case')
                 invitation = await ActionProcessor.actionStart(
                   null,
                   'connect-holder-health-issuer',
@@ -924,10 +945,21 @@ const messageHandler = async (ws, context, type, data = {}) => {
             if (check(rules, userRoles, 'invitations:create')) {
               // (Eldersonar) Trigger the initial step
 
-              await ActionProcessor.actionStart(
+              const actionValidation = await ActionProcessor.actionStart(
                 data.connection_id,
                 'send-basic-message',
               )
+              // console.log('this is actionValidation', actionValidation)
+              if (actionValidation && actionValidation.error) {
+                sendMessage(ws, 'GOVERNANCE', 'ACTION_ERROR', {
+                  error:
+                    'ERROR: Governance action was not found. Please check your governance file.',
+                })
+              } else {
+                sendMessage(ws, 'GOVERNANCE', 'ACTION_SUCCESS', {
+                  notice: 'Basic message was successfully sent!',
+                })
+              }
 
               // sendMessage(ws, 'INVITATIONS', 'INVITATION', {
               //   invitation_record: invitation,
@@ -940,23 +972,20 @@ const messageHandler = async (ws, context, type, data = {}) => {
             break
           case 'ASK_QUESTION':
             if (check(rules, userRoles, 'invitations:create')) {
-              // (Eldersonar) Trigger the initial step
-
               const actionValidation = await ActionProcessor.actionStart(
                 data.connection_id,
                 'ask-demographics',
               )
-              if (actionValidation.error) {
-                sendMessage(ws, 'GOVERNANCE', 'ACTION_ERROR', {
-                  error:
-                    'ERROR: Governance action was not found. Please check your governance file.',
-                })
-              }
-
-              // else {
-              //   sendMessage(ws, 'GOVERNANCE', 'ACTION_SUCCESS', {
+              console.log('This is the type from ASK_QUESTION', type)
+              atomicFunctionMessage(actionValidation, type)
+              // if (actionValidation && actionValidation.error) {
+              //   sendMessage(ws, 'GOVERNANCE', 'ACTION_ERROR', {
               //     error:
               //       'ERROR: Governance action was not found. Please check your governance file.',
+              //   })
+              // } else {
+              //   sendMessage(ws, 'GOVERNANCE', 'ACTION_SUCCESS', {
+              //     notice: `${type.split('_').join(' ')} was successfully sent!`,
               //   })
               // }
               console.log('log of actionValidation', actionValidation)

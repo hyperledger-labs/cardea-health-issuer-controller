@@ -69,10 +69,14 @@ const actionStart = async (connection_id, stepName) => {
 
     for (i = 0; i < governance.actions.length; i++) {
       // Get the initial block for the proper role
+
+      // console.log(
+      //   'this is governance.actions[i].name',
+      //   governance.actions[i].name,
+      // )
+      // console.log('this is stepName', stepName)
       if (governance.actions[i].name === stepName) {
         step.push(governance.actions[i])
-      } else {
-        return {error: 'action not found'}
       }
     }
   } else if (currentState) {
@@ -92,6 +96,9 @@ const actionStart = async (connection_id, stepName) => {
 
   if (step[0]) {
     console.log('WE ARE ON STEP --------> ' + step[0].name + ' <---------')
+  } else {
+    console.log('action not found')
+    return {error: 'action not found'}
   }
 
   console.log('Step')
@@ -104,7 +111,6 @@ const actionStart = async (connection_id, stepName) => {
       console.log(' ')
       console.log('THIS IS AN ACTION BLOCK')
 
-      // TODO: switch to the protocol instead
       switch (step[0].data.protocol) {
         case 'https://didcomm.org/basic-message/1.0/':
           console.log('basic message from actionProcessor')
@@ -123,6 +129,7 @@ const actionStart = async (connection_id, stepName) => {
             'action',
             stepName,
           )
+          console.log('this is invitation', invitation)
           return invitation
 
         case 'https://didcomm.org/questionAnswer/1.0/':
