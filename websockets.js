@@ -179,24 +179,25 @@ const sendErrorMessage = (ws, errorCode, errorReason) => {
   }
 }
 
-// const atomicFunctionMessage = (actionValidation, type) => {
-//   console.log(`Sending Message to websocket client of type: ${type}`)
-//   try {
-//     if (actionValidation && actionValidation.error) {
-//       sendMessage(ws, 'GOVERNANCE', 'ACTION_ERROR', {
-//         error:
-//           'ERROR: Governance action was not found. Please check your governance file.',
-//       })
-//     } else {
-//       sendMessage(ws, 'GOVERNANCE', 'ACTION_SUCCESS', {
-//         notice: `${type.split('_').join(' ')} was successfully sent!`,
-//       })
-//     }
-//   } catch (error) {
-//     console.error(error)
-//     throw error
-//   }
-// }
+// (RomanStepanyan) Handle success and error notifications
+const atomicFunctionMessage = (ws, actionValidation, type) => {
+  console.log(`Sending Message to websocket client of type: ${type}`)
+  try {
+    if (actionValidation && actionValidation.error) {
+      sendMessage(ws, 'GOVERNANCE', 'ACTION_ERROR', {
+        error:
+          'ERROR: Governance action was not found. Please check your governance file.',
+      })
+    } else {
+      sendMessage(ws, 'GOVERNANCE', 'ACTION_SUCCESS', {
+        notice: `${type.split('_').join(' ')} was successfully sent!`,
+      })
+    }
+  } catch (error) {
+    console.error(error)
+    throw error
+  }
+}
 
 // Handle inbound messages
 const messageHandler = async (ws, context, type, data = {}) => {
@@ -390,6 +391,11 @@ const messageHandler = async (ws, context, type, data = {}) => {
                   null,
                   'connect-holder-health-issuer',
                 )
+                if (!invitation.dataValues) {
+                  sendMessage(ws, 'INVITATIONS', 'INVITATIONS_ERROR', {
+                    error: 'ERROR: The action step was not found.',
+                  })
+                }
               }
               sendMessage(ws, 'INVITATIONS', 'INVITATION', {
                 invitation_record: invitation,
@@ -961,17 +967,7 @@ const messageHandler = async (ws, context, type, data = {}) => {
                 data.connection_id,
                 'send-basic-message',
               )
-
-              if (actionValidation && actionValidation.error) {
-                sendMessage(ws, 'GOVERNANCE', 'ACTION_ERROR', {
-                  error:
-                    'ERROR: Governance action was not found. Please check your governance file.',
-                })
-              } else {
-                sendMessage(ws, 'GOVERNANCE', 'ACTION_SUCCESS', {
-                  notice: `${type.split('_').join(' ')} was successfully sent!`,
-                })
-              }
+              atomicFunctionMessage(ws, actionValidation, type)
 
               // sendMessage(ws, 'INVITATIONS', 'INVITATION', {
               //   invitation_record: invitation,
@@ -989,18 +985,8 @@ const messageHandler = async (ws, context, type, data = {}) => {
                 'ask-demographics',
               )
               console.log('This is the type from ASK_QUESTION', type)
-              // atomicFunctionMessage(actionValidation, type)
-              if (actionValidation && actionValidation.error) {
-                sendMessage(ws, 'GOVERNANCE', 'ACTION_ERROR', {
-                  error:
-                    'ERROR: Governance action was not found. Please check your governance file.',
-                })
-              } else {
-                sendMessage(ws, 'GOVERNANCE', 'ACTION_SUCCESS', {
-                  notice: `${type.split('_').join(' ')} was successfully sent!`,
-                })
-              }
-              console.log('log of actionValidation', actionValidation)
+
+              atomicFunctionMessage(ws, actionValidation, type)
 
               // sendMessage(ws, 'INVITATIONS', 'INVITATION', {
               //   invitation_record: invitation,
@@ -1020,16 +1006,8 @@ const messageHandler = async (ws, context, type, data = {}) => {
                 data.connection_id,
                 'request-identity-presentation',
               )
-              if (actionValidation && actionValidation.error) {
-                sendMessage(ws, 'GOVERNANCE', 'ACTION_ERROR', {
-                  error:
-                    'ERROR: Governance action was not found. Please check your governance file.',
-                })
-              } else {
-                sendMessage(ws, 'GOVERNANCE', 'ACTION_SUCCESS', {
-                  notice: `${type.split('_').join(' ')} was successfully sent!`,
-                })
-              }
+
+              atomicFunctionMessage(ws, actionValidation, type)
 
               // sendMessage(ws, 'INVITATIONS', 'INVITATION', {
               //   invitation_record: invitation,
@@ -1049,16 +1027,8 @@ const messageHandler = async (ws, context, type, data = {}) => {
                 data.connection_id,
                 'request-presentation',
               )
-              if (actionValidation && actionValidation.error) {
-                sendMessage(ws, 'GOVERNANCE', 'ACTION_ERROR', {
-                  error:
-                    'ERROR: Governance action was not found. Please check your governance file.',
-                })
-              } else {
-                sendMessage(ws, 'GOVERNANCE', 'ACTION_SUCCESS', {
-                  notice: `${type.split('_').join(' ')} was successfully sent!`,
-                })
-              }
+
+              atomicFunctionMessage(ws, actionValidation, type)
 
               // sendMessage(ws, 'INVITATIONS', 'INVITATION', {
               //   invitation_record: invitation,
