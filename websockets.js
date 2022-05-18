@@ -179,24 +179,24 @@ const sendErrorMessage = (ws, errorCode, errorReason) => {
   }
 }
 
-const atomicFunctionMessage = (actionValidation, type) => {
-  console.log(`Sending Message to websocket client of type: ${type}`)
-  try {
-    if (actionValidation && actionValidation.error) {
-      sendMessage(ws, 'GOVERNANCE', 'ACTION_ERROR', {
-        error:
-          'ERROR: Governance action was not found. Please check your governance file.',
-      })
-    } else {
-      sendMessage(ws, 'GOVERNANCE', 'ACTION_SUCCESS', {
-        notice: `${type.split('_').join(' ')} was successfully sent!`,
-      })
-    }
-  } catch (error) {
-    console.error(error)
-    throw error
-  }
-}
+// const atomicFunctionMessage = (actionValidation, type) => {
+//   console.log(`Sending Message to websocket client of type: ${type}`)
+//   try {
+//     if (actionValidation && actionValidation.error) {
+//       sendMessage(ws, 'GOVERNANCE', 'ACTION_ERROR', {
+//         error:
+//           'ERROR: Governance action was not found. Please check your governance file.',
+//       })
+//     } else {
+//       sendMessage(ws, 'GOVERNANCE', 'ACTION_SUCCESS', {
+//         notice: `${type.split('_').join(' ')} was successfully sent!`,
+//       })
+//     }
+//   } catch (error) {
+//     console.error(error)
+//     throw error
+//   }
+// }
 
 // Handle inbound messages
 const messageHandler = async (ws, context, type, data = {}) => {
@@ -836,7 +836,19 @@ const messageHandler = async (ws, context, type, data = {}) => {
                 )
 
                 // (eldersonar) Trigger next step in rules engine
-                ActionProcessor.actionStart(data.connectionID)
+                const actionValidation = await ActionProcessor.actionStart(
+                  data.connectionID,
+                )
+                if (actionValidation && actionValidation.error) {
+                  sendMessage(ws, 'GOVERNANCE', 'ACTION_ERROR', {
+                    error:
+                      'ERROR: Governance action was not found. Please check your governance file.',
+                  })
+                } else {
+                  sendMessage(ws, 'GOVERNANCE', 'ACTION_SUCCESS', {
+                    notice: 'Credential offer was successfully sent!',
+                  })
+                }
               } else {
                 console.log('No governance for credential issuance flow')
               }
@@ -949,7 +961,7 @@ const messageHandler = async (ws, context, type, data = {}) => {
                 data.connection_id,
                 'send-basic-message',
               )
-              // console.log('this is actionValidation', actionValidation)
+
               if (actionValidation && actionValidation.error) {
                 sendMessage(ws, 'GOVERNANCE', 'ACTION_ERROR', {
                   error:
@@ -957,7 +969,7 @@ const messageHandler = async (ws, context, type, data = {}) => {
                 })
               } else {
                 sendMessage(ws, 'GOVERNANCE', 'ACTION_SUCCESS', {
-                  notice: 'Basic message was successfully sent!',
+                  notice: `${type.split('_').join(' ')} was successfully sent!`,
                 })
               }
 
@@ -977,17 +989,17 @@ const messageHandler = async (ws, context, type, data = {}) => {
                 'ask-demographics',
               )
               console.log('This is the type from ASK_QUESTION', type)
-              atomicFunctionMessage(actionValidation, type)
-              // if (actionValidation && actionValidation.error) {
-              //   sendMessage(ws, 'GOVERNANCE', 'ACTION_ERROR', {
-              //     error:
-              //       'ERROR: Governance action was not found. Please check your governance file.',
-              //   })
-              // } else {
-              //   sendMessage(ws, 'GOVERNANCE', 'ACTION_SUCCESS', {
-              //     notice: `${type.split('_').join(' ')} was successfully sent!`,
-              //   })
-              // }
+              // atomicFunctionMessage(actionValidation, type)
+              if (actionValidation && actionValidation.error) {
+                sendMessage(ws, 'GOVERNANCE', 'ACTION_ERROR', {
+                  error:
+                    'ERROR: Governance action was not found. Please check your governance file.',
+                })
+              } else {
+                sendMessage(ws, 'GOVERNANCE', 'ACTION_SUCCESS', {
+                  notice: `${type.split('_').join(' ')} was successfully sent!`,
+                })
+              }
               console.log('log of actionValidation', actionValidation)
 
               // sendMessage(ws, 'INVITATIONS', 'INVITATION', {
@@ -1004,10 +1016,20 @@ const messageHandler = async (ws, context, type, data = {}) => {
             if (check(rules, userRoles, 'invitations:create')) {
               // (Eldersonar) Trigger the initial step
 
-              await ActionProcessor.actionStart(
+              const actionValidation = await ActionProcessor.actionStart(
                 data.connection_id,
                 'request-identity-presentation',
               )
+              if (actionValidation && actionValidation.error) {
+                sendMessage(ws, 'GOVERNANCE', 'ACTION_ERROR', {
+                  error:
+                    'ERROR: Governance action was not found. Please check your governance file.',
+                })
+              } else {
+                sendMessage(ws, 'GOVERNANCE', 'ACTION_SUCCESS', {
+                  notice: `${type.split('_').join(' ')} was successfully sent!`,
+                })
+              }
 
               // sendMessage(ws, 'INVITATIONS', 'INVITATION', {
               //   invitation_record: invitation,
@@ -1019,33 +1041,24 @@ const messageHandler = async (ws, context, type, data = {}) => {
             }
             break
 
-          // case 'REQUEST_MEDICAL_RELEASE':
-          //   if (check(rules, userRoles, 'invitations:create')) {
-          //     // (Eldersonar) Trigger the initial step
-
-          //     await ActionProcessor.actionStart(
-          //       data.connection_id,
-          //       'issue-medical-release',
-          //     )
-
-          //     // sendMessage(ws, 'INVITATIONS', 'INVITATION', {
-          //     //   invitation_record: invitation,
-          //     // })
-          //   } else {
-          //     sendMessage(ws, 'INVITATIONS', 'INVITATIONS_ERROR', {
-          //       error: 'ERROR: You are not authorized to create invitations.',
-          //     })
-          //   }
-          //   break
-
           case 'REQUEST_MEDICAL_RELEASE':
             if (check(rules, userRoles, 'invitations:create')) {
               // (Eldersonar) Trigger the initial step
 
-              await ActionProcessor.actionStart(
+              const actionValidation = await ActionProcessor.actionStart(
                 data.connection_id,
                 'request-presentation',
               )
+              if (actionValidation && actionValidation.error) {
+                sendMessage(ws, 'GOVERNANCE', 'ACTION_ERROR', {
+                  error:
+                    'ERROR: Governance action was not found. Please check your governance file.',
+                })
+              } else {
+                sendMessage(ws, 'GOVERNANCE', 'ACTION_SUCCESS', {
+                  notice: `${type.split('_').join(' ')} was successfully sent!`,
+                })
+              }
 
               // sendMessage(ws, 'INVITATIONS', 'INVITATION', {
               //   invitation_record: invitation,

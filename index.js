@@ -58,11 +58,11 @@ app.use(
   '/api/governance-framework',
   // express.static('governance-framework.json'),
   // express.static('governance-framework-basic-message.json'),
-  express.static('governance-framework-ask-demographics.json'),
+  // express.static('governance-framework-ask-demographics.json'),
   // express.static('governance-framework-request-demographics.json'),
   // express.static('governance-framework-issue-lab-result.json'),
   // express.static('governance-framework-issue-medical-release.json'),
-  // express.static('governance-framework-request-presentation.json'),
+  express.static('governance-framework-request-presentation.json'),
 )
 
 // (eldersonar) Create database
