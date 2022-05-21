@@ -18,13 +18,12 @@ if (process.env.DISABLE_SSL_CHECK === 'true') {
 }
 
 // Get the machine readable governance file from the external source
-const getGovernance = async () => {
+const getGovernance = async (path) => {
   try {
     const response = await axios({
       method: 'GET',
-      // url: 'http://localhost:3100/api/governance-framework',
-      url: `${process.env.GOVERNANCE_PATH}`,
       // url: `${process.env.GOVERNANCE_PATH}`,
+      url: path,
       httpsAgent: agent,
     }).then((res) => {
       console.log('......................................')
@@ -324,19 +323,27 @@ const getParticipants = async () => {
 
 const updateOrCreateGovernanceFile = async function (
   governance_path,
-  governance_file = {},
+  // governance_file = {},
 ) {
   try {
-    await GovernanceFiles.createOrUpdateGovernanceFile(
-      governance_path,
-      governance_file,
-    )
 
-    const governanceFile = await GovernanceFiles.readGovernanceFile(
-      governance_path,
-    )
+    const governance_file = await getGovernance(governance_path)
 
-    return governanceFile
+    if (governance_file) {
+      await GovernanceFiles.createOrUpdateGovernanceFile(
+        governance_path,
+        governance_file,
+      )
+  
+      const governanceFile = await GovernanceFiles.readGovernanceFile(
+        governance_path,
+      )
+  
+      return governanceFile
+    } else {
+      return {error: "ERROR: no JSON object was found at this url"}
+    }
+    
   } catch (error) {
     console.error('Error Fetching Governance File')
     throw error

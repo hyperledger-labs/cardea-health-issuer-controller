@@ -133,7 +133,7 @@ readSelectedGovernance = async function () {
 
 updateSelectedGovernance = async function (value) {
   try {
-    await Setting.update(
+    const selectedGovernance = await Setting.update(
       {value},
       {
         where: {

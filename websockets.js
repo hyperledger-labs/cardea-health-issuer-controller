@@ -652,7 +652,7 @@ const messageHandler = async (ws, context, type, data = {}) => {
           case 'SET_SELECTED_GOVERNANCE':
             if (check(rules, userRoles, 'settings:update')) {
               console.log('SET_SELECTED_GOVERNANCE')
-              const selectedGovernance = await Settings.setSelectedGovernance(data)
+              const selectedGovernance = await Settings.setSelectedGovernance({governance_path: data})
               if (selectedGovernance) {
                 sendMessageToAll('GOVERNANCE', 'SELECTED_GOVERNANCE', {
                   selected_governance: { label: selectedGovernance.value, value: selectedGovernance.value }
@@ -680,7 +680,7 @@ const messageHandler = async (ws, context, type, data = {}) => {
 
             if (selectedGovernance)
               sendMessageToAll('GOVERNANCE', 'SELECTED_GOVERNANCE', {
-                selected_governance: { label: selectedGovernance.value, value: selectedGovernance.value }
+                selected_governance: { label: selectedGovernance.value.governance_path, value: selectedGovernance.value.governance_path }
               })
             else
               sendMessage(ws, 'SETTINGS', 'SETTINGS_ERROR', {
@@ -920,13 +920,13 @@ const messageHandler = async (ws, context, type, data = {}) => {
             console.log('ADD_GOVERNANCE')
             const newGovernance = await Governance.updateOrCreateGovernanceFile(data)
 
-            if (newGovernance) {
-              sendMessage(ws, 'GOVERNANCE', 'GOVERNANCE_OPTION_ADDED', {
-                governance_path: newGovernance
+            if (newGovernance.error) {
+              sendMessage(ws, 'GOVERNANCE', 'PRIVILEGES_ERROR', {
+                error: newGovernance.error,
               })
             } else {
-              sendMessage(ws, 'GOVERNANCE', 'PRIVILEGES_ERROR', {
-                error: 'ERROR: New governance couldn\'t be added.',
+              sendMessage(ws, 'GOVERNANCE', 'GOVERNANCE_OPTION_ADDED', {
+                governance_path: newGovernance
               })
             }
             break
