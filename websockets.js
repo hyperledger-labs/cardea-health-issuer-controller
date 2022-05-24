@@ -374,7 +374,6 @@ const messageHandler = async (ws, context, type, data = {}) => {
         break
 
       case 'INVITATIONS':
-        console.log('this is invitations context')
         switch (type) {
           case 'CREATE_SINGLE_USE':
             if (check(rules, userRoles, 'invitations:create')) {
@@ -384,9 +383,7 @@ const messageHandler = async (ws, context, type, data = {}) => {
                   data.workflow,
                 )
               } else {
-                // invitation = await Invitations.createSingleUseInvitation()
                 // (Eldersonar) Trigger the initial step
-                console.log('we are in invitation case')
                 invitation = await ActionProcessor.actionStart(
                   null,
                   'connect-holder-health-issuer',
@@ -915,7 +912,6 @@ const messageHandler = async (ws, context, type, data = {}) => {
       case 'GOVERNANCE':
         switch (type) {
           case 'GET_PRIVILEGES':
-            console.log('+++++++++++GET_PRIVILEGES')
             if (check(rules, userRoles, 'invitations:create')) {
               const privileges = await Governance.getPrivilegesByRoles()
               if (privileges.error === 'noDID') {
@@ -968,10 +964,6 @@ const messageHandler = async (ws, context, type, data = {}) => {
                 'send-basic-message',
               )
               atomicFunctionMessage(ws, actionValidation, type)
-
-              // sendMessage(ws, 'INVITATIONS', 'INVITATION', {
-              //   invitation_record: invitation,
-              // })
             } else {
               sendMessage(ws, 'INVITATIONS', 'INVITATIONS_ERROR', {
                 error: 'ERROR: You are not authorized to create invitations.',
@@ -980,17 +972,12 @@ const messageHandler = async (ws, context, type, data = {}) => {
             break
           case 'ASK_QUESTION':
             if (check(rules, userRoles, 'invitations:create')) {
+              // (Eldersonar) Trigger the initial step
               const actionValidation = await ActionProcessor.actionStart(
                 data.connection_id,
                 'ask-demographics',
               )
-              console.log('This is the type from ASK_QUESTION', type)
-
               atomicFunctionMessage(ws, actionValidation, type)
-
-              // sendMessage(ws, 'INVITATIONS', 'INVITATION', {
-              //   invitation_record: invitation,
-              // })
             } else {
               sendMessage(ws, 'INVITATIONS', 'INVITATIONS_ERROR', {
                 error: 'ERROR: You are not authorized to create invitations.',
@@ -1008,10 +995,6 @@ const messageHandler = async (ws, context, type, data = {}) => {
               )
 
               atomicFunctionMessage(ws, actionValidation, type)
-
-              // sendMessage(ws, 'INVITATIONS', 'INVITATION', {
-              //   invitation_record: invitation,
-              // })
             } else {
               sendMessage(ws, 'INVITATIONS', 'INVITATIONS_ERROR', {
                 error: 'ERROR: You are not authorized to create invitations.',
@@ -1029,10 +1012,6 @@ const messageHandler = async (ws, context, type, data = {}) => {
               )
 
               atomicFunctionMessage(ws, actionValidation, type)
-
-              // sendMessage(ws, 'INVITATIONS', 'INVITATION', {
-              //   invitation_record: invitation,
-              // })
             } else {
               sendMessage(ws, 'INVITATIONS', 'INVITATIONS_ERROR', {
                 error: 'ERROR: You are not authorized to create invitations.',

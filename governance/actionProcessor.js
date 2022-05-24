@@ -68,13 +68,6 @@ const actionStart = async (connection_id, stepName) => {
     console.log('Just action')
 
     for (i = 0; i < governance.actions.length; i++) {
-      // Get the initial block for the proper role
-
-      // console.log(
-      //   'this is governance.actions[i].name',
-      //   governance.actions[i].name,
-      // )
-      // console.log('this is stepName', stepName)
       if (governance.actions[i].name === stepName) {
         step.push(governance.actions[i])
       }
@@ -113,7 +106,7 @@ const actionStart = async (connection_id, stepName) => {
 
       switch (step[0].data.protocol) {
         case 'https://didcomm.org/basic-message/1.0/':
-          console.log('basic message from actionProcessor')
+          console.log('basic message')
           await AdminAPI.Connections.sendBasicMessage(connection_id, {
             content: step[0].data.content,
           })

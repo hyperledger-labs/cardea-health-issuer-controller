@@ -149,17 +149,11 @@ const getPermissionsByDID = async () => {
 
 // Get privileges by roles
 const getPrivilegesByRoles = async () => {
-  console.log('log from getPrivilegesByRoles')
   try {
-    console.log('log from try getPrivilegesByRoles')
     const did = await getDID()
-
     if (!did) return {error: 'noDID'}
     else {
       const governance = await getGovernance()
-      console.log('did from getPrivilegesByRoles', did)
-      console.log('governance from getPrivilegesByRoles', governance)
-
       // (eldersonar) missing or empty governance
       if (!governance || Object.keys(governance).length === 0) {
         console.log("the file is empty or doesn't exist")
@@ -174,11 +168,6 @@ const getPrivilegesByRoles = async () => {
       ) {
         console.log('the file is not empty, but lacks core data')
         // return { error: "limitedGov" }
-        console.log('=================================================')
-        console.log(governance.hasOwnProperty('roles'))
-        console.log(governance.hasOwnProperty('permissions'))
-        console.log(governance.hasOwnProperty('privileges'))
-        console.log('=============================================')
         return {error: 'noPrivileges'}
         // (eldersonar) You have a pass
       } else {
