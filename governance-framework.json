@@ -68,7 +68,7 @@
     },
     {
       "name": "General Obeorthot Hospital of Aruba",
-      "id": "RTjJkc8pa2WbzU68qu6ZEz",
+      "id": "38b4GZkvFGmKUy2znXmcRD",
       "describe": {
         "label": "Obeorthot Hospital",
         "sublabel": "General Obeorthot Hospital of Aruba",
@@ -106,7 +106,7 @@
             "id": "did:example:hospital"
           },
           {
-            "id": "RTjJkc8pa2WbzU68qu6ZEz"
+            "id": "38b4GZkvFGmKUy2znXmcRD"
           }
         ]
       }
@@ -861,8 +861,9 @@
       "initial": true,
       "type": "protocol",
       "data": {
-        "protocol": "https://didcomm.org/connections/1.0/",
-        "startmessage": "invitation"
+        "protocol": "https://didcomm.org/basic-message/1.0/",
+        "startmessage": "basic-message",
+        "content": "Test message from send basic message button"
       },
       "next": {
         "success": "ask-demographics",

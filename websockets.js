@@ -181,10 +181,31 @@ const sendErrorMessage = (ws, errorCode, errorReason) => {
   }
 }
 
+// (RomanStepanyan) Handle success and error notifications
+const atomicFunctionMessage = (ws, actionValidation, type) => {
+  console.log(`Sending Message to websocket client of type: ${type}`)
+  try {
+    if (actionValidation && actionValidation.error) {
+      sendMessage(ws, 'GOVERNANCE', 'ACTION_ERROR', {
+        error:
+          'ERROR: Governance action was not found. Please check your governance file.',
+      })
+    } else {
+      sendMessage(ws, 'GOVERNANCE', 'ACTION_SUCCESS', {
+        notice: `${type.split('_').join(' ')} was successfully sent!`,
+      })
+    }
+  } catch (error) {
+    console.error(error)
+    throw error
+  }
+}
+
 // Handle inbound messages
 const messageHandler = async (ws, context, type, data = {}) => {
   try {
     console.log(`New Message with context: '${context}' and type: '${type}'`)
+
     switch (context) {
       case 'USERS':
         switch (type) {
@@ -364,12 +385,16 @@ const messageHandler = async (ws, context, type, data = {}) => {
                   data.workflow,
                 )
               } else {
-                // invitation = await Invitations.createSingleUseInvitation()
                 // (Eldersonar) Trigger the initial step
                 invitation = await ActionProcessor.actionStart(
                   null,
                   'connect-holder-health-issuer',
                 )
+                if (!invitation.dataValues) {
+                  sendMessage(ws, 'INVITATIONS', 'INVITATIONS_ERROR', {
+                    error: 'ERROR: The action step was not found.',
+                  })
+                }
               }
               sendMessage(ws, 'INVITATIONS', 'INVITATION', {
                 invitation_record: invitation,
@@ -816,7 +841,19 @@ const messageHandler = async (ws, context, type, data = {}) => {
                 )
 
                 // (eldersonar) Trigger next step in rules engine
-                ActionProcessor.actionStart(data.connectionID)
+                const actionValidation = await ActionProcessor.actionStart(
+                  data.connectionID,
+                )
+                if (actionValidation && actionValidation.error) {
+                  sendMessage(ws, 'GOVERNANCE', 'ACTION_ERROR', {
+                    error:
+                      'ERROR: Governance action was not found. Please check your governance file.',
+                  })
+                } else {
+                  sendMessage(ws, 'GOVERNANCE', 'ACTION_SUCCESS', {
+                    notice: 'Credential offer was successfully sent!',
+                  })
+                }
               } else {
                 console.log('No governance for credential issuance flow')
               }
@@ -877,7 +914,6 @@ const messageHandler = async (ws, context, type, data = {}) => {
       case 'GOVERNANCE':
         switch (type) {
           case 'GET_PRIVILEGES':
-            console.log('GET_PRIVILEGES')
             if (check(rules, userRoles, 'invitations:create')) {
               const privileges = await Governance.getPrivilegesByRoles()
               if (privileges.error === 'noDID') {
@@ -907,6 +943,79 @@ const messageHandler = async (ws, context, type, data = {}) => {
               }
             } else {
               sendMessage(ws, 'GOVERNANCE', 'PRIVILEGES_ERROR', {
+                error: 'ERROR: You are not authorized to create invitations.',
+              })
+            }
+            break
+
+          default:
+            console.error(`Unrecognized Message Type: ${type}`)
+            sendErrorMessage(ws, 1, 'Unrecognized Message Type')
+            break
+        }
+        break
+
+      case 'TEST_ATOMIC_FUNCTIONS':
+        switch (type) {
+          case 'SEND_BASIC_MESSAGE':
+            if (check(rules, userRoles, 'invitations:create')) {
+              // (Eldersonar) Trigger the initial step
+
+              const actionValidation = await ActionProcessor.actionStart(
+                data.connection_id,
+                'send-basic-message',
+              )
+              atomicFunctionMessage(ws, actionValidation, type)
+            } else {
+              sendMessage(ws, 'INVITATIONS', 'INVITATIONS_ERROR', {
+                error: 'ERROR: You are not authorized to create invitations.',
+              })
+            }
+            break
+          case 'ASK_QUESTION':
+            if (check(rules, userRoles, 'invitations:create')) {
+              // (Eldersonar) Trigger the initial step
+              const actionValidation = await ActionProcessor.actionStart(
+                data.connection_id,
+                'ask-demographics',
+              )
+              atomicFunctionMessage(ws, actionValidation, type)
+            } else {
+              sendMessage(ws, 'INVITATIONS', 'INVITATIONS_ERROR', {
+                error: 'ERROR: You are not authorized to create invitations.',
+              })
+            }
+            break
+
+          case 'REQUEST_DEMOGRAPHICS':
+            if (check(rules, userRoles, 'invitations:create')) {
+              // (Eldersonar) Trigger the initial step
+
+              const actionValidation = await ActionProcessor.actionStart(
+                data.connection_id,
+                'request-identity-presentation',
+              )
+
+              atomicFunctionMessage(ws, actionValidation, type)
+            } else {
+              sendMessage(ws, 'INVITATIONS', 'INVITATIONS_ERROR', {
+                error: 'ERROR: You are not authorized to create invitations.',
+              })
+            }
+            break
+
+          case 'REQUEST_MEDICAL_RELEASE':
+            if (check(rules, userRoles, 'invitations:create')) {
+              // (Eldersonar) Trigger the initial step
+
+              const actionValidation = await ActionProcessor.actionStart(
+                data.connection_id,
+                'request-presentation',
+              )
+
+              atomicFunctionMessage(ws, actionValidation, type)
+            } else {
+              sendMessage(ws, 'INVITATIONS', 'INVITATIONS_ERROR', {
                 error: 'ERROR: You are not authorized to create invitations.',
               })
             }

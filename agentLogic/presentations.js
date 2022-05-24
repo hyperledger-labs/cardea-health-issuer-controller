@@ -1,4 +1,4 @@
-const { v4: uuid } = require('uuid')
+const {v4: uuid} = require('uuid')
 
 const ControllerError = require('../errors.js')
 
@@ -160,7 +160,6 @@ const adminMessage = async (message) => {
 
       // (eldersonar) Trigger next step in rules engine
       ActionProcessor.actionComplete(message.connection_id)
-
     }
     // (mikekebert) Check to see if we received the presentation of a verified credential (Medical_Release) but the DID is not recognized
     else if (
@@ -378,7 +377,6 @@ const adminMessage = async (message) => {
 
       // (eldersonar) Trigger next step in rules engine
       ActionProcessor.actionComplete(message.connection_id)
-
     }
   } else if (message.state === null) {
     // (mikekebert) Send a basic message saying the verification failed for technical reasons

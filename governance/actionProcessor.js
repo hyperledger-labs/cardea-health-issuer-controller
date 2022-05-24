@@ -1,5 +1,6 @@
 const ConnectionsState = require('../agentLogic/connectionStates')
 const Governance = require('../agentLogic/governance')
+const AdminAPI = require('../adminAPI')
 const Util = require('../util')
 
 const updateConnectionState = async (connection_id, key, step_name, data) => {
@@ -67,7 +68,6 @@ const actionStart = async (connection_id, stepName) => {
     console.log('Just action')
 
     for (i = 0; i < governance.actions.length; i++) {
-      // Get the initial block for the proper role
       if (governance.actions[i].name === stepName) {
         step.push(governance.actions[i])
       }
@@ -89,6 +89,9 @@ const actionStart = async (connection_id, stepName) => {
 
   if (step[0]) {
     console.log('WE ARE ON STEP --------> ' + step[0].name + ' <---------')
+  } else {
+    console.log('action not found')
+    return {error: 'action not found'}
   }
 
   console.log('Step')
@@ -101,8 +104,14 @@ const actionStart = async (connection_id, stepName) => {
       console.log(' ')
       console.log('THIS IS AN ACTION BLOCK')
 
-      // TODO: switch to the protocol instead
       switch (step[0].data.protocol) {
+        case 'https://didcomm.org/basic-message/1.0/':
+          console.log('basic message')
+          await AdminAPI.Connections.sendBasicMessage(connection_id, {
+            content: step[0].data.content,
+          })
+          break
+
         case 'https://didcomm.org/connections/1.0/':
           console.log('invitation')
           invitation = await AgentLogic.Invitations.createSingleUseInvitation()
@@ -113,6 +122,7 @@ const actionStart = async (connection_id, stepName) => {
             'action',
             stepName,
           )
+          console.log('this is invitation', invitation)
           return invitation
 
         case 'https://didcomm.org/questionAnswer/1.0/':
@@ -140,7 +150,6 @@ const actionStart = async (connection_id, stepName) => {
           break
 
         case 'https://didcomm.org/issue-credential/1.0/':
-          console.log('issue credential')
           await AgentLogic.Credentials.autoIssueCredential(
             connection_id,
             undefined,
