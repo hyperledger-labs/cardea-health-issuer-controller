@@ -59,9 +59,9 @@ const removeConnectionStates = async function (connection_id) {
   }
 }
 
-const removeConnectionsStates = async function (connection_id) {
+const removeConnectionsStates = async function () {
   try {
-    await ConnectionsState.deleteConnectionsStates(connection_id)
+    await ConnectionsState.deleteConnectionsStates()
   } catch (error) {
     console.error('Error Removing ALL Connection State')
     throw error
