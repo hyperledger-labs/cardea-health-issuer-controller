@@ -54,15 +54,40 @@ app.use('/api/second-controller', (req, res) => {
   res.status(200).send()
 })
 
+// (eldersonar) 
 app.use(
   '/api/governance-framework',
-  // express.static('governance-framework.json'),
+  express.static('governance-framework.json'),
+)
+
+app.use(
+  '/api/governance-framework-basic-message',
   express.static('governance-framework-basic-message.json'),
-  // express.static('governance-framework-ask-demographics.json'),
-  // express.static('governance-framework-request-demographics.json'),
-  // express.static('governance-framework-issue-lab-result.json'),
-  // express.static('governance-framework-issue-medical-release.json'),
-  // express.static('governance-framework-request-presentation.json'),
+)
+
+app.use(
+  '/api/governance-framework-ask-demographics',
+  express.static('governance-framework-ask-demographics.json'),
+)
+
+app.use(
+  '/api/governance-framework-request-demographics',
+  express.static('governance-framework-request-demographics.json'),
+)
+
+app.use(
+  '/api/governance-framework-issue-lab-result',
+  express.static('governance-framework-issue-lab-result.json'),
+)
+
+app.use(
+  '/api/governance-framework-issue-medical-release',
+  express.static('governance-framework-issue-medical-release.json'),
+)
+
+app.use(
+  '/api/governance-framework-request-presentation',
+  express.static('governance-framework-request-presentation.json'),
 )
 
 // (eldersonar) Create database
