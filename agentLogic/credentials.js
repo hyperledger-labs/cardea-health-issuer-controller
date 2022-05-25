@@ -126,8 +126,8 @@ const adminMessage = async (credentialIssuanceMessage) => {
       )
     }
 
-     // Go to the next step
-     if (credentialIssuanceMessage.state === 'credential_acked') {
+    // Go to the next step
+    if (credentialIssuanceMessage.state === 'credential_acked') {
       // (eldersonar) First, get connection current state name by id
       const currentState = await ConnectionStates.getConnectionStates(
         credentialIssuanceMessage.connection_id,

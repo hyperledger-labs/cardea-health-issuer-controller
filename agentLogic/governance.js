@@ -46,7 +46,7 @@ const getPresentationDefinition = async () => {
     const governance = await getGovernance()
 
     // Presentation definition file
-    const pdfLink = governance.protocols.find(
+    const pdfLink = governance.actions.find(
       (item) => item.name === 'issue_trusted_traveler',
     ).details.presentation_definition
 
@@ -280,11 +280,11 @@ const getActions = async () => {
       if (!governance || Object.keys(governance).length === 0) {
         console.log("the file is empty or doesn't exist")
         return {error: 'noGov'}
-      } else if (!governance.hasOwnProperty('protocols')) {
+      } else if (!governance.hasOwnProperty('actions')) {
         console.log('the are no actions')
         return {error: 'noActions'}
       } else {
-        return governance.protocols
+        return governance.actions
       }
     }
   } catch (error) {
