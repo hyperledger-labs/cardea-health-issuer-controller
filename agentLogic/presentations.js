@@ -5,9 +5,10 @@ const ControllerError = require('../errors.js')
 const AdminAPI = require('../adminAPI')
 const Websockets = require('../websockets')
 const Contacts = require('./contacts')
+const ConnectionStates = require('../agentLogic/connectionStates')
 const Credentials = require('./credentials')
 const Demographics = require('./demographics')
-
+const ActionProcessor = require('../governance/actionProcessor')
 const Presentations = require('../orm/presentations')
 
 const Governance = require('./governance')
@@ -95,6 +96,12 @@ const adminMessage = async (message) => {
           .medical_release_id != null) &&
       endorserDID === agentDID
     ) {
+      console.log('')
+      console.log('Participant was successfully validated')
+      console.log('=================================================')
+      console.log('MEDICAL RELEASE PROOF')
+      console.log('=================================================')
+      console.log('')
       // (mikekebert) Check the data format to see if the presentation requires the referrant pattern
       if (message.presentation.requested_proof.revealed_attr_groups) {
         values =
@@ -128,6 +135,31 @@ const adminMessage = async (message) => {
         values.patient_email.raw,
         values.medical_release_id.raw,
       )
+
+      // (eldersonar) First, get connection current state name by id
+      const currentState = await ConnectionStates.getConnectionStates(
+        message.connection_id,
+        'action',
+      )
+
+      // (eldersonar) Writing connection state to DB
+      await ConnectionStates.updateOrCreateConnectionState(
+        message.connection_id,
+        'action',
+        {
+          step_name: currentState.value.step_name,
+          data: {
+            presentationMessageState: message.state,
+            // (eldersonar) TODO: Remove after development and testing
+            // Add test decision here and change the next step on the "request-presentation" action in the governance file
+            // We can handle strings, numbers and booleans
+            // decision: 55.123
+          },
+        },
+      )
+
+      // (eldersonar) Trigger next step in rules engine
+      ActionProcessor.actionComplete(message.connection_id)
     }
     // (mikekebert) Check to see if we received the presentation of a verified credential (Medical_Release) but the DID is not recognized
     else if (
@@ -149,6 +181,11 @@ const adminMessage = async (message) => {
           "We're sorry, but we don't currently recognize the issuer of your credential and cannot approve it at this time.",
       })
     } else {
+      console.log('')
+      console.log('=================================================')
+      console.log('MEDICAL RELEASE PRESENTATION')
+      console.log('=================================================')
+      console.log('')
       // (mikekebert) We received self-attested demographic data
       values = {}
       values = Object.assign(
@@ -298,18 +335,48 @@ const adminMessage = async (message) => {
         attributes: attributes,
       }
 
-      // (mikekebert) Request issuance of the Medical_Release credential
-      await Credentials.autoIssueCredential(
-        newCredential.connectionID,
-        undefined,
-        undefined,
-        newCredential.schemaID,
-        newCredential.schemaVersion,
-        newCredential.schemaName,
-        newCredential.schemaIssuerDID,
-        newCredential.comment,
-        newCredential.attributes,
+      // // (mikekebert) Request issuance of the Medical_Release credential
+      // await Credentials.autoIssueCredential(
+      //   newCredential.connectionID,
+      //   undefined,
+      //   undefined,
+      //   newCredential.schemaID,
+      //   newCredential.schemaVersion,
+      //   newCredential.schemaName,
+      //   newCredential.schemaIssuerDID,
+      //   newCredential.comment,
+      //   newCredential.attributes,
+      // )
+
+      // (eldersonar) First, get connection current state name by id
+      const currentState = await ConnectionStates.getConnectionStates(
+        message.connection_id,
+        'action',
       )
+
+      // (eldersonar) Writing connection state to DB
+      await ConnectionStates.updateOrCreateConnectionState(
+        message.connection_id,
+        'action',
+        {
+          step_name: currentState.value.step_name,
+          data: {
+            presentationMessageState: message.state,
+          },
+        },
+      )
+
+      // (eldersonar) Writing connection data to DB
+      await ConnectionStates.updateOrCreateConnectionState(
+        message.connection_id,
+        'form_data',
+        {
+          credential: newCredential,
+        },
+      )
+
+      // (eldersonar) Trigger next step in rules engine
+      ActionProcessor.actionComplete(message.connection_id)
     }
   } else if (message.state === null) {
     // (mikekebert) Send a basic message saying the verification failed for technical reasons

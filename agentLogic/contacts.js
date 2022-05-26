@@ -2,6 +2,9 @@ const AdminAPI = require('../adminAPI')
 const Websockets = require('../websockets.js')
 
 const Connections = require('../orm/connections')
+
+const ConnectionStates = require('../agentLogic/connectionStates')
+
 const Contacts = require('../orm/contacts')
 const ContactsCompiled = require('../orm/contactsCompiled')
 const Demographics = require('../orm/demographics')
@@ -156,15 +159,35 @@ const adminMessage = async (connectionMessage) => {
 
     // (mikekebert) Send a question to the new contact
     if (connectionMessage.state === 'active') {
-      QuestionAnswer.askQuestion(
+      // QuestionAnswer.askQuestion(
+      //   connectionMessage.connection_id,
+      //   'Have you received a Medical Release credential from Cardea Lab before?',
+      //   'Please select an option below:',
+      //   [
+      //     {text: 'I need a new credential'},
+      //     {text: 'I already have a credential'},
+      //   ],
+      // )
+      // (eldersonar) First, get connection current state name by id
+      const currentState = await ConnectionStates.getConnectionStates(
         connectionMessage.connection_id,
-        'Have you received a Medical Release credential from Cardea Lab before?',
-        'Please select an option below:',
-        [
-          {text: 'I need a new credential'},
-          {text: 'I already have a credential'},
-        ],
+        'action',
       )
+
+      // (eldersonar) Writing connection state to DB
+      await ConnectionStates.updateOrCreateConnectionState(
+        connectionMessage.connection_id,
+        'action',
+        {
+          step_name: currentState.value.step_name,
+          data: {
+            connectionMessageState: connectionMessage.state,
+          },
+        },
+      )
+
+      // (eldersonar) Trigger next step in rules engine
+      ActionProcessor.actionComplete(connectionMessage.connection_id)
     }
 
     contact = await ContactsCompiled.readContactByConnection(
@@ -187,4 +210,5 @@ module.exports = {
   getContactByConnection,
 }
 
-const QuestionAnswer = require('./questionAnswer')
+// const QuestionAnswer = require('./questionAnswer')
+const ActionProcessor = require('../governance/actionProcessor')
