@@ -24,12 +24,10 @@ const getGovernance = async () => {
       // url: 'http://localhost:3100/api/governance-framework',
       url: `${process.env.GOVERNANCE_PATH}`,
       httpsAgent: agent,
-      // url: 'https://government.black.indiciotech.io/api/governance-framework'
     }).then((res) => {
-      console.log('......................................')
-      console.log(res.data)
       return res.data
     })
+
     return response
   } catch (error) {
     console.error('Governance Document Request Error')
@@ -153,11 +151,9 @@ const getPermissionsByDID = async () => {
 const getPrivilegesByRoles = async () => {
   try {
     const did = await getDID()
-
     if (!did) return {error: 'noDID'}
     else {
       const governance = await getGovernance()
-
       // (eldersonar) missing or empty governance
       if (!governance || Object.keys(governance).length === 0) {
         console.log("the file is empty or doesn't exist")
