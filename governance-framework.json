@@ -447,7 +447,7 @@
         "startmessage": "question",
         "question_answer": [
           {
-            "question": "Have you received a Medical Release credential from the Bronx RHIO before?"
+            "question": "Have you received a Medical Release credential from the <your lab participant here> before?"
           },
           {
             "question_detail": "Please select an option below:"
