@@ -2,6 +2,7 @@ const ConnectionsState = require('../agentLogic/connectionStates')
 const Governance = require('../agentLogic/governance')
 const AdminAPI = require('../adminAPI')
 const Util = require('../util')
+const Settings = require('../agentLogic/settings')
 
 const updateConnectionState = async (connection_id, key, step_name, data) => {
   await ConnectionsState.updateOrCreateConnectionState(connection_id, key, {
@@ -19,15 +20,19 @@ const updateConnectionData = async (connection_id, key, data) => {
 // Proccesing action start phase
 const actionStart = async (connection_id, stepName) => {
   let governance = null
-  let role = null
+  // let role = null
 
   // Get roles for potential extra validation
   try {
-    governance = await Governance.getGovernance()
+    const selectedGovernance = await Settings.getSelectedGovernance()
+    governance = selectedGovernance.value.governance_file
 
-    if (governance) {
-      role = await Governance.getPermissionsByDID()
-    }
+    console.log("action processor governance")
+    console.log(governance.actions.length)
+
+    // if (governance) {
+    //   role = await Governance.getPermissionsByDID()
+    // }
   } catch (err) {
     console.log(err)
   }
@@ -66,7 +71,7 @@ const actionStart = async (connection_id, stepName) => {
 
   if (stepName) {
     console.log('Just action')
-
+    
     for (i = 0; i < governance.actions.length; i++) {
       if (governance.actions[i].name === stepName) {
         step.push(governance.actions[i])
@@ -91,7 +96,7 @@ const actionStart = async (connection_id, stepName) => {
     console.log('WE ARE ON STEP --------> ' + step[0].name + ' <---------')
   } else {
     console.log('action not found')
-    return {error: 'action not found'}
+    return { error: 'action not found' }
   }
 
   console.log('Step')
@@ -201,7 +206,8 @@ const actionComplete = async (connection_id) => {
   let role = null
 
   try {
-    governance = await Governance.getGovernance()
+    const selectedGovernance = await Settings.getSelectedGovernance()
+    governance = selectedGovernance.value.governance_file
 
     if (governance) {
       role = await Governance.getPermissionsByDID()
@@ -239,8 +245,8 @@ const actionComplete = async (connection_id) => {
 
   console.log(
     'WE ARE ON STEP --------> ' +
-      currentState.dataValues.value.step_name +
-      ' <---------',
+    currentState.dataValues.value.step_name +
+    ' <---------',
   )
 
   console.log('Step')
@@ -400,8 +406,8 @@ const actionComplete = async (connection_id) => {
       console.log(currentState.dataValues.value.data.decision)
       console.log(
         "The datatype '" +
-          typeof currentState.dataValues.value.data.decision +
-          "' is not supported at the moment",
+        typeof currentState.dataValues.value.data.decision +
+        "' is not supported at the moment",
       )
     }
 

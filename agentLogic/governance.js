@@ -1,6 +1,7 @@
 const axios = require('axios')
 const DIDs = require('../adminAPI/dids.js')
 const GovernanceFiles = require('../orm/governance')
+// const Settings = require('./settings')
 
 // (eldersonar) Set up the ssl check flag for testing if SSL cert is expired during live test
 // If not set, this code will use default settings for axios calls
@@ -44,7 +45,8 @@ const getGovernance = async (path) => {
 // (eldersonar) Get Presentation Definition file
 const getPresentationDefinition = async () => {
   try {
-    const governance = await getGovernance()
+    // const governance = await getGovernance()
+    const governance = await Settings.getSelectedGovernance()
 
     // Presentation definition file
     const pdfLink = governance.actions.find(
@@ -97,7 +99,8 @@ const getParticipantByDID = async () => {
     const did = await getDID()
     if (!did) return { error: 'noDID' }
     else {
-      const governance = await getGovernance()
+      const selectedGovernance = await Settings.getSelectedGovernance()
+      const governance = selectedGovernance.value.governance_file
 
       if (!governance || Object.keys(governance).length === 0) {
         console.log("the file is empty or doesn't exist")
@@ -132,14 +135,21 @@ const getParticipantByDID = async () => {
 const getPermissionsByDID = async () => {
   try {
     const did = await getDID()
-    const governance = await getGovernance()
+
+    const selectedGovernance = await Settings.getSelectedGovernance()
+    const governance = selectedGovernance.value.governance_file
+
     let permissions = []
 
     for (i = 0; i < governance.permissions.length; i++) {
+      console.log(governance.permissions[i].when.any)
       if (governance.permissions[i].when.any.find((item) => item.id === did)) {
         permissions.push(governance.permissions[i].grant[0])
       }
     }
+
+    console.log("permissions")
+    console.log(permissions)
 
     return permissions
   } catch (error) {
@@ -149,12 +159,15 @@ const getPermissionsByDID = async () => {
 }
 
 // Get privileges by roles
+// (eldersonar) Do we want to support "any" role???
 const getPrivilegesByRoles = async () => {
   try {
     const did = await getDID()
-    if (!did) return {error: 'noDID'}
+    if (!did) return { error: 'noDID' }
     else {
-      const governance = await getGovernance()
+      const selectedGovernance = await Settings.getSelectedGovernance()
+      const governance = selectedGovernance.value.governance_file
+
       // (eldersonar) missing or empty governance
       if (!governance || Object.keys(governance).length === 0) {
         console.log("the file is empty or doesn't exist")
@@ -173,13 +186,32 @@ const getPrivilegesByRoles = async () => {
         // (eldersonar) You have a pass
       } else {
         const permissions = await getPermissionsByDID()
+        let privileges = []
 
-        if (!permissions || permissions.length == 0)
-          // return { error: 'noPermissions' }
-          return { error: 'noPrivileges' }
+        if (!permissions || permissions.length == 0) {
+
+          for (j = 0; j < governance.privileges.length; j++) {
+            if (
+              governance.privileges[j].when.any.find(
+                (item) => item.role === "any",
+              )
+            ) {
+              privileges.push(governance.privileges[j].grant[0])
+            }
+          }
+          if (privileges.length !== 0) {
+            return privileges
+          } 
+          // else {
+          //   console.log("I'm here in the else")
+          //   // return { error: 'noPrivileges' }
+          //   return
+          // }
+
+        }
+        // return { error: 'noPermissions' }
         else {
-          let privileges = []
-
+          console.log("I'm here in the else")
           // (eldersonar) Get a list of privileges by roles
           for (let i = 0; i < permissions.length; i++) {
             for (j = 0; j < governance.privileges.length; j++) {
@@ -216,7 +248,8 @@ const getActionsByPrivileges = async () => {
 
     if (!did) return { error: 'noDID' }
     else {
-      const governance = await getGovernance()
+      const selectedGovernance = await Settings.getSelectedGovernance()
+      const governance = selectedGovernance.value.governance_file
 
       // (eldersonar) missing or empty governance
       if (!governance || Object.keys(governance).length === 0) {
@@ -273,20 +306,17 @@ const getActionsByPrivileges = async () => {
 // Get actions
 const getActions = async () => {
   try {
-    const did = await getDID()
-    if (!did) return { error: 'noDID' }
-    else {
-      const governance = await getGovernance()
+    const selectedGovernance = await Settings.getSelectedGovernance()
+    const governance = selectedGovernance.value.governance_file
 
-      if (!governance || Object.keys(governance).length === 0) {
-        console.log("the file is empty or doesn't exist")
-        return { error: 'noGov' }
-      } else if (!governance.hasOwnProperty('actions')) {
-        console.log('the are no actions')
-        return { error: 'noActions' }
-      } else {
-        return governance.actions
-      }
+    if (!governance || Object.keys(governance).length === 0) {
+      console.log("the file is empty or doesn't exist")
+      return { error: 'noGov' }
+    } else if (!governance.hasOwnProperty('actions')) {
+      console.log('the are no actions')
+      return { error: 'noActions' }
+    } else {
+      return governance.actions
     }
   } catch (error) {
     console.error('Error fetching actions')
@@ -300,7 +330,8 @@ const getParticipants = async () => {
     const did = await getDID()
     if (!did) return { error: 'noDID' }
     else {
-      const governance = await getGovernance()
+      // const governance = await getGovernance()
+      const governance = Settings.getSelectedGovernance()
 
       if (!governance || Object.keys(governance).length === 0) {
         console.log("the file is empty or doesn't exist")
@@ -331,16 +362,16 @@ const updateOrCreateGovernanceFile = async function (
         governance_path,
         governance_file,
       )
-  
+
       const governanceFile = await GovernanceFiles.readGovernanceFile(
         governance_path,
       )
-  
+
       return governanceFile
     } else {
-      return {error: "ERROR: no JSON object was found at this url"}
+      return { error: "ERROR: no JSON object was found at this url" }
     }
-    
+
   } catch (error) {
     console.error('Error Fetching Governance File')
     throw error
@@ -364,8 +395,8 @@ const getAll = async () => {
   try {
     const governanceOptions = await GovernanceFiles.readGovernanceFiles()
 
-    // (eldersonar) remove governance-framework object from return
-    governanceOptions.forEach(function(governanceOption){ governanceOption.governance_file = {} })
+    // (eldersonar) This removes governance-framework object from return
+    governanceOptions.forEach(function (governanceOption) { governanceOption.governance_file = {} })
 
     return governanceOptions
   } catch (error) {
@@ -399,3 +430,5 @@ module.exports = {
   getAll,
   removeGovernanceFile
 }
+
+const Settings = require('./settings')

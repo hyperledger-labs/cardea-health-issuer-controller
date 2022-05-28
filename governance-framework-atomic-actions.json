@@ -93,7 +93,8 @@
       "travel_issuer",
       "health_verifier",
       "travel_verifier",
-      "hospitality_verifier"
+      "hospitality_verifier",
+      "any"
     ],
     "permissions": [
       {
@@ -155,6 +156,18 @@
           "any": [
             {
               "id": "did:example:casino"
+            }
+          ]
+        }
+      },
+      {
+        "grant": [
+          "any"
+        ],
+        "when": {
+          "any": [
+            {
+              "id": ""
             }
           ]
         }
@@ -275,7 +288,7 @@
         "when": {
           "any": [
             {
-              "role": "health_issuer"
+              "role": "any"
             }
           ]
         }
@@ -287,7 +300,7 @@
         "when": {
           "any": [
             {
-              "role": "health_issuer"
+              "role": "any"
             }
           ]
         }
@@ -299,7 +312,7 @@
         "when": {
           "any": [
             {
-              "role": "health_issuer"
+              "role": "any"
             }
           ]
         }
@@ -311,7 +324,7 @@
         "when": {
           "any": [
             {
-              "role": "health_issuer"
+              "role": "any"
             },
             {
               "role": "holder"
@@ -338,7 +351,7 @@
         "when": {
           "any": [
             {
-              "role": "health_issuer"
+              "role": "any"
             },
             {
               "role": "travel_issuer"
@@ -423,7 +436,7 @@
       {
         "name": "connect-holder-health-issuer",
         "role": [
-          "health_issuer"
+          "any"
         ],
         "initial": true,
         "type": "protocol",
@@ -439,7 +452,7 @@
       {
         "name": "ask-demographics",
         "role": [
-          "health_issuer"
+          "any"
         ],
         "type": "protocol",
         "data": {
@@ -472,7 +485,7 @@
       {
         "name": "request-identity-presentation",
         "role": [
-          "health_issuer"
+          "any"
         ],
         "type": "protocol",
         "data": {
@@ -487,7 +500,7 @@
       {
         "name": "request-presentation",
         "role": [
-          "health_issuer"
+          "any"
         ],
         "type": "protocol",
         "data": {
@@ -502,7 +515,7 @@
       {
         "name": "issue-medical-release",
         "role": [
-          "health_issuer"
+          "any"
         ],
         "type": "protocol",
         "data": {
@@ -518,7 +531,7 @@
       {
         "name": "issue-lab-result",
         "role": [
-          "health_issuer"
+          "any"
         ],
         "type": "protocol",
         "data": {
@@ -534,7 +547,7 @@
       {
         "name": "issue-exemption",
         "role": [
-          "health_issuer"
+          "any"
         ],
         "type": "protocol",
         "data": {
@@ -550,7 +563,7 @@
       {
         "name": "issue-vaccination",
         "role": [
-          "health_issuer"
+          "any"
         ],
         "type": "protocol",
         "data": {
@@ -566,7 +579,7 @@
       {
         "name": "send-basic-message",
         "role": [
-          "health_issuer"
+          "any"
         ],
         "initial": true,
         "type": "protocol",

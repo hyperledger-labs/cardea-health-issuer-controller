@@ -26,21 +26,21 @@ exports.up = function (db) {
       'governance_files',
       ['governance_path', 'governance_file'],
       [
-        'http://localhost:3100/api/governance-framework',
+        'http://localhost:3100/api/governance-framework-atomic-actions',
         JSON.stringify({
           "@context": [
             "https://github.com/hyperledger/aries-rfcs/blob/main/concepts/0430-machine-readable-governance-frameworks/context.jsonld"
           ],
-          "name": "Aruba COVID Governance",
+          "name": "Cardea Governance",
           "version": "0.1",
           "format": "1.0",
           "id": "<uuid>",
-          "description": "This document describes COVID health and travel governance for the nation of Aruba in a machine readable way.",
-          "last_updated": "2021-06-10",
+          "description": "This document describes COVID health governance in a machine readable way.",
+          "last_updated": "2022-05-25",
           "docs_uri": "need_to_create",
           "data_uri": "need_to_create",
           "topics": [
-            "medical, travel"
+            "medical"
           ],
           "jurisdictions": [
             "US>NY>New York City",
@@ -48,7 +48,7 @@ exports.up = function (db) {
           ],
           "geos": [
             "USA",
-            "Aruba"
+            "Ukraine"
           ],
           "schemas": [
             {
@@ -86,21 +86,21 @@ exports.up = function (db) {
           ],
           "participants": [
             {
-              "name": "Aruba Government",
+              "name": "Government",
               "id": "8ovm21fXr1qZHoSuDcBtmb",
               "describe": {
-                "label": "Aruba",
-                "sublabel": "Aruba Government",
+                "label": "Government",
+                "sublabel": "Government",
                 "website": "issuinggovernmentsite.org",
                 "email": "credential_manager@issuinggovernmentsite.org"
               }
             },
             {
-              "name": "General Obeorthot Hospital of Aruba",
-              "id": "EomaMjoUNRJgJdebyQJpp2",
+              "name": "General Hospital",
+              "id": "3pTbxYsKQq3qitvnJyZeYJ",
               "describe": {
-                "label": "Obeorthot Hospital",
-                "sublabel": "General Obeorthot Hospital of Aruba",
+                "label": "General Hospital",
+                "sublabel": "General Hospital",
                 "website": "issuinglabsite.com",
                 "email": "credential_manager@issuinglabsite.com"
               }
@@ -122,7 +122,8 @@ exports.up = function (db) {
             "travel_issuer",
             "health_verifier",
             "travel_verifier",
-            "hospitality_verifier"
+            "hospitality_verifier",
+            "any"
           ],
           "permissions": [
             {
@@ -135,7 +136,7 @@ exports.up = function (db) {
                     "id": "did:example:hospital"
                   },
                   {
-                    "id": "EomaMjoUNRJgJdebyQJpp2"
+                    "id": "3pTbxYsKQq3qitvnJyZeYJ"
                   }
                 ]
               }
@@ -184,6 +185,18 @@ exports.up = function (db) {
                 "any": [
                   {
                     "id": "did:example:casino"
+                  }
+                ]
+              }
+            },
+            {
+              "grant": [
+                "any"
+              ],
+              "when": {
+                "any": [
+                  {
+                    "id": ""
                   }
                 ]
               }
@@ -304,7 +317,7 @@ exports.up = function (db) {
               "when": {
                 "any": [
                   {
-                    "role": "health_issuer"
+                    "role": "any"
                   }
                 ]
               }
@@ -316,7 +329,7 @@ exports.up = function (db) {
               "when": {
                 "any": [
                   {
-                    "role": "health_issuer"
+                    "role": "any"
                   }
                 ]
               }
@@ -328,7 +341,7 @@ exports.up = function (db) {
               "when": {
                 "any": [
                   {
-                    "role": "health_issuer"
+                    "role": "any"
                   }
                 ]
               }
@@ -340,7 +353,7 @@ exports.up = function (db) {
               "when": {
                 "any": [
                   {
-                    "role": "health_issuer"
+                    "role": "any"
                   },
                   {
                     "role": "holder"
@@ -367,7 +380,7 @@ exports.up = function (db) {
               "when": {
                 "any": [
                   {
-                    "role": "health_issuer"
+                    "role": "any"
                   },
                   {
                     "role": "travel_issuer"
@@ -452,7 +465,7 @@ exports.up = function (db) {
             {
               "name": "connect-holder-health-issuer",
               "role": [
-                "health_issuer"
+                "any"
               ],
               "initial": true,
               "type": "protocol",
@@ -461,14 +474,14 @@ exports.up = function (db) {
                 "startmessage": "invitation"
               },
               "next": {
-                "success": "ask-demographics",
+                "success": "",
                 "error": "some-kind-of-error-handler..."
               }
             },
             {
               "name": "ask-demographics",
               "role": [
-                "health_issuer"
+                "any"
               ],
               "type": "protocol",
               "data": {
@@ -476,7 +489,7 @@ exports.up = function (db) {
                 "startmessage": "question",
                 "question_answer": [
                   {
-                    "question": "Have you received a Medical Release credential from the Bronx RHIO before?"
+                    "question": "Have you received a question from ask question button?"
                   },
                   {
                     "question_detail": "Please select an option below:"
@@ -484,80 +497,24 @@ exports.up = function (db) {
                   {
                     "valid_responses": [
                       {
-                        "text": "I need a new credential"
+                        "text": "Yes"
                       },
                       {
-                        "text": "I already have a credential"
+                        "text": "No"
                       }
                     ]
                   }
                 ]
               },
               "next": {
-                "success": "decision-medical-release-option",
-                "error": "some-kind-of-error-handler..."
-              }
-            },
-            {
-              "name": "decision-medical-release-option",
-              "role": [
-                "health_issuer"
-              ],
-              "type": "decision",
-              "data": {
-                "input_name": "medical_release_option",
-                "input_type": "string",
-                "options": [
-                  {
-                    "values": [
-                      "I need a new credential"
-                    ],
-                    "operator": "equal",
-                    "regex": {
-                      "flags":"",
-                      "source":"^[a-zA-Z\\s]*$"
-                    },
-                    "next": "request-identity-presentation",
-                    "error": "validation-error-handler..."
-                  },
-                  {
-                    "values": [
-                      "I already have a credential"
-                    ],
-                    "operator": "equal",
-                    "regex": {
-                      "flags":"",
-                      "source":"^[a-zA-Z\\s]*$"
-                    },
-                    "next": "request-presentation",
-                    "error": "validation-error-handler..."
-                  }
-                ]
-              },
-              "next": {
-                "success": "default",
+                "success": "",
                 "error": "some-kind-of-error-handler..."
               }
             },
             {
               "name": "request-identity-presentation",
               "role": [
-                "health_issuer"
-              ],
-              "type": "protocol",
-              "data": {
-                "protocol": "https://didcomm.org/present-proof/1.0/",
-                "startmessage": ["request-presentation"]
-              },
-              "next": {
-                "success": "issue-medical-release",
-                "error": "some-kind-of-error-handler..."
-              }
-            },
-            {
-              "name": "request-presentation",
-              "role": [
-                "health_issuer"
+                "any"
               ],
               "type": "protocol",
               "data": {
@@ -570,152 +527,14 @@ exports.up = function (db) {
               }
             },
             {
-              "name": "test-operators-number",
+              "name": "request-presentation",
               "role": [
-                "health_issuer"
+                "any"
               ],
-              "type": "decision",
+              "type": "protocol",
               "data": {
-                "input_name": "age_test",
-                "input_type": "number",
-                "options": [
-                  {
-                    "values": [
-                      16
-                    ],
-                    "operator": "equal",
-                    "regex": {},
-                    "next": "number-equal-16"
-                  },
-                  {
-                    "values": [
-                      18
-                    ],
-                    "operator": "less_than",
-                    "regex": {},
-                    "next": "number-less-than-18"
-                  },
-                  {
-                    "values": [
-                      21
-                    ],
-                    "operator": "less_than",
-                    "regex": {},
-                    "next": "number-less-than-21"
-                  },
-                  {
-                    "values": [
-                      55
-                    ],
-                    "operator": "less_than",
-                    "regex": {},
-                    "next": "number-less-than-55"
-                  },
-                  {
-                    "values": [
-                      55
-                    ],
-                    "operator": "greater_than_equal_to",
-                    "regex": {},
-                    "next": "number-greater-than-equal-55"
-                  }
-                ]
-              },
-              "next": {
-                "success": "default",
-                "error": "some-kind-of-error-handler..."
-              }
-            },
-            {
-              "name": "test-operators-string",
-              "role": [
-                "health_issuer"
-              ],
-              "type": "decision",
-              "data": {
-                "input_name": "covid_test_result",
-                "input_type": "string",
-                "options": [
-                  {
-                    "values": [
-                      "Negative"
-                    ],
-                    "operator": "equal",
-                    "regex": {
-                      "flags":"",
-                      "source":"^[a-zA-Z\\s]*$"
-                    },
-                    "next": "string-equal"
-                  },
-                  {
-                    "values": [
-                      "Negative"
-                    ],
-                    "operator": "not_equal",
-                    "regex": {},
-                    "next": "string-not-equal"
-                  }
-                ]
-              },
-              "next": {
-                "success": "default",
-                "error": "some-kind-of-error-handler..."
-              }
-            },
-            {
-              "name": "test-operators-boolean",
-              "role": [
-                "health_issuer"
-              ],
-              "type": "decision",
-              "data": {
-                "input_name": "some_boolean_test",
-                "input_type": "boolean",
-                "options": [
-                  {
-                    "values": [
-                      true
-                    ],
-                    "operator": "equal",
-                    "regex": {},
-                    "next": "boolean-equal"
-                  },
-                  {
-                    "values": [
-                      true
-                    ],
-                    "operator": "not_equal",
-                    "regex": {},
-                    "next": "boolean-not-equal"
-                  }
-                ]
-              },
-              "next": {
-                "success": "default",
-                "error": "some-kind-of-error-handler..."
-              }
-            },
-            {
-              "name": "decision-country-of-origin",
-              "role": [
-                "travel_issuer"
-              ],
-              "type": "decision",
-              "data": {
-                "input_name": "country_of_origin",
-                "options": [
-                  {
-                    "values": [
-                      "usA"
-                    ],
-                    "next": "reject-country"
-                  },
-                  {
-                    "values": [
-                    ],
-                    "next": ""
-                  }
-                ]
+                "protocol": "https://didcomm.org/present-proof/1.0/",
+                "startmessage": ["request-presentation"]
               },
               "next": {
                 "success": "",
@@ -725,7 +544,7 @@ exports.up = function (db) {
             {
               "name": "issue-medical-release",
               "role": [
-                "health_issuer"
+                "any"
               ],
               "type": "protocol",
               "data": {
@@ -741,7 +560,7 @@ exports.up = function (db) {
             {
               "name": "issue-lab-result",
               "role": [
-                "health_issuer"
+                "any"
               ],
               "type": "protocol",
               "data": {
@@ -757,7 +576,7 @@ exports.up = function (db) {
             {
               "name": "issue-exemption",
               "role": [
-                "health_issuer"
+                "any"
               ],
               "type": "protocol",
               "data": {
@@ -773,7 +592,7 @@ exports.up = function (db) {
             {
               "name": "issue-vaccination",
               "role": [
-                "health_issuer"
+                "any"
               ],
               "type": "protocol",
               "data": {
@@ -787,99 +606,20 @@ exports.up = function (db) {
               }
             },
             {
-              "name": "request-health-proof",
+              "name": "send-basic-message",
               "role": [
-                "travel_issuer"
+                "any"
               ],
               "initial": true,
               "type": "protocol",
               "data": {
-                "protocol": "https://didcomm.org/issue-credential/1.0/",
-                "startmessage": "request-presentation",
-                "presentation_definition": "http://localhost:3100/api/presentation-exchange"
-              },
-              "next": {
-                "success": "verify-health-credential",
-                "error": "some-kind-of-error-handler..."
-              }
-            },
-            {
-              "name": "verify-health-credential",
-              "role": [
-                "travel_issuer"
-              ],
-              "type": "protocol",
-              "data": {
-                "protocol": "https://didcomm.org/present-proof/1.0/",
-                "startmessage": "request-presentation",
-                "presentation_definition": "http://localhost:3100/api/presentation-exchange"
-              },
-              "next": {
-                "success": "validate-health-credential",
-                "error": "some-kind-of-error-handler..."
-              }
-            },
-            {
-              "name": "validate-health-credential",
-              "role": [
-                "travel_issuer"
-              ],
-              "type": "protocol",
-              "data": {
-                "presentation_definition": "http://localhost:3100/api/presentation-exchange"
+                "protocol": "https://didcomm.org/basic-message/1.0/",
+                "startmessage": "basic-message",
+                "content": "The is a test basic message"
               },
               "next": {
                 "success": "",
                 "error": "some-kind-of-error-handler..."
-              }
-            },
-        
-            {
-              "name": "issue-trusted-traveler",
-              "role": [
-                "travel_issuer"
-              ],
-              "initial": true,
-              "type": "protocol",
-              "data": {
-                "protocol": "https://didcomm.org/issue-credential/1.0/",
-                "startmessage": "offer-credential",
-                "schema": "RuuJwd3JMffNwZ43DcJKN1:2:Trusted_Traveler:1.4"
-              }
-            },
-            {
-              "name": "reject-country",
-              "role": [
-                "travel-issuer"
-              ],
-              "type": "protocol",
-              "data": {
-                "protocol": "https://didcomm.org/basic-message/1.0/",
-                "startmessage": "send-message",
-                "content": "We're sorry, your country is not approved for entry by the government of Aruba"
-              },
-              "next": {
-                "success": ""
-              }
-            },
-            {
-              "name": "submit-payment",
-              "role": [
-                "point-of-sale"
-              ],
-              "type": "api",
-              "data": {
-                "api": "https://paymentmagic.com",
-                "method": "POST",
-                "attributes": [
-                  "customer_name",
-                  "customer_date_of_birth",
-                  "customer_billing_address",
-                  "customer_shipping_address",
-                  "credit_card_number",
-                  "credit_card_expiration",
-                  "credit_card_security_code"
-                ]
               }
             }
           ]

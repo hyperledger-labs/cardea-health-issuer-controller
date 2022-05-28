@@ -15,7 +15,8 @@ console.log('Websockets Setup')
 
 const getGovernance = async () => {
   try {
-    const governance = await Governance.getGovernance()
+    const selectedGovernance = await Settings.getSelectedGovernance()
+    const governance = selectedGovernance.value.governance_file
 
     return governance
   } catch (err) {
@@ -692,10 +693,11 @@ const messageHandler = async (ws, context, type, data = {}) => {
           case 'SET_SELECTED_GOVERNANCE':
             if (check(rules, userRoles, 'settings:update')) {
               console.log('SET_SELECTED_GOVERNANCE')
-              const selectedGovernance = await Settings.setSelectedGovernance({governance_path: data})
+              const selectedGovernance = await Settings.setSelectedGovernance({ governance_path: data })
+
               if (selectedGovernance) {
-                sendMessageToAll('GOVERNANCE', 'SELECTED_GOVERNANCE', {
-                  selected_governance: { label: selectedGovernance.value, value: selectedGovernance.value }
+                sendMessageToAll('GOVERNANCE', 'UPDATED_SELECTED_GOVERNANCE', {
+                  selected_governance: { label: selectedGovernance.value.governance_path, value: selectedGovernance.value.governance_path }
                 })
                 sendMessageToAll(
                   'SETTINGS',
@@ -956,6 +958,7 @@ const messageHandler = async (ws, context, type, data = {}) => {
           case 'GET_PRIVILEGES':
             if (check(rules, userRoles, 'invitations:create')) {
               const privileges = await Governance.getPrivilegesByRoles()
+
               if (privileges.error === 'noDID') {
                 console.log('No public did anchored')
                 sendMessage(ws, 'GOVERNANCE', 'PRIVILEGES_ERROR', {
@@ -1029,7 +1032,7 @@ const messageHandler = async (ws, context, type, data = {}) => {
               )
               atomicFunctionMessage(ws, actionValidation, type)
             } else {
-              sendMessage(ws, 'INVITATIONS', 'INVITATIONS_ERROR', {
+              sendMessage(ws, 'GOVERNANCE', 'ACTION_ERROR', {
                 error: 'ERROR: You are not authorized to create invitations.',
               })
             }
@@ -1043,7 +1046,7 @@ const messageHandler = async (ws, context, type, data = {}) => {
               )
               atomicFunctionMessage(ws, actionValidation, type)
             } else {
-              sendMessage(ws, 'INVITATIONS', 'INVITATIONS_ERROR', {
+              sendMessage(ws, 'GOVERNANCE', 'ACTION_ERROR', {
                 error: 'ERROR: You are not authorized to create invitations.',
               })
             }
@@ -1060,7 +1063,7 @@ const messageHandler = async (ws, context, type, data = {}) => {
 
               atomicFunctionMessage(ws, actionValidation, type)
             } else {
-              sendMessage(ws, 'INVITATIONS', 'INVITATIONS_ERROR', {
+              sendMessage(ws, 'GOVERNANCE', 'ACTION_ERROR', {
                 error: 'ERROR: You are not authorized to create invitations.',
               })
             }
@@ -1077,7 +1080,7 @@ const messageHandler = async (ws, context, type, data = {}) => {
 
               atomicFunctionMessage(ws, actionValidation, type)
             } else {
-              sendMessage(ws, 'INVITATIONS', 'INVITATIONS_ERROR', {
+              sendMessage(ws, 'GOVERNANCE', 'ACTION_ERROR', {
                 error: 'ERROR: You are not authorized to create invitations.',
               })
             }

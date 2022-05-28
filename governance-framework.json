@@ -68,7 +68,7 @@
     },
     {
       "name": "General Hospital",
-      "id": "3pTbxYsKQq3qitvnJyZeYJ",
+      "id": "4VsDvcQJUXXX6YSvb6TCPH",
       "describe": {
         "label": "General Hospital",
         "sublabel": "General Hospital",
@@ -106,7 +106,7 @@
             "id": "did:example:hospital"
           },
           {
-            "id": "3pTbxYsKQq3qitvnJyZeYJ"
+            "id": "4VsDvcQJUXXX6YSvb6TCPH"
           }
         ]
       }
