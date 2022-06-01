@@ -141,15 +141,23 @@ const getPermissionsByDID = async () => {
 
     let permissions = []
 
+    // Get permissions
     for (i = 0; i < governance.permissions.length; i++) {
-      console.log(governance.permissions[i].when.any)
       if (governance.permissions[i].when.any.find((item) => item.id === did)) {
         permissions.push(governance.permissions[i].grant[0])
       }
     }
 
-    console.log("permissions")
-    console.log(permissions)
+    // (eldersonar) If no public DID is anchored or no permissions were given to this DID 
+    if ((did && permissions.length === 0) || !did) {
+      for (j = 0; j < governance.permissions.length; j++) {
+        if (governance.permissions[j].grant[0] === "any") {
+          permissions.push(governance.permissions[j].grant[0])
+        } else {
+          console.log('No permissions was found associated with this agent\'s DID. "any" role is also not supported by currently selected governance file...')
+        }
+      }
+    }
 
     return permissions
   } catch (error) {
@@ -159,19 +167,18 @@ const getPermissionsByDID = async () => {
 }
 
 // Get privileges by roles
-// (eldersonar) Do we want to support "any" role???
 const getPrivilegesByRoles = async () => {
   try {
     const did = await getDID()
-    if (!did) return { error: 'noDID' }
+
+    if (!did) return {error: 'noDID'}
     else {
-      const selectedGovernance = await Settings.getSelectedGovernance()
-      const governance = selectedGovernance.value.governance_file
+      const governance = await getGovernance()
 
       // (eldersonar) missing or empty governance
       if (!governance || Object.keys(governance).length === 0) {
         console.log("the file is empty or doesn't exist")
-        return { error: 'noGov' }
+        return {error: 'noGov'}
         // (eldersonar) partial governance
       } else if (
         // !governance.hasOwnProperty('participants') ||
@@ -182,36 +189,17 @@ const getPrivilegesByRoles = async () => {
       ) {
         console.log('the file is not empty, but lacks core data')
         // return { error: "limitedGov" }
-        return { error: 'noPrivileges' }
+        return {error: 'noPrivileges'}
         // (eldersonar) You have a pass
       } else {
         const permissions = await getPermissionsByDID()
-        let privileges = []
 
-        if (!permissions || permissions.length == 0) {
-
-          for (j = 0; j < governance.privileges.length; j++) {
-            if (
-              governance.privileges[j].when.any.find(
-                (item) => item.role === "any",
-              )
-            ) {
-              privileges.push(governance.privileges[j].grant[0])
-            }
-          }
-          if (privileges.length !== 0) {
-            return privileges
-          } 
-          // else {
-          //   console.log("I'm here in the else")
-          //   // return { error: 'noPrivileges' }
-          //   return
-          // }
-
-        }
-        // return { error: 'noPermissions' }
+        if (!permissions || permissions.length == 0)
+          // return { error: 'noPermissions' }
+          return {error: 'noPrivileges'}
         else {
-          console.log("I'm here in the else")
+          let privileges = []
+
           // (eldersonar) Get a list of privileges by roles
           for (let i = 0; i < permissions.length; i++) {
             for (j = 0; j < governance.privileges.length; j++) {
@@ -226,7 +214,7 @@ const getPrivilegesByRoles = async () => {
           }
 
           if (!privileges || privileges.length == 0)
-            return { error: 'noPrivileges' }
+            return {error: 'noPrivileges'}
           else {
             const uniquePrivileges = [...new Set(privileges)]
 
@@ -291,7 +279,6 @@ const getActionsByPrivileges = async () => {
           if (!actions || actions.length == 0) return { error: 'noActions' }
           else {
             const uniqueActions = [...new Set(actions)]
-
             return uniqueActions
           }
         }

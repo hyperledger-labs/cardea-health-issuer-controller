@@ -124,7 +124,8 @@ const createOutOfBandInvitation = async () => {
     // const encodedInvitation = base64url(JSONInvitation)
     // const OOBInvitationURL = `${serviceEndpoint}?oob=${encodedInvitation}`
 
-    return OOBMessage.invitation_url
+    // return OOBMessage.invitation_url
+    return OOBMessage
   } catch (error) {
     console.error('Error sending out-of-band message!')
     throw error

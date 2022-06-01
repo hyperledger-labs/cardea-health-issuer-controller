@@ -188,8 +188,7 @@ const atomicFunctionMessage = (ws, actionValidation, type) => {
   try {
     if (actionValidation && actionValidation.error) {
       sendMessage(ws, 'GOVERNANCE', 'ACTION_ERROR', {
-        error:
-          'ERROR: Governance action was not found. Please check your governance file.',
+        error: actionValidation.error,
       })
     } else {
       sendMessage(ws, 'GOVERNANCE', 'ACTION_SUCCESS', {
@@ -393,13 +392,14 @@ const messageHandler = async (ws, context, type, data = {}) => {
                 )
                 if (!invitation.dataValues) {
                   sendMessage(ws, 'INVITATIONS', 'INVITATIONS_ERROR', {
-                    error: 'ERROR: The action step was not found.',
+                    error: invitation.error,
+                  })
+                } else {
+                  sendMessage(ws, 'INVITATIONS', 'INVITATION', {
+                    invitation_record: invitation,
                   })
                 }
               }
-              sendMessage(ws, 'INVITATIONS', 'INVITATION', {
-                invitation_record: invitation,
-              })
             } else {
               sendMessage(ws, 'INVITATIONS', 'INVITATIONS_ERROR', {
                 error: 'ERROR: You are not authorized to create invitations.',
@@ -503,11 +503,28 @@ const messageHandler = async (ws, context, type, data = {}) => {
         switch (type) {
           case 'CREATE_INVITATION':
             if (check(rules, userRoles, 'invitations:create')) {
-              let invitation = await Invitations.createOutOfBandInvitation()
 
-              sendMessage(ws, 'OUT_OF_BAND', 'INVITATION', {
-                invitation_record: invitation,
-              })
+              // let invitation = await Invitations.createOutOfBandInvitation()
+
+              // sendMessage(ws, 'OUT_OF_BAND', 'INVITATION', {
+              //   invitation_record: invitation,
+              // })
+
+
+              // (Eldersonar) Trigger the initial step
+              let invitation = await ActionProcessor.actionStart(
+                null,
+                'connect-oob-holder-health-issuer',
+              )
+              if (!invitation.dataValues) {
+                sendMessage(ws, 'INVITATIONS', 'INVITATIONS_ERROR', {
+                  error: invitation.error,
+                })
+              } else {
+                sendMessage(ws, 'OUT_OF_BAND', 'INVITATION', {
+                  invitation_record: invitation,
+                })
+              }
             } else {
               sendMessage(ws, 'OUT_OF_BAND', 'INVITATIONS_ERROR', {
                 error: 'ERROR: You are not authorized to create invitations.',
@@ -887,10 +904,7 @@ const messageHandler = async (ws, context, type, data = {}) => {
                   data.connectionID,
                 )
                 if (actionValidation && actionValidation.error) {
-                  sendMessage(ws, 'GOVERNANCE', 'ACTION_ERROR', {
-                    error:
-                      'ERROR: Governance action was not found. Please check your governance file.',
-                  })
+                  atomicFunctionMessage(ws, actionValidation, type)
                 } else {
                   sendMessage(ws, 'GOVERNANCE', 'ACTION_SUCCESS', {
                     notice: 'Credential offer was successfully sent!',
@@ -996,13 +1010,15 @@ const messageHandler = async (ws, context, type, data = {}) => {
             const newGovernance = await Governance.updateOrCreateGovernanceFile(data)
 
             if (newGovernance.error) {
-              sendMessage(ws, 'GOVERNANCE', 'PRIVILEGES_ERROR', {
+              sendMessage(ws, 'SETTINGS', 'SETTINGS_ERROR', {
                 error: newGovernance.error,
               })
             } else {
               sendMessage(ws, 'GOVERNANCE', 'GOVERNANCE_OPTION_ADDED', {
                 governance_path: newGovernance
               })
+              sendMessage(ws, 'SETTINGS', 'SETTINGS_SUCCESS',
+                'New governance file was successfully added.')
             }
             break
 
