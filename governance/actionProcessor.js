@@ -30,9 +30,9 @@ const actionStart = async (connection_id, stepName) => {
 
     if (governance) {
       role = await Governance.getPermissionsByDID()
-      console.log("AP actionStart ROLE: ", role)
+      console.log('AP actionStart ROLE: ', role)
       publicDID = await Governance.getDID()
-      console.log("AP actionStart PUBLIC DID: ", publicDID)
+      console.log('AP actionStart PUBLIC DID: ', publicDID)
     }
   } catch (err) {
     console.log(err)
@@ -95,18 +95,18 @@ const actionStart = async (connection_id, stepName) => {
 
   if (step[0]) {
     console.log('WE ARE ON STEP --------> ' + step[0].name + ' <---------')
-    // (eldersonar) this will work with a single role 
+    // (eldersonar) this will work with a single role
     if (step[0].role[0] !== role[0]) {
-      console.log("Not enough permissions...")
-      return { error: 'ERROR: Not enough permissions...' }
+      console.log('Not enough permissions...')
+      return {error: 'ERROR: Not enough permissions...'}
     } else {
-      console.log("")
-      console.log("Enough permissions")
-      console.log("")
+      console.log('')
+      console.log('Enough permissions')
+      console.log('')
     }
   } else {
     console.log('action not found')
-    return { error: 'ERROR: Action not found' }
+    return {error: 'ERROR: Action not found'}
   }
 
   console.log('Step')
@@ -238,7 +238,7 @@ const actionComplete = async (connection_id) => {
 
     if (governance) {
       role = await Governance.getPermissionsByDID()
-      console.log("AP actionComplete ROLE: ", role)
+      console.log('AP actionComplete ROLE: ', role)
     }
   } catch (err) {
     console.log(err)
@@ -273,8 +273,8 @@ const actionComplete = async (connection_id) => {
 
   console.log(
     'WE ARE ON STEP --------> ' +
-    currentState.dataValues.value.step_name +
-    ' <---------',
+      currentState.dataValues.value.step_name +
+      ' <---------',
   )
 
   console.log('Step')
@@ -434,8 +434,8 @@ const actionComplete = async (connection_id) => {
       console.log(currentState.dataValues.value.data.decision)
       console.log(
         "The datatype '" +
-        typeof currentState.dataValues.value.data.decision +
-        "' is not supported at the moment",
+          typeof currentState.dataValues.value.data.decision +
+          "' is not supported at the moment",
       )
     }
 

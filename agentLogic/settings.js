@@ -136,19 +136,20 @@ const getSelectedGovernance = async () => {
 
 const setSelectedGovernance = async (data = {}) => {
   try {
-
-    console.log("data AL")
+    console.log('data AL')
     console.log(data.governance_path)
 
-    const governance_file = await Governance.getGovernanceFile(data.governance_path)
+    const governance_file = await Governance.getGovernanceFile(
+      data.governance_path,
+    )
 
     const value = {
       governance_path: data.governance_path,
-      governance_file: governance_file.governance_file
+      governance_file: governance_file.governance_file,
     }
 
     await Settings.updateSelectedGovernance(value)
-    
+
     const selectedGovernance = await Settings.readSelectedGovernance()
 
     return selectedGovernance

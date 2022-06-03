@@ -97,14 +97,14 @@ const getDID = async () => {
 const getParticipantByDID = async () => {
   try {
     const did = await getDID()
-    if (!did) return { error: 'noDID' }
+    if (!did) return {error: 'noDID'}
     else {
       const selectedGovernance = await Settings.getSelectedGovernance()
       const governance = selectedGovernance.value.governance_file
 
       if (!governance || Object.keys(governance).length === 0) {
         console.log("the file is empty or doesn't exist")
-        return { error: 'noGov' }
+        return {error: 'noGov'}
       } else if (
         // (eldersonar) Are we still doing this???
 
@@ -118,7 +118,7 @@ const getParticipantByDID = async () => {
       ) {
         // (eldersonar) TODO: rename the return value
         console.log('the file is not empty, but lacks core data')
-        return { error: 'limitedGov' }
+        return {error: 'limitedGov'}
       } else {
         let participant = governance.participants.find((o) => o.id === did)
 
@@ -148,13 +148,15 @@ const getPermissionsByDID = async () => {
       }
     }
 
-    // (eldersonar) If no public DID is anchored or no permissions were given to this DID 
+    // (eldersonar) If no public DID is anchored or no permissions were given to this DID
     if ((did && permissions.length === 0) || !did) {
       for (j = 0; j < governance.permissions.length; j++) {
-        if (governance.permissions[j].grant[0] === "any") {
+        if (governance.permissions[j].grant[0] === 'any') {
           permissions.push(governance.permissions[j].grant[0])
         } else {
-          console.log('No permissions was found associated with this agent\'s DID. "any" role is also not supported by currently selected governance file...')
+          console.log(
+            'No permissions was found associated with this agent\'s DID. "any" role is also not supported by currently selected governance file...',
+          )
         }
       }
     }
@@ -234,7 +236,7 @@ const getActionsByPrivileges = async () => {
   try {
     const did = await getDID()
 
-    if (!did) return { error: 'noDID' }
+    if (!did) return {error: 'noDID'}
     else {
       const selectedGovernance = await Settings.getSelectedGovernance()
       const governance = selectedGovernance.value.governance_file
@@ -242,7 +244,7 @@ const getActionsByPrivileges = async () => {
       // (eldersonar) missing or empty governance
       if (!governance || Object.keys(governance).length === 0) {
         console.log("the file is empty or doesn't exist")
-        return { error: 'noGov' }
+        return {error: 'noGov'}
         // (eldersonar) partial governance
       } else if (
         // !governance.hasOwnProperty('participants') ||
@@ -253,16 +255,16 @@ const getActionsByPrivileges = async () => {
       ) {
         console.log('the file is not empty, but lacks core data')
         // return { error: "limitedGov" }
-        return { error: 'noPrivileges' }
+        return {error: 'noPrivileges'}
         // (eldersonar) Pass granted
       } else {
         const privileges = await getPrivilegesByRoles()
         const actionsArr = await getActions()
 
         if (!privileges || privileges.length == 0) {
-          return { error: 'noPrivileges' }
+          return {error: 'noPrivileges'}
         } else if (!actionsArr || actionsArr.length == 0) {
-          return { error: 'noActionsArr' }
+          return {error: 'noActionsArr'}
         } else {
           let actions = []
 
@@ -276,7 +278,7 @@ const getActionsByPrivileges = async () => {
           }
 
           // (eldersonar) Filter unique actions
-          if (!actions || actions.length == 0) return { error: 'noActions' }
+          if (!actions || actions.length == 0) return {error: 'noActions'}
           else {
             const uniqueActions = [...new Set(actions)]
             return uniqueActions
@@ -298,10 +300,10 @@ const getActions = async () => {
 
     if (!governance || Object.keys(governance).length === 0) {
       console.log("the file is empty or doesn't exist")
-      return { error: 'noGov' }
+      return {error: 'noGov'}
     } else if (!governance.hasOwnProperty('actions')) {
       console.log('the are no actions')
-      return { error: 'noActions' }
+      return {error: 'noActions'}
     } else {
       return governance.actions
     }
@@ -315,17 +317,17 @@ const getActions = async () => {
 const getParticipants = async () => {
   try {
     const did = await getDID()
-    if (!did) return { error: 'noDID' }
+    if (!did) return {error: 'noDID'}
     else {
       // const governance = await getGovernance()
       const governance = Settings.getSelectedGovernance()
 
       if (!governance || Object.keys(governance).length === 0) {
         console.log("the file is empty or doesn't exist")
-        return { error: 'noGov' }
+        return {error: 'noGov'}
       } else if (!governance.hasOwnProperty('participants')) {
         console.log('the are no participants')
-        return { error: 'noParticipants' }
+        return {error: 'noParticipants'}
       } else {
         return governance.participants
       }
@@ -341,7 +343,6 @@ const updateOrCreateGovernanceFile = async function (
   // governance_file = {},
 ) {
   try {
-
     const governance_file = await getGovernance(governance_path)
 
     if (governance_file) {
@@ -356,9 +357,8 @@ const updateOrCreateGovernanceFile = async function (
 
       return governanceFile
     } else {
-      return { error: "ERROR: no JSON object was found at this url" }
+      return {error: 'ERROR: no JSON object was found at this url'}
     }
-
   } catch (error) {
     console.error('Error Fetching Governance File')
     throw error
@@ -383,7 +383,9 @@ const getAll = async () => {
     const governanceOptions = await GovernanceFiles.readGovernanceFiles()
 
     // (eldersonar) This removes governance-framework object from return
-    governanceOptions.forEach(function (governanceOption) { governanceOption.governance_file = {} })
+    governanceOptions.forEach(function (governanceOption) {
+      governanceOption.governance_file = {}
+    })
 
     return governanceOptions
   } catch (error) {
@@ -415,7 +417,7 @@ module.exports = {
   updateOrCreateGovernanceFile,
   getGovernanceFile,
   getAll,
-  removeGovernanceFile
+  removeGovernanceFile,
 }
 
 const Settings = require('./settings')

@@ -127,7 +127,10 @@ readSelectedGovernance = async function () {
     })
     return governance[0]
   } catch (error) {
-    console.error('Could not find any selected governance paths in the database: ', error)
+    console.error(
+      'Could not find any selected governance paths in the database: ',
+      error,
+    )
   }
 }
 

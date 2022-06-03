@@ -57,7 +57,7 @@ app.use('/api/second-controller', (req, res) => {
 // (eldersonar)
 app.use(
   '/api/governance-framework',
-  express.static('governance-framework.json')
+  express.static('governance-framework.json'),
 )
 
 app.use(
