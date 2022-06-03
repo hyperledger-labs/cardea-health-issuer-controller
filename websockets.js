@@ -503,26 +503,26 @@ const messageHandler = async (ws, context, type, data = {}) => {
         switch (type) {
           case 'CREATE_INVITATION':
             if (check(rules, userRoles, 'invitations:create')) {
-              // let invitation = await Invitations.createOutOfBandInvitation()
+              let invitation = await Invitations.createOutOfBandInvitation()
 
-              // sendMessage(ws, 'OUT_OF_BAND', 'INVITATION', {
-              //   invitation_record: invitation,
-              // })
+              sendMessage(ws, 'OUT_OF_BAND', 'INVITATION', {
+                invitation_record: invitation,
+              })
 
-              // (Eldersonar) Trigger the initial step
-              let invitation = await ActionProcessor.actionStart(
-                null,
-                'connect-oob-holder-health-issuer',
-              )
-              if (!invitation.dataValues) {
-                sendMessage(ws, 'INVITATIONS', 'INVITATIONS_ERROR', {
-                  error: invitation.error,
-                })
-              } else {
-                sendMessage(ws, 'OUT_OF_BAND', 'INVITATION', {
-                  invitation_record: invitation,
-                })
-              }
+              // // (Eldersonar) Trigger the initial step
+              // let invitation = await ActionProcessor.actionStart(
+              //   null,
+              //   'connect-oob-holder-health-issuer',
+              // )
+              // if (!invitation.dataValues) {
+              //   sendMessage(ws, 'INVITATIONS', 'INVITATIONS_ERROR', {
+              //     error: invitation.error,
+              //   })
+              // } else {
+              //   sendMessage(ws, 'OUT_OF_BAND', 'INVITATION', {
+              //     invitation_record: invitation,
+              //   })
+              // }
             } else {
               sendMessage(ws, 'OUT_OF_BAND', 'INVITATIONS_ERROR', {
                 error: 'ERROR: You are not authorized to create invitations.',
