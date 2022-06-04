@@ -308,7 +308,7 @@ app.post('/api/user/update', async (req, res) => {
   }
 
   // If SMTP is not set up or broken
-  if (user.error) res.send(user.error)
+  if (user.error) res.send(user)
 
   if (!user) res.json({error: "The user couldn't be updated."})
   else res.status(200).json({status: 'User updated.'})
