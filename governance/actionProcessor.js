@@ -137,8 +137,7 @@ const actionStart = async (connection_id, stepName) => {
             'action',
             stepName,
           )
-          console.log('this is oob invitation', invitation)
-          return invitation
+          return invitation.invitation_url
 
         case 'https://didcomm.org/connections/1.0/':
           console.log('invitation')
