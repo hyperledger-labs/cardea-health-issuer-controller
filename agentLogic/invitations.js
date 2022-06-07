@@ -3,6 +3,8 @@ const AdminAPI = require('../adminAPI')
 
 let Connections = require('../orm/connections.js')
 
+const base64url = require('base64url')
+
 // Perform Agent Business Logic
 
 // Create an invitation
@@ -111,8 +113,52 @@ const acceptInvitation = async (invitation_url) => {
   }
 }
 
+const createOutOfBandInvitation = async () => {
+  try {
+    const OOBMessage = await AdminAPI.OOB.createOOBInvitation()
+    const connection = await Connections.readInvitationByMessageId(
+      OOBMessage.invi_msg_id,
+    )
+
+    //Retrieve service endpoint from invitation
+    // const serviceEndpoint = OOBMessage.invitation.service[0].serviceEndpoint
+
+    // const JSONInvitation = JSON.stringify(OOBMessage.invitation).trim()
+    // const encodedInvitation = base64url(JSONInvitation)
+    // const OOBInvitationURL = `${serviceEndpoint}?oob=${encodedInvitation}`
+
+    return {
+      invitation_url: OOBMessage.invitation_url,
+      connection_id: connection.connection_id,
+    }
+  } catch (error) {
+    console.error('Error sending out-of-band message!')
+    throw error
+  }
+}
+
+const acceptOutOfBandInvitation = async (invitation_url) => {
+  try {
+    // Decoding the invitation url
+    const url = new URL(invitation_url)
+    const encodedParam = url.searchParams.get('oob')
+    const decodedOOBInvitation = base64url.decode(encodedParam)
+
+    const invitationMessage = await AdminAPI.OOB.acceptOOBInvitation(
+      decodedOOBInvitation,
+    )
+
+    return invitationMessage
+  } catch (error) {
+    console.error('Error accepting out-of-band invitation!')
+    throw error
+  }
+}
+
 module.exports = {
   createSingleUseInvitation,
   createPersistentSingleUseInvitation,
   acceptInvitation,
+  acceptOutOfBandInvitation,
+  createOutOfBandInvitation,
 }

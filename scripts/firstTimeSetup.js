@@ -131,6 +131,12 @@ const ledgerWrites = async () => {
         process.env.SCHEMA_VACCINE_EXEMPTION,
       ),
     )
+    credDefIDs.push(
+      await CredDefs.createCredDef(
+        'default',
+        process.env.SCHEMA_MEDICAL_RELEASE,
+      ),
+    )
 
     const rlCred = readline.createInterface({
       input: process.stdin,

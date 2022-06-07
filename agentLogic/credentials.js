@@ -2,10 +2,15 @@ const ControllerError = require('../errors.js')
 
 const AdminAPI = require('../adminAPI')
 const Websockets = require('../websockets.js')
+
+const ConnectionStates = require('../agentLogic/connectionStates')
+
 const CredDefs = require('./credDefs.js')
 const Contacts = require('./contacts.js')
 const DIDs = require('./dids.js')
 const Schemas = require('./schemas.js')
+
+const ActionProcessor = require('../governance/actionProcessor')
 
 const Credentials = require('../orm/credentials.js')
 
@@ -121,6 +126,30 @@ const adminMessage = async (credentialIssuanceMessage) => {
       )
     }
 
+    // Go to the next step
+    if (credentialIssuanceMessage.state === 'credential_acked') {
+      // (eldersonar) First, get connection current state name by id
+      const currentState = await ConnectionStates.getConnectionStates(
+        credentialIssuanceMessage.connection_id,
+        'action',
+      )
+
+      // (eldersonar) Writing connection data to DB
+      await ConnectionStates.updateOrCreateConnectionState(
+        credentialIssuanceMessage.connection_id,
+        'action',
+        {
+          step_name: currentState.value.step_name,
+          data: {
+            credentialIssuanceMessageState: credentialIssuanceMessage.state,
+          },
+        },
+      )
+
+      // (eldersonar) Trigger next step in rules engine
+      ActionProcessor.actionComplete(credentialIssuanceMessage.connection_id)
+    }
+
     if (credentialIssuanceMessage.role === 'issuer') {
       Websockets.sendMessageToAll('CREDENTIALS', 'CREDENTIALS', {
         credential_records: [credentialRecord],
@@ -146,30 +175,29 @@ const autoIssueCredential = async (
 ) => {
   try {
     // Perform Validations
+    // if (schemaName === 'Lab_Result') {
+    //   let found = false
+    //   const searchCredentials = await getCredentialsByConnectionId(connectionID)
 
-    if (schemaName === 'Lab_Result') {
-      let found = false
-      const searchCredentials = await getCredentialsByConnectionId(connectionID)
-
-      for (i = 0; i < searchCredentials.length; i++) {
-        if (searchCredentials[i].dataValues.connection_id === connectionID) {
-          if (
-            searchCredentials[i].dataValues.schema_id ===
-            process.env.SCHEMA_LAB_ORDER
-          ) {
-            found = true
-          }
-        }
-      }
-      if (found) {
-        console.log('Validation Succeeded: Pre-requisite credential found')
-      } else {
-        throw new ControllerError(
-          9,
-          'Validation Failed: Pre-requisite credential missing',
-        )
-      }
-    }
+    //   for (i = 0; i < searchCredentials.length; i++) {
+    //     if (searchCredentials[i].dataValues.connection_id === connectionID) {
+    //       if (
+    //         searchCredentials[i].dataValues.schema_id ===
+    //         process.env.SCHEMA_LAB_ORDER
+    //       ) {
+    //         found = true
+    //       }
+    //     }
+    //   }
+    //   if (found) {
+    //     console.log('Validation Succeeded: Pre-requisite credential found')
+    //   } else {
+    //     throw new ControllerError(
+    //       9,
+    //       'Validation Failed: Pre-requisite credential missing',
+    //     )
+    //   }
+    // }
 
     // Validate Connection
     const connection = await Contacts.fetchConnection(connectionID)

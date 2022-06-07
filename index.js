@@ -24,9 +24,9 @@ module.exports.server = server
 
 // Websockets required to make APIs work and avoid circular dependency
 let Websocket = require('./websockets.js')
-const Users = require('./agentLogic/users')
 
 const Sessions = require('./agentLogic/sessions')
+const Users = require('./agentLogic/users')
 
 app.use(bodyParser.urlencoded({extended: false}))
 app.use(bodyParser.json())
@@ -54,16 +54,27 @@ app.use('/api/second-controller', (req, res) => {
   res.status(200).send()
 })
 
+// (eldersonar)
 app.use(
   '/api/governance-framework',
   express.static('governance-framework.json'),
 )
 
+app.use(
+  '/api/governance-framework-atomic-actions',
+  express.static('governance-framework-atomic-actions.json'),
+)
+
 // (eldersonar) Create database
-const sequelize = new Sequelize('development', 'development', 'development', {
-  host: 'lab-db',
-  dialect: 'postgres',
-})
+const sequelize = new Sequelize(
+  process.env.DB,
+  process.env.DB_USERNAME,
+  process.env.DB_PASSWORD,
+  {
+    host: process.env.DB_HOST,
+    dialect: 'postgres',
+  },
+)
 
 const myStore = new SequelizeStore({
   db: sequelize,
@@ -107,6 +118,8 @@ function parseCookies(request) {
   return list
 }
 
+app.use(passport.session())
+
 // (eldersonar) Session validation middleware
 const verifySession = (req, res, next) => {
   const cookies = parseCookies(req)
@@ -126,14 +139,6 @@ const verifySession = (req, res, next) => {
     res.redirect(401, '/')
   }
 }
-
-app.use(passport.session())
-
-// Configure externalRecords
-
-const externalRecords = require('./agentLogic/externalRecords.js')
-
-externalRecords.init(app)
 
 // Authentication
 app.post('/api/user/log-in', (req, res, next) => {
@@ -318,7 +323,6 @@ app.get('/api/logo', async (req, res) => {
   try {
     const logo = await Images.getImagesByType('logo')
     if (!logo) res.json({error: 'The logo was not found.'})
-    console.log(logo)
     res.send(logo)
   } catch (err) {
     console.error(err)

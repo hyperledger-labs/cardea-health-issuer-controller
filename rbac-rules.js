@@ -18,6 +18,7 @@ const rules = {
     'invitations:accept',
     'invitations:delete',
     'invitations:read',
+    'presentations:read',
     'roles:read',
     'settings:read',
     'settings:update',
@@ -44,6 +45,7 @@ const rules = {
     'invitations:create',
     'invitations:accept',
     'invitations:read',
+    'presentations:read',
   ],
 }
 

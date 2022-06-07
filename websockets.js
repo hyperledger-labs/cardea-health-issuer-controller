@@ -12,6 +12,17 @@ let userRoles = []
 wss = new WebSocket.Server({server: server, path: '/api/ws'})
 console.log('Websockets Setup')
 
+const getGovernance = async () => {
+  try {
+    const selectedGovernance = await Settings.getSelectedGovernance()
+    const governance = selectedGovernance.value.governance_file
+
+    return governance
+  } catch (err) {
+    console.log(err)
+  }
+}
+
 // Send a message to all connected clients
 const sendMessageToAll = (context, type, data = {}) => {
   try {
@@ -36,7 +47,6 @@ wss.on('connection', async (ws, req) => {
   console.log('New Websocket Connection')
 
   const cookies = cookie.parse(req.headers.cookie)
-
   // Getting the user data from the cookie
   try {
     //console.log("Getting session cookie from headers")
@@ -143,6 +153,8 @@ wss.on('connection', async (ws, req) => {
   ws.on('pong', (data) => {
     console.log('Pong')
   })
+
+  sendMessage(ws, 'SERVER', 'WEBSOCKET_READY')
 })
 
 // Send an outbound message to a websocket client
@@ -168,10 +180,30 @@ const sendErrorMessage = (ws, errorCode, errorReason) => {
   }
 }
 
+// (RomanStepanyan) Handle success and error notifications
+const atomicFunctionMessage = (ws, actionValidation, type) => {
+  console.log(`Sending Message to websocket client of type: ${type}`)
+  try {
+    if (actionValidation && actionValidation.error) {
+      sendMessage(ws, 'GOVERNANCE', 'ACTION_ERROR', {
+        error: actionValidation.error,
+      })
+    } else {
+      sendMessage(ws, 'GOVERNANCE', 'ACTION_SUCCESS', {
+        notice: `${type.split('_').join(' ')} was successfully sent!`,
+      })
+    }
+  } catch (error) {
+    console.error(error)
+    throw error
+  }
+}
+
 // Handle inbound messages
 const messageHandler = async (ws, context, type, data = {}) => {
   try {
     console.log(`New Message with context: '${context}' and type: '${type}'`)
+
     switch (context) {
       case 'USERS':
         switch (type) {
@@ -224,7 +256,6 @@ const messageHandler = async (ws, context, type, data = {}) => {
 
           case 'UPDATE':
             if (check(rules, userRoles, 'users:update, users:updateRoles')) {
-              console.log(data)
               const updatedUser = await Users.updateUser(
                 data.user_id,
                 data.username,
@@ -272,7 +303,6 @@ const messageHandler = async (ws, context, type, data = {}) => {
             if (check(rules, userRoles, 'users:delete')) {
               const deletedUser = await Users.deleteUser(data)
               if (deletedUser === true) {
-                console.log('User was deleted WS')
                 sendMessage(
                   ws,
                   'USERS',
@@ -294,7 +324,6 @@ const messageHandler = async (ws, context, type, data = {}) => {
             if (check(rules, userRoles, 'users:create')) {
               const email = await Users.resendAccountConfirmation(data)
               if (email.error) {
-                console.log(email.error)
                 sendMessage(ws, 'USERS', 'USER_ERROR', email)
               } else if (email === true) {
                 sendMessage(
@@ -348,17 +377,27 @@ const messageHandler = async (ws, context, type, data = {}) => {
         switch (type) {
           case 'CREATE_SINGLE_USE':
             if (check(rules, userRoles, 'invitations:create')) {
-              var invitation
+              let invitation
               if (data.workflow) {
                 invitation = await Invitations.createPersistentSingleUseInvitation(
                   data.workflow,
                 )
               } else {
-                invitation = await Invitations.createSingleUseInvitation()
+                // (Eldersonar) Trigger the initial step
+                invitation = await ActionProcessor.actionStart(
+                  null,
+                  'connect-holder-health-issuer',
+                )
+                if (!invitation.dataValues) {
+                  sendMessage(ws, 'INVITATIONS', 'INVITATIONS_ERROR', {
+                    error: invitation.error,
+                  })
+                } else {
+                  sendMessage(ws, 'INVITATIONS', 'INVITATION', {
+                    invitation_record: invitation,
+                  })
+                }
               }
-              sendMessage(ws, 'INVITATIONS', 'INVITATION', {
-                invitation_record: invitation,
-              })
             } else {
               sendMessage(ws, 'INVITATIONS', 'INVITATIONS_ERROR', {
                 error: 'ERROR: You are not authorized to create invitations.',
@@ -427,12 +466,22 @@ const messageHandler = async (ws, context, type, data = {}) => {
             ) {
               await Demographics.updateOrCreateDemographic(
                 data.contact_id,
-                data.email,
+                data.surnames,
+                data.given_names,
+                data.date_of_birth,
+                data.gender_legal,
+                data.street_address,
+                data.city,
+                data.state_province_region,
+                data.postalcode,
+                data.country,
                 data.phone,
-                data.address,
+                data.email,
+                data.medical_release_id,
               )
+              console.log(data)
 
-              ExternalRecords.internalContactUpdate(data.contact_id)
+              //ExternalRecords.internalContactUpdate(data.contact_id)
             } else {
               sendMessage(ws, 'DEMOGRAPHICS', 'DEMOGRAPHICS_ERROR', {
                 error:
@@ -448,27 +497,45 @@ const messageHandler = async (ws, context, type, data = {}) => {
         }
         break
 
-      case 'PASSPORTS':
+      case 'OUT_OF_BAND':
         switch (type) {
-          case 'UPDATE_OR_CREATE':
-            await Passports.updateOrCreatePassport(
-              data.contact_id,
-              data.passport_number,
-              data.surname,
-              data.given_names,
-              data.sex,
-              data.date_of_birth,
-              data.place_of_birth,
-              data.nationality,
-              data.date_of_issue,
-              data.date_of_expiration,
-              data.type,
-              data.code,
-              data.authority,
-              data.photo,
-            )
-            ExternalRecords.internalContactUpdate(data.contact_id)
+          case 'CREATE_INVITATION':
+            if (check(rules, userRoles, 'invitations:create')) {
+              // let invitation = await Invitations.createOutOfBandInvitation()
 
+              // sendMessage(ws, 'OUT_OF_BAND', 'INVITATION', {
+              //   invitation_record: invitation,
+              // })
+
+              // (Eldersonar) Trigger the initial step
+              let invitation = await ActionProcessor.actionStart(
+                null,
+                'connect-oob-holder-health-issuer',
+              )
+              if (!invitation) {
+                sendMessage(ws, 'INVITATIONS', 'INVITATIONS_ERROR', {
+                  error: invitation.error,
+                })
+              } else {
+                sendMessage(ws, 'OUT_OF_BAND', 'INVITATION', {
+                  invitation_record: invitation,
+                })
+              }
+            } else {
+              sendMessage(ws, 'OUT_OF_BAND', 'INVITATIONS_ERROR', {
+                error: 'ERROR: You are not authorized to create invitations.',
+              })
+            }
+            break
+
+          case 'ACCEPT_INVITATION':
+            if (check(rules, userRoles, 'invitations:accept')) {
+              await Invitations.acceptOutOfBandInvitation(data)
+            } else {
+              sendMessage(ws, 'OUT_OF_BAND', 'INVITATIONS_ERROR', {
+                error: 'ERROR: You are not authorized to accept invitations.',
+              })
+            }
             break
 
           default:
@@ -545,9 +612,26 @@ const messageHandler = async (ws, context, type, data = {}) => {
             }
             break
 
-          case 'SET_ORGANIZATION_NAME':
+          case 'GET_SMTP':
             if (check(rules, userRoles, 'settings:update')) {
-              console.log('SET_ORGANIZATION_NAME')
+              const smtpConfigs = await Settings.getSMTP()
+              if (smtpConfigs)
+                sendMessage(ws, 'SETTINGS', 'SETTINGS_SMTP', smtpConfigs)
+              else
+                sendMessage(ws, 'SETTINGS', 'SETTINGS_ERROR', {
+                  error: "ERROR: SMTP can't be fetched.",
+                })
+            } else {
+              sendMessage(ws, 'SETTINGS', 'SETTINGS_ERROR', {
+                error:
+                  'ERROR: You are not authorized to fetch SMTP configurations.',
+              })
+            }
+            break
+
+          case 'SET_ORGANIZATION':
+            if (check(rules, userRoles, 'settings:update')) {
+              console.log('SET_ORGANIZATION')
               const updatedOrganization = await Settings.setOrganization(data)
               if (updatedOrganization) {
                 sendMessage(
@@ -577,6 +661,7 @@ const messageHandler = async (ws, context, type, data = {}) => {
           case 'GET_ORGANIZATION':
             console.log('GET_ORGANIZATION')
             const currentOrganization = await Settings.getOrganization()
+
             if (currentOrganization)
               sendMessage(
                 ws,
@@ -616,6 +701,54 @@ const messageHandler = async (ws, context, type, data = {}) => {
                 error: 'ERROR: You are not authorized to update the manifest.',
               })
             }
+            break
+
+          case 'SET_SELECTED_GOVERNANCE':
+            if (check(rules, userRoles, 'settings:update')) {
+              console.log('SET_SELECTED_GOVERNANCE')
+              const selectedGovernance = await Settings.setSelectedGovernance({
+                governance_path: data,
+              })
+
+              if (selectedGovernance) {
+                sendMessageToAll('GOVERNANCE', 'UPDATED_SELECTED_GOVERNANCE', {
+                  selected_governance: {
+                    label: selectedGovernance.value.governance_path,
+                    value: selectedGovernance.value.governance_path,
+                  },
+                })
+                sendMessageToAll(
+                  'SETTINGS',
+                  'SETTINGS_SUCCESS',
+                  'Selected governance path was successfully updated!',
+                )
+              } else
+                sendMessage(ws, 'SETTINGS', 'SETTINGS_ERROR', {
+                  error: "ERROR: couldn't update selected governance.",
+                })
+            } else {
+              sendMessage(ws, 'SETTINGS', 'SETTINGS_ERROR', {
+                error:
+                  'ERROR: You are not authorized to update the selected governance path.',
+              })
+            }
+            break
+
+          case 'GET_SELECTED_GOVERNANCE':
+            console.log('GET_SELECTED_GOVERNANCE')
+            const selectedGovernance = await Settings.getSelectedGovernance()
+
+            if (selectedGovernance)
+              sendMessageToAll('GOVERNANCE', 'SELECTED_GOVERNANCE', {
+                selected_governance: {
+                  label: selectedGovernance.value.governance_path,
+                  value: selectedGovernance.value.governance_path,
+                },
+              })
+            else
+              sendMessage(ws, 'SETTINGS', 'SETTINGS_ERROR', {
+                error: "ERROR: selected governance path couldn't be fetched.",
+              })
             break
         }
         break
@@ -743,17 +876,47 @@ const messageHandler = async (ws, context, type, data = {}) => {
           case 'ISSUE_USING_SCHEMA':
             // TODO Kim process Test ID
             if (check(rules, userRoles, 'credentials:issue')) {
-              await Credentials.autoIssueCredential(
-                data.connectionID,
-                data.issuerDID,
-                data.credDefID,
-                data.schemaID,
-                data.schemaVersion,
-                data.schemaName,
-                data.schemaIssuerDID,
-                data.comment,
-                data.attributes,
-              )
+              const governance = await getGovernance()
+              let actionName = null
+
+              // (eldersonar) Get step name by schema ID
+              if (governance) {
+                console.log(governance)
+                for (i = 0; i < governance.actions.length; i++) {
+                  // Get the initial block for the proper role
+                  if (governance.actions[i].data.schema === data.schemaID) {
+                    actionName = governance.actions[i].name
+                  }
+                }
+
+                // (eldersonar) Update connection state
+                await ActionProcessor.updateConnectionState(
+                  data.connectionID,
+                  'action',
+                  actionName,
+                )
+
+                // (eldersonar) Update connnection data
+                await ActionProcessor.updateConnectionData(
+                  data.connectionID,
+                  'form_data',
+                  data,
+                )
+
+                // (eldersonar) Trigger next step in rules engine
+                const actionValidation = await ActionProcessor.actionStart(
+                  data.connectionID,
+                )
+                if (actionValidation && actionValidation.error) {
+                  atomicFunctionMessage(ws, actionValidation, type)
+                } else {
+                  sendMessage(ws, 'GOVERNANCE', 'ACTION_SUCCESS', {
+                    notice: 'Credential offer was successfully sent!',
+                  })
+                }
+              } else {
+                console.log('No governance for credential issuance flow')
+              }
             } else {
               sendMessage(ws, 'CREDENTIALS', 'CREDENTIALS_ERROR', {
                 error: 'ERROR: You are not authorized to issue credentials.',
@@ -784,6 +947,178 @@ const messageHandler = async (ws, context, type, data = {}) => {
         }
         break
 
+      case 'PRESENTATIONS':
+        switch (type) {
+          case 'GET_ALL':
+            const presentationReports = await Presentations.getAll()
+
+            sendMessage(ws, 'PRESENTATIONS', 'PRESENTATION_REPORTS', {
+              presentation_reports: presentationReports,
+            })
+            break
+
+          case 'REQUEST':
+            await Presentations.requestPresentation(
+              data.connectionID,
+              data.type,
+            )
+            break
+
+          default:
+            console.error(`Unrecognized Message Type: ${type}`)
+            sendErrorMessage(ws, 1, 'Unrecognized Message Type')
+            break
+        }
+        break
+
+      case 'GOVERNANCE':
+        switch (type) {
+          case 'GET_PRIVILEGES':
+            if (check(rules, userRoles, 'invitations:create')) {
+              const privileges = await Governance.getPrivilegesByRoles()
+
+              if (privileges.error === 'noDID') {
+                console.log('No public did anchored')
+                sendMessage(ws, 'GOVERNANCE', 'PRIVILEGES_ERROR', {
+                  error: 'ERROR: You need to anchor your DID',
+                })
+              } else if (privileges.error === 'noPermissions') {
+                console.log('No permissions set')
+                sendMessage(ws, 'GOVERNANCE', 'PRIVILEGES_ERROR', {
+                  error: 'ERROR: Governance permissions are not set',
+                })
+              } else if (privileges.error === 'noPrivileges') {
+                console.log('No privileges set')
+                sendMessage(ws, 'GOVERNANCE', 'PRIVILEGES_ERROR', {
+                  error: 'ERROR: Governance privileges are not set',
+                })
+              } else if (!privileges) {
+                console.log('ERROR: privileges undefined error')
+                sendMessage(ws, 'GOVERNANCE', 'PRIVILEGES_ERROR', {
+                  error: 'ERROR: privileges undefined error',
+                })
+              } else {
+                sendMessage(ws, 'GOVERNANCE', 'PRIVILEGES_SUCCESS', {
+                  privileges,
+                })
+              }
+            } else {
+              sendMessage(ws, 'GOVERNANCE', 'PRIVILEGES_ERROR', {
+                error: 'ERROR: You are not authorized to create invitations.',
+              })
+            }
+            break
+
+          case 'ADD_GOVERNANCE':
+            console.log('ADD_GOVERNANCE')
+            const newGovernance = await Governance.updateOrCreateGovernanceFile(
+              data,
+            )
+
+            if (newGovernance.error) {
+              sendMessage(ws, 'SETTINGS', 'SETTINGS_ERROR', {
+                error: newGovernance.error,
+              })
+            } else {
+              sendMessage(ws, 'GOVERNANCE', 'GOVERNANCE_OPTION_ADDED', {
+                governance_path: newGovernance,
+              })
+              sendMessage(
+                ws,
+                'SETTINGS',
+                'SETTINGS_SUCCESS',
+                'New governance file was successfully added.',
+              )
+            }
+            break
+
+          case 'GET_ALL':
+            const governancePaths = await Governance.getAll()
+            sendMessage(ws, 'GOVERNANCE', 'GOVERNANCE_OPTIONS', {
+              governance_paths: governancePaths,
+            })
+            break
+
+          default:
+            console.error(`Unrecognized Message Type: ${type}`)
+            sendErrorMessage(ws, 1, 'Unrecognized Message Type')
+            break
+        }
+        break
+
+      case 'TEST_ATOMIC_FUNCTIONS':
+        switch (type) {
+          case 'SEND_BASIC_MESSAGE':
+            if (check(rules, userRoles, 'invitations:create')) {
+              // (Eldersonar) Trigger the initial step
+
+              const actionValidation = await ActionProcessor.actionStart(
+                data.connection_id,
+                'send-basic-message',
+              )
+              atomicFunctionMessage(ws, actionValidation, type)
+            } else {
+              sendMessage(ws, 'GOVERNANCE', 'ACTION_ERROR', {
+                error: 'ERROR: You are not authorized to create invitations.',
+              })
+            }
+            break
+          case 'ASK_QUESTION':
+            if (check(rules, userRoles, 'invitations:create')) {
+              // (Eldersonar) Trigger the initial step
+              const actionValidation = await ActionProcessor.actionStart(
+                data.connection_id,
+                'ask-demographics',
+              )
+              atomicFunctionMessage(ws, actionValidation, type)
+            } else {
+              sendMessage(ws, 'GOVERNANCE', 'ACTION_ERROR', {
+                error: 'ERROR: You are not authorized to create invitations.',
+              })
+            }
+            break
+
+          case 'REQUEST_DEMOGRAPHICS':
+            if (check(rules, userRoles, 'invitations:create')) {
+              // (Eldersonar) Trigger the initial step
+
+              const actionValidation = await ActionProcessor.actionStart(
+                data.connection_id,
+                'request-identity-presentation',
+              )
+
+              atomicFunctionMessage(ws, actionValidation, type)
+            } else {
+              sendMessage(ws, 'GOVERNANCE', 'ACTION_ERROR', {
+                error: 'ERROR: You are not authorized to create invitations.',
+              })
+            }
+            break
+
+          case 'REQUEST_MEDICAL_RELEASE':
+            if (check(rules, userRoles, 'invitations:create')) {
+              // (Eldersonar) Trigger the initial step
+
+              const actionValidation = await ActionProcessor.actionStart(
+                data.connection_id,
+                'request-presentation',
+              )
+
+              atomicFunctionMessage(ws, actionValidation, type)
+            } else {
+              sendMessage(ws, 'GOVERNANCE', 'ACTION_ERROR', {
+                error: 'ERROR: You are not authorized to create invitations.',
+              })
+            }
+            break
+
+          default:
+            console.error(`Unrecognized Message Type: ${type}`)
+            sendErrorMessage(ws, 1, 'Unrecognized Message Type')
+            break
+        }
+        break
+
       default:
         console.error(`Unrecognized Message Context: ${context}`)
         sendErrorMessage(ws, 1, 'Unrecognized Message Context')
@@ -804,14 +1139,16 @@ module.exports = {
   sendMessageToAll,
 }
 
+const ActionProcessor = require('./governance/actionProcessor')
 const Invitations = require('./agentLogic/invitations')
 const Demographics = require('./agentLogic/demographics')
-const Passports = require('./agentLogic/passports')
 const Contacts = require('./agentLogic/contacts')
 const Credentials = require('./agentLogic/credentials')
+const Governance = require('./agentLogic/governance')
 const Images = require('./agentLogic/images')
-const Sessions = require('./agentLogic/sessions')
+const Presentations = require('./agentLogic/presentations')
 const Settings = require('./agentLogic/settings')
+const Sessions = require('./agentLogic/sessions')
 const Users = require('./agentLogic/users')
 const Roles = require('./agentLogic/roles')
 const ExternalRecords = require('./agentLogic/externalRecords.js')

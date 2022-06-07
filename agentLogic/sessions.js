@@ -1,3 +1,4 @@
+const Websockets = require('../websockets.js')
 let Sessions = require('../orm/sessions')
 
 const getSessions = async () => {

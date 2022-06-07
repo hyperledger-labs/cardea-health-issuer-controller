@@ -1,5 +1,8 @@
+const crypto = require('crypto')
 const Settings = require('../orm/settings')
 const fs = require('fs')
+const Util = require('../util')
+const Governance = require('./governance')
 
 // Perform Agent Business Logic
 
@@ -38,6 +41,12 @@ const getSMTP = async () => {
 
 const setSMTP = async (data = {}) => {
   try {
+    const IV = crypto.randomBytes(8).toString('hex')
+    const encryptedPassword = Util.encrypt(data.auth.pass, IV)
+
+    data.IV = IV
+    data.auth.pass = encryptedPassword
+
     await Settings.updateSMTP(data)
     const updatedSMTP = await Settings.readSMTP()
     return updatedSMTP
@@ -113,12 +122,50 @@ const setManifest = async (short_name, name, theme_color, bg_color) => {
   }
 }
 
+// Governance
+const getSelectedGovernance = async () => {
+  try {
+    const selectedGovernance = await Settings.readSelectedGovernance()
+
+    return selectedGovernance
+  } catch (error) {
+    console.error('Error getting selected governance')
+    throw error
+  }
+}
+
+const setSelectedGovernance = async (data = {}) => {
+  try {
+    console.log('data AL')
+    console.log(data.governance_path)
+
+    const governance_file = await Governance.getGovernanceFile(
+      data.governance_path,
+    )
+
+    const value = {
+      governance_path: data.governance_path,
+      governance_file: governance_file.governance_file,
+    }
+
+    await Settings.updateSelectedGovernance(value)
+
+    const selectedGovernance = await Settings.readSelectedGovernance()
+
+    return selectedGovernance
+  } catch (error) {
+    console.error('Error updating selected governance')
+    throw error
+  }
+}
+
 const getSchemas = async () => {
   return {
     SCHEMA_LAB_ORDER: process.env.SCHEMA_LAB_ORDER,
     SCHEMA_LAB_RESULT: process.env.SCHEMA_LAB_RESULT,
     SCHEMA_VACCINATION: process.env.SCHEMA_VACCINATION,
     SCHEMA_VACCINE_EXEMPTION: process.env.SCHEMA_VACCINE_EXEMPTION,
+    SCHEMA_MEDICAL_RELEASE: process.env.SCHEMA_MEDICAL_RELEASE,
   }
 }
 
@@ -131,4 +178,6 @@ module.exports = {
   setOrganization,
   setManifest,
   getSchemas,
+  getSelectedGovernance,
+  setSelectedGovernance,
 }

@@ -1,7 +1,6 @@
 const {Contact} = require('./contacts.js')
 const {Connection} = require('./connections.js')
 const {Demographic} = require('./demographics.js')
-const {Passport} = require('./passports.js')
 
 const readContacts = async function (additionalTables = []) {
   try {
@@ -10,12 +9,6 @@ const readContacts = async function (additionalTables = []) {
     if (additionalTables.includes('Demographic')) {
       models.push({
         model: Demographic,
-        required: false,
-      })
-    }
-    if (additionalTables.includes('Passport')) {
-      models.push({
-        model: Passport,
         required: false,
       })
     }
@@ -42,12 +35,6 @@ const readContact = async function (contact_id, additionalTables = []) {
     if (additionalTables.includes('Demographic')) {
       models.push({
         model: Demographic,
-        required: false,
-      })
-    }
-    if (additionalTables.includes('Passport')) {
-      models.push({
-        model: Passport,
         required: false,
       })
     }
@@ -81,12 +68,6 @@ const readContactByConnection = async function (
     if (additionalTables.includes('Demographic')) {
       models.push({
         model: Demographic,
-        required: false,
-      })
-    }
-    if (additionalTables.includes('Passport')) {
-      models.push({
-        model: Passport,
         required: false,
       })
     }
