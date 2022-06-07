@@ -2,6 +2,7 @@ const ConnectionsState = require('../agentLogic/connectionStates')
 const Governance = require('../agentLogic/governance')
 const AdminAPI = require('../adminAPI')
 const Util = require('../util')
+const Settings = require('../agentLogic/settings')
 
 const updateConnectionState = async (connection_id, key, step_name, data) => {
   await ConnectionsState.updateOrCreateConnectionState(connection_id, key, {
@@ -20,13 +21,18 @@ const updateConnectionData = async (connection_id, key, data) => {
 const actionStart = async (connection_id, stepName) => {
   let governance = null
   let role = null
+  let publicDID = null
 
   // Get roles for potential extra validation
   try {
-    governance = await Governance.getGovernance()
+    const selectedGovernance = await Settings.getSelectedGovernance()
+    governance = selectedGovernance.value.governance_file
 
     if (governance) {
       role = await Governance.getPermissionsByDID()
+      console.log('AP actionStart ROLE: ', role)
+      publicDID = await Governance.getDID()
+      console.log('AP actionStart PUBLIC DID: ', publicDID)
     }
   } catch (err) {
     console.log(err)
@@ -89,9 +95,18 @@ const actionStart = async (connection_id, stepName) => {
 
   if (step[0]) {
     console.log('WE ARE ON STEP --------> ' + step[0].name + ' <---------')
+    // (eldersonar) this will work with a single role
+    if (step[0].role[0] !== role[0]) {
+      console.log('Not enough permissions...')
+      return {error: 'ERROR: Not enough permissions...'}
+    } else {
+      console.log('')
+      console.log('Enough permissions')
+      console.log('')
+    }
   } else {
     console.log('action not found')
-    return {error: 'action not found'}
+    return {error: 'ERROR: Action not found'}
   }
 
   console.log('Step')
@@ -111,6 +126,18 @@ const actionStart = async (connection_id, stepName) => {
             content: step[0].data.content,
           })
           break
+
+        case 'https://didcomm.org/outofband/1.1/':
+          console.log('oob invitation')
+          invitation = await AgentLogic.Invitations.createOutOfBandInvitation()
+
+          // (eldersonar) Writing connection state to DB
+          await updateConnectionState(
+            invitation.connection_id,
+            'action',
+            stepName,
+          )
+          return invitation.invitation_url
 
         case 'https://didcomm.org/connections/1.0/':
           console.log('invitation')
@@ -150,17 +177,21 @@ const actionStart = async (connection_id, stepName) => {
           break
 
         case 'https://didcomm.org/issue-credential/1.0/':
-          await AgentLogic.Credentials.autoIssueCredential(
-            connection_id,
-            undefined,
-            undefined,
-            currentData.dataValues.value.credential.schemaID,
-            currentData.dataValues.value.credential.schemaVersion,
-            currentData.dataValues.value.credential.schemaName,
-            currentData.dataValues.value.credential.schemaIssuerDID,
-            currentData.dataValues.value.credential.comment,
-            currentData.dataValues.value.credential.attributes,
-          )
+          if (publicDID) {
+            await AgentLogic.Credentials.autoIssueCredential(
+              connection_id,
+              undefined,
+              undefined,
+              currentData.dataValues.value.credential.schemaID,
+              currentData.dataValues.value.credential.schemaVersion,
+              currentData.dataValues.value.credential.schemaName,
+              currentData.dataValues.value.credential.schemaIssuerDID,
+              currentData.dataValues.value.credential.comment,
+              currentData.dataValues.value.credential.attributes,
+            )
+          } else {
+            return {error: 'ERROR: Public DID Not Set'}
+          }
           break
 
         default:
@@ -201,10 +232,12 @@ const actionComplete = async (connection_id) => {
   let role = null
 
   try {
-    governance = await Governance.getGovernance()
+    const selectedGovernance = await Settings.getSelectedGovernance()
+    governance = selectedGovernance.value.governance_file
 
     if (governance) {
       role = await Governance.getPermissionsByDID()
+      console.log('AP actionComplete ROLE: ', role)
     }
   } catch (err) {
     console.log(err)
