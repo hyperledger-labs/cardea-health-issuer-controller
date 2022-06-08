@@ -5,10 +5,7 @@ const DIDs = require('./dids')
 const Ledger = require('./ledger')
 const Schemas = require('./schemas')
 const Presentations = require('./presentations')
-<<<<<<< HEAD
-=======
 const QuestionAnswer = require('./questionAnswer')
->>>>>>> main
 const OOB = require('./oob.js')
 
 module.exports = {
