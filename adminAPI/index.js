@@ -14,8 +14,8 @@ module.exports = {
   Credentials,
   DIDs,
   Ledger,
-  Schemas,
+  OOB,
   Presentations,
   QuestionAnswer,
-  OOB,
+  Schemas,
 }

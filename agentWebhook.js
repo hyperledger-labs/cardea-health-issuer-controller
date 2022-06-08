@@ -1,5 +1,8 @@
+require('dotenv').config()
+
 const Websockets = require('./websockets.js')
 
+const base64url = require('base64url')
 const express = require('express')
 const router = express.Router()
 

@@ -98,8 +98,7 @@ const acceptInvitation = async (invitation_url) => {
     // Decoding the invitation url
     const url = new URL(invitation_url)
     const encodedParam = url.searchParams.get('c_i')
-    const buff = Buffer.from(encodedParam, 'base64')
-    const decodedInvitation = buff.toString('utf-8')
+    const decodedInvitation = base64url.decode(encodedParam)
 
     const invitationMessage = await AdminAPI.Connections.acceptInvitation(
       decodedInvitation,
