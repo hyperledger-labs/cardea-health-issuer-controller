@@ -464,7 +464,7 @@ const updateUser = async function (
             )
           }
         } catch (error) {
-          console.error('Error Reseting Password')
+          console.error('Error Resetting Password')
           // throw error
           return {
             error:
