@@ -439,18 +439,18 @@ exports.up = function (db) {
               },
             },
             {
-              name: "connect-oob-holder-health-issuer",
-              role: ["any"],
+              name: 'connect-oob-holder-health-issuer',
+              role: ['any'],
               initial: true,
-              type: "protocol",
+              type: 'protocol',
               data: {
-                protocol: "https://didcomm.org/outofband/1.1/",
-                startmessage: "invitation"
+                protocol: 'https://didcomm.org/outofband/1.1/',
+                startmessage: 'invitation',
               },
               next: {
-                success: "",
-                error: "some-kind-of-error-handler..."
-              }
+                success: '',
+                error: 'some-kind-of-error-handler...',
+              },
             },
             {
               name: 'ask-demographics',

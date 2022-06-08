@@ -94,7 +94,7 @@ const adminMessage = async (connectionMessage) => {
         connectionMessage.routing_state,
         connectionMessage.inbound_connection_id,
         connectionMessage.error_msg,
-        connectionMessage.invitation_msg_id
+        connectionMessage.invitation_msg_id,
       )
       // Broadcast the invitation in the invitation agent logic
       return

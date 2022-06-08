@@ -12,12 +12,13 @@ const check = (rules, userRoles, actions) => {
 
   let permissions = []
 
-  // Combine roles, discard duplicate roles
+  // Combine roles, throw duplicate roles
   for (let i = 0; i < Object.keys(roles).length; i++) {
     permissions = permissions.concat(
       rules[roles[i]].filter((item) => permissions.indexOf(item) < 0),
     )
   }
+  console.log(permissions)
 
   if (!permissions) {
     return false
@@ -26,6 +27,8 @@ const check = (rules, userRoles, actions) => {
   // Assign all permissions required by the component
   if (permissions) {
     const actionsList = actions.split(', ')
+
+    console.log(actionsList)
 
     // Check if the user has all required permissions
     for (const action in actionsList) {

@@ -7,7 +7,6 @@ const check = require('./canUser')
 const rules = require('./rbac-rules')
 const cookie = require('cookie')
 const cookieParser = require('cookie-parser')
-
 let userRoles = []
 
 wss = new WebSocket.Server({server: server, path: '/api/ws'})
@@ -129,7 +128,6 @@ wss.on('connection', async (ws, req) => {
         }
       }
     }
-
     try {
       const parsedMessage = JSON.parse(message)
       console.log('New Websocket Message:', parsedMessage)

@@ -17,11 +17,10 @@ exports.setup = function (options, seedLink) {
 exports.up = function (db) {
   // If there are demographics, we need to delete them anyway
 
-  return db
-    .addColumn('connections', 'invi_msg_id', {
-      type: 'string',
-      null: true,
-    })
+  return db.addColumn('connections', 'invi_msg_id', {
+    type: 'string',
+    null: true,
+  })
 }
 
 exports.down = function (db) {

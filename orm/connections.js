@@ -172,7 +172,7 @@ const createOrUpdateConnection = async function (
   routing_state,
   inbound_connection_id,
   error_msg,
-  invi_msg_id
+  invi_msg_id,
 ) {
   try {
     const connection = await sequelize.transaction(
