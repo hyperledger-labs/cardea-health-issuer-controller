@@ -12,14 +12,41 @@ Demographic.init(
       primaryKey: true,
       // allowNull: false,
     },
-    email: {
+    surnames: {
+      type: DataTypes.TEXT,
+    },
+    given_names: {
+      type: DataTypes.TEXT,
+    },
+    date_of_birth: {
+      type: DataTypes.DATE,
+    },
+    gender_legal: {
+      type: DataTypes.TEXT,
+    },
+    street_address: {
+      type: DataTypes.TEXT,
+    },
+    city: {
+      type: DataTypes.TEXT,
+    },
+    state_province_region: {
+      type: DataTypes.TEXT,
+    },
+    postalcode: {
+      type: DataTypes.TEXT,
+    },
+    country: {
       type: DataTypes.TEXT,
     },
     phone: {
       type: DataTypes.TEXT,
     },
-    address: {
-      type: DataTypes.JSON,
+    email: {
+      type: DataTypes.TEXT,
+    },
+    medical_release_id: {
+      type: DataTypes.TEXT,
     },
     created_at: {
       type: DataTypes.DATE,
@@ -47,15 +74,38 @@ Demographic.belongsTo(Contact, {
   },
 })
 
-const createDemographic = async function (contact_id, email, phone, address) {
+const createDemographic = async function (
+  contact_id,
+  surnames,
+  given_names,
+  date_of_birth,
+  gender_legal,
+  street_address,
+  city,
+  state_province_region,
+  postalcode,
+  country,
+  phone,
+  email,
+  medical_release_id,
+) {
   try {
     const timestamp = Date.now()
 
     const demographic = await Demographic.create({
       contact_id: contact_id,
-      email: email,
+      surnames: surnames,
+      given_names: given_names,
+      date_of_birth: date_of_birth,
+      gender_legal: gender_legal,
+      street_address: street_address,
+      city: city,
+      state_province_region: state_province_region,
+      postalcode: postalcode,
+      country: country,
       phone: phone,
-      address: address,
+      email: email,
+      medical_release_id: medical_release_id,
       created_at: timestamp,
       updated_at: timestamp,
     })
@@ -69,9 +119,18 @@ const createDemographic = async function (contact_id, email, phone, address) {
 
 const createOrUpdateDemographic = async function (
   contact_id,
-  email,
+  surnames,
+  given_names,
+  date_of_birth,
+  gender_legal,
+  street_address,
+  city,
+  state_province_region,
+  postalcode,
+  country,
   phone,
-  address,
+  email,
+  medical_release_id,
 ) {
   try {
     await sequelize.transaction(
@@ -79,12 +138,12 @@ const createOrUpdateDemographic = async function (
         isolationLevel: Sequelize.Transaction.SERIALIZABLE,
       },
       async (t) => {
+        console.log(contact_id)
         let demographic = await Demographic.findOne({
           where: {
             contact_id: contact_id,
           },
         })
-
         const timestamp = Date.now()
 
         // (JamesKEbert) TODO: Change upsert for a better mechanism, such as locking potentially.
@@ -92,9 +151,18 @@ const createOrUpdateDemographic = async function (
           console.log('Creating Demographic')
           const demographic = await Demographic.upsert({
             contact_id: contact_id,
-            email: email,
+            surnames: surnames,
+            given_names: given_names,
+            date_of_birth: date_of_birth,
+            gender_legal: gender_legal,
+            street_address: street_address,
+            city: city,
+            state_province_region: state_province_region,
+            postalcode: postalcode,
+            country: country,
             phone: phone,
-            address: address,
+            email: email,
+            medical_release_id: medical_release_id,
             created_at: timestamp,
             updated_at: timestamp,
           })
@@ -103,9 +171,18 @@ const createOrUpdateDemographic = async function (
           await Demographic.update(
             {
               contact_id: contact_id,
-              email: email,
+              surnames: surnames,
+              given_names: given_names,
+              date_of_birth: date_of_birth,
+              gender_legal: gender_legal,
+              street_address: street_address,
+              city: city,
+              state_province_region: state_province_region,
+              postalcode: postalcode,
+              country: country,
               phone: phone,
-              address: address,
+              email: email,
+              medical_release_id: medical_release_id,
               updated_at: timestamp,
             },
             {
@@ -144,6 +221,7 @@ const readDemographics = async function () {
 
 const readDemographic = async function (contact_id) {
   try {
+    console.log(contact_id)
     const demographic = await Demographic.findAll({
       where: {
         contact_id: contact_id,
@@ -162,16 +240,40 @@ const readDemographic = async function (contact_id) {
   }
 }
 
-const updateDemographic = async function (contact_id, email, phone, address) {
+const updateDemographic = async function (
+  contact_id,
+  surnames,
+  given_names,
+  date_of_birth,
+  gender_legal,
+  street_address,
+  city,
+  state_province_region,
+  postalcode,
+  country,
+  phone,
+  email,
+  medical_release_id,
+) {
   try {
+    console.log(contact_id)
     const timestamp = Date.now()
 
     await Demographic.update(
       {
-        contact_id: contact_id,
-        email: email,
-        phone: phone,
-        address: address,
+        contact_id,
+        surnames,
+        given_names,
+        date_of_birth,
+        gender_legal,
+        street_address,
+        city,
+        state_province_region,
+        postalcode,
+        country,
+        phone,
+        email,
+        medical_release_id,
         updated_at: timestamp,
       },
       {
@@ -189,6 +291,7 @@ const updateDemographic = async function (contact_id, email, phone, address) {
 
 const deleteDemographic = async function (contact_id) {
   try {
+    console.log(contact_id)
     await Demographic.destroy({
       where: {
         contact_id: contact_id,

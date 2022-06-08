@@ -44,14 +44,24 @@ const fetchCredDef = async (credDefID) => {
 }
 
 // Create a new credential from a given schema.
-const createCredDef = async (tag = 'default', schema_id) => {
+const createCredDef = async (
+  tag = 'default',
+  schema_id,
+  revocation_size,
+  support_revocation,
+) => {
   try {
-    const credDefID = await AdminAPI.CredDefs.createCredDef(
-      tag,
-      schema_id,
-      0,
-      false,
-    )
+    let credDefID = undefined
+    if (support_revocation && revocation_size) {
+      credDefID = await AdminAPI.CredDefs.createCredDef(
+        tag,
+        schema_id,
+        revocation_size,
+        support_revocation,
+      )
+    } else {
+      credDefID = await AdminAPI.CredDefs.createCredDef(tag, schema_id)
+    }
 
     console.log(credDefID)
 

@@ -115,8 +115,21 @@ const acceptInvitation = async (invitation_url) => {
 const createOutOfBandInvitation = async () => {
   try {
     const OOBMessage = await AdminAPI.OOB.createOOBInvitation()
+    const connection = await Connections.readInvitationByMessageId(
+      OOBMessage.invi_msg_id,
+    )
 
-    return OOBMessage.invitation_url
+    //Retrieve service endpoint from invitation
+    // const serviceEndpoint = OOBMessage.invitation.service[0].serviceEndpoint
+
+    // const JSONInvitation = JSON.stringify(OOBMessage.invitation).trim()
+    // const encodedInvitation = base64url(JSONInvitation)
+    // const OOBInvitationURL = `${serviceEndpoint}?oob=${encodedInvitation}`
+
+    return {
+      invitation_url: OOBMessage.invitation_url,
+      connection_id: connection.connection_id,
+    }
   } catch (error) {
     console.error('Error sending out-of-band message!')
     throw error

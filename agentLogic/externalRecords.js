@@ -208,7 +208,7 @@ const issueCredential = async (cid, externalRecordId, schemaId, data) => {
 
       const contact = await ContactsCompiled.readContact(
         externalContact.contact_id,
-        ['Demographic', 'Passport'],
+        ['Demographic'],
       )
 
       if (contact == null) {
@@ -380,7 +380,6 @@ const internalContactUpdate = async (contact_id) => {
 
   const contact = await ContactsCompiled.readContact(contact_id, [
     'Demographic',
-    'Passport',
   ])
 
   if (contact == null) {
@@ -405,17 +404,12 @@ const internalContactUpdate = async (contact_id) => {
     return
   }
 
-  if (contact.Passport == null) {
-    logger.info({msg: 'No passport!', contact_id: contact_id})
-    return
-  }
-
   demographics = {
-    first_name: contact.Passport.dataValues['given_names'],
+    first_name: contact.Demographic.dataValues['given_names'],
     middle_name: '',
-    last_name: contact.Passport.dataValues['surname'],
-    date_of_birth: contact.Passport.dataValues['date_of_birth'],
-    gender: contact.Passport.dataValues['sex'],
+    last_name: contact.Demographic.dataValues['surnames'],
+    date_of_birth: contact.Demographic.dataValues['date_of_birth'],
+    gender: contact.Demographic.dataValues['gender_legal'],
     address: {
       address: '',
       city: '',
@@ -423,7 +417,7 @@ const internalContactUpdate = async (contact_id) => {
       zip_code: '',
       country: '',
     },
-    phone: contact.Demographic['phone'],
+    phone: contact.Demographic.dataValues['phone'],
   }
 
   // Do a matchRequest

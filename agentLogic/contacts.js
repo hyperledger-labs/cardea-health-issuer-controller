@@ -1,11 +1,13 @@
 const AdminAPI = require('../adminAPI')
 const Websockets = require('../websockets.js')
 
-let Connections = require('../orm/connections.js')
-let Contacts = require('../orm/contacts.js')
-let ContactsCompiled = require('../orm/contactsCompiled.js')
-let Demographics = require('../orm/demographics.js')
-let Passports = require('../orm/passports.js')
+const Connections = require('../orm/connections')
+
+const ConnectionStates = require('../agentLogic/connectionStates')
+
+const Contacts = require('../orm/contacts')
+const ContactsCompiled = require('../orm/contactsCompiled')
+const Demographics = require('../orm/demographics')
 
 // Perform Agent Business Logic
 
@@ -92,6 +94,7 @@ const adminMessage = async (connectionMessage) => {
         connectionMessage.routing_state,
         connectionMessage.inbound_connection_id,
         connectionMessage.error_msg,
+        connectionMessage.invitation_msg_id,
       )
       // Broadcast the invitation in the invitation agent logic
       return
@@ -126,6 +129,7 @@ const adminMessage = async (connectionMessage) => {
         connectionMessage.routing_state,
         connectionMessage.inbound_connection_id,
         connectionMessage.error_msg,
+        connectionMessage.invitation_msg_id,
       )
 
       await Connections.linkContactAndConnection(
@@ -152,12 +156,46 @@ const adminMessage = async (connectionMessage) => {
         connectionMessage.routing_state,
         connectionMessage.inbound_connection_id,
         connectionMessage.error_msg,
+        connectionMessage.invitation_msg_id,
       )
+    }
+
+    // (mikekebert) Send a question to the new contact
+    if (connectionMessage.state === 'active') {
+      // QuestionAnswer.askQuestion(
+      //   connectionMessage.connection_id,
+      //   'Have you received a Medical Release credential from Cardea Lab before?',
+      //   'Please select an option below:',
+      //   [
+      //     {text: 'I need a new credential'},
+      //     {text: 'I already have a credential'},
+      //   ],
+      // )
+      // (eldersonar) First, get connection current state name by id
+      const currentState = await ConnectionStates.getConnectionStates(
+        connectionMessage.connection_id,
+        'action',
+      )
+
+      // (eldersonar) Writing connection state to DB
+      await ConnectionStates.updateOrCreateConnectionState(
+        connectionMessage.connection_id,
+        'action',
+        {
+          step_name: currentState.value.step_name,
+          data: {
+            connectionMessageState: connectionMessage.state,
+          },
+        },
+      )
+
+      // (eldersonar) Trigger next step in rules engine
+      ActionProcessor.actionComplete(connectionMessage.connection_id)
     }
 
     contact = await ContactsCompiled.readContactByConnection(
       connectionMessage.connection_id,
-      ['Demographic', 'Passport'],
+      ['Demographic'],
     )
 
     Websockets.sendMessageToAll('CONTACTS', 'CONTACTS', {contacts: [contact]})
@@ -174,3 +212,6 @@ module.exports = {
   getAll,
   getContactByConnection,
 }
+
+// const QuestionAnswer = require('./questionAnswer')
+const ActionProcessor = require('../governance/actionProcessor')
