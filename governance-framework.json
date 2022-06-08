@@ -2,16 +2,16 @@
   "@context": [
     "https://github.com/hyperledger/aries-rfcs/blob/main/concepts/0430-machine-readable-governance-frameworks/context.jsonld"
   ],
-  "name": "Cardea COVID Governance",
+  "name": "Cardea Governance",
   "version": "0.1",
   "format": "1.0",
   "id": "<uuid>",
-  "description": "This document describes COVID health and travel governance in a machine readable way.",
-  "last_updated": "2021-06-10",
+  "description": "This document describes COVID health governance in a machine readable way.",
+  "last_updated": "2022-05-25",
   "docs_uri": "need_to_create",
   "data_uri": "need_to_create",
   "topics": [
-    "medical, travel"
+    "medical"
   ],
   "jurisdictions": [
     "US>NY>New York City",
@@ -19,23 +19,20 @@
   ],
   "geos": [
     "USA",
-    "Aruba"
+    "Ukraine"
   ],
   "schemas": [
     {
       "id": "4CLG5pU5v294VdkMWxSByu:2:Email:1.0",
-      "name": "Validated Email",
-      "verification": "hl:zm9YZpCjPLPJ4Epc:z3TSgXTuaHxY2tsArhUreJ4ixgw9NW7DYuQ9QTPQyLHy"
+      "name": "Validated Email"
     },
     {
       "id": "4CLG5pU5v294VdkMWxSByu:2:SMS:1.0",
-      "name": "SMS",
-      "verification": "hl:2lksjfdskljdf4432234lsakfHDHd"
+      "name": "SMS"
     },
     {
       "id": "4CLG5pU5v294VdkMWxSByu:2:Medical_Release:1.0",
-      "name": "Medical Release",
-      "verification": "hl:zm9YZpCjPLPJ4Epc:z3TSgXTuaHxY2tsArhUreJ4ixgw9NW7DYuQ9QTPQyLHy"
+      "name": "Medical Release"
     },
     {
       "id": "RuuJwd3JMffNwZ43DcJKN1:2:Lab_Order:1.4",
@@ -60,21 +57,21 @@
   ],
   "participants": [
     {
-      "name": "Government of <your country here>",
-      "id": "F3qZ8YSpgXLdLqcEC6GSFi",
+      "name": "Government",
+      "id": "8ovm21fXr1qZHoSuDcBtmb",
       "describe": {
-        "label": "<your country here>",
-        "sublabel": "Government of <your country here>",
+        "label": "Government",
+        "sublabel": "Government",
         "website": "issuinggovernmentsite.org",
         "email": "credential_manager@issuinggovernmentsite.org"
       }
     },
     {
-      "name": "General Obeorthot Hospital of <your country here>",
-      "id": "FE9ge78jQSzYU4YrKuKzUG",
+      "name": "General Hospital",
+      "id": "R4Epm1heTnoKQfH72v2omq",
       "describe": {
-        "label": "Obeorthot Hospital",
-        "sublabel": "General Obeorthot Hospital of <your country here>",
+        "label": "General Hospital",
+        "sublabel": "General Hospital",
         "website": "issuinglabsite.com",
         "email": "credential_manager@issuinglabsite.com"
       }
@@ -100,154 +97,176 @@
   ],
   "permissions": [
     {
-      "grant": ["health_issuer"],
+      "grant": [
+        "health_issuer"
+      ],
       "when": {
         "any": [
-          {"id": "did:example:hospital"},
-          {"id": "FE9ge78jQSzYU4YrKuKzUG"}
+          {
+            "id": "did:example:hospital"
+          },
+          {
+            "id": "R4Epm1heTnoKQfH72v2omq"
+          }
         ]
       }
     },
     {
-      "grant": ["travel_issuer"],
+      "grant": [
+        "travel_issuer"
+      ],
       "when": {
         "any": [
-          {"id": "F3qZ8YSpgXLdLqcEC6GSFi"}
+          {
+            "id": "8ovm21fXr1qZHoSuDcBtmb"
+          }
         ]
       }
     },
     {
-      "grant": ["health_verifier"],
+      "grant": [
+        "health_verifier"
+      ],
       "when": {
         "any": [
-          {"id": "F3qZ8YSpgXLdLqcEC6GSFi"}
+          {
+            "id": "8ovm21fXr1qZHoSuDcBtmb"
+          }
         ]
       }
     },
     {
-      "grant": ["travel_verifier"],
+      "grant": [
+        "travel_verifier"
+      ],
       "when": {
         "any": [
-          {"id": "F3qZ8YSpgXLdLqcEC6GSFi"}
+          {
+            "id": "8ovm21fXr1qZHoSuDcBtmb"
+          }
         ]
       }
     },
     {
-      "grant": ["hospitality_verifier"],
+      "grant": [
+        "hospitality_verifier"
+      ],
       "when": {
         "any": [
-          {"id": "did:example:casino"}
+          {
+            "id": "did:example:casino"
+          }
         ]
       }
     }
   ],
-  "actions": [
-      {
-        "name": "connect",
-        "protocol": "https://didcomm.org/connections/1.0/",
-        "startmessage": "invitation",
-        "details": {}
-      },
-      {
-        "name": "issue_lab_order",
-        "protocol": "https://didcomm.org/issue-credential/1.0/",
-        "startmessage": "offer-credential",
-        "details": {
-          "schema": "RuuJwd3JMffNwZ43DcJKN1:2:Lab_Order:1.4",
-          "presentation_definition": "hl:zm9YZpCjPLPJ4Epc:z3TSgaEFFHxY2tsArhUreJ4ixgw9NW7DYuQ9QTPUJFDD"
-        }
-      },
-      {
-        "name": "issue_lab_result",
-        "protocol": "https://didcomm.org/issue-credential/1.0/",
-        "startmessage": "offer-credential",
-        "details": {
-          "schema": "RuuJwd3JMffNwZ43DcJKN1:2:Lab_Result:1.4",
-          "presentation_definition": "hl:zm9YZpCjPLPJ4Epc:z3TSgXTuaHxY2tsArhUreJ4ixgw9NW7DYuQ9QTPQOPPS"
-        }
-      },
-      {
-        "name": "issue_vaccine",
-        "protocol": "https://didcomm.org/issue-credential/1.0/",
-        "startmessage": "offer-credential",
-        "details": {
-          "schema": "RuuJwd3JMffNwZ43DcJKN1:2:Vaccination:1.4",
-          "presentation_definition": "hl:zm9YZpCjPLPJ4Epc:z3TSgXTuaHxY2tsArhUreJ4ixgw9NW7DYuQ9QTPQJKDe"
-        }
-      },
-      {
-        "name": "issue_vaccine_exemption",
-        "protocol": "https://didcomm.org/issue-credential/1.0/",
-        "startmessage": "offer-credential",
-        "details": {
-          "schema": "RuuJwd3JMffNwZ43DcJKN1:2:Vaccine_Exemption:1.4",
-          "presentation_definition": "hl:zm9YZpCjPLPJ4Epc:z3TSgXTuaHxY2tsArhUreJ4ixgw9NW7DYuQ9QTPQMJQd"
-        }
-      },
-      {
-        "name": "issue_trusted_traveler",
-        "protocol": "https://didcomm.org/issue-credential/1.0/",
-        "startmessage": "offer-credential",
-        "details": {
-          "schema": "RuuJwd3JMffNwZ43DcJKN1:2:Trusted_Traveler:1.4",
-          "presentation_definition": "http://localhost:3100/api/presentation-exchange" 
-        }
-      },
-      {
-        "name": "verify_identity",
-        "protocol": "https://didcomm.org/present-proof/1.0/",
-        "startmessage": "request-presentation",
-        "details": {}
-      },
-      {
-        "name": "verify_lab_order",
-        "protocol": "https://didcomm.org/present-proof/1.0/",
-        "startmessage": "request-presentation",
-        "details": {
-          "schema": "RuuJwd3JMffNwZ43DcJKN1:2:Lab_Order:1.4"
-        }
-      },
-      {
-        "name": "verify_lab_result",
-        "protocol": "https://didcomm.org/present-proof/1.0/",
-        "startmessage": "request-presentation",
-        "details": {
-          "schema": "RuuJwd3JMffNwZ43DcJKN1:2:Lab_Result:1.4"
-        }
-      },
-      {
-        "name": "verify_vaccine",
-        "protocol": "https://didcomm.org/present-proof/1.0/",
-        "startmessage": "request-presentation",
-        "details": {
-          "schema": "RuuJwd3JMffNwZ43DcJKN1:2:Vaccination:1.4"
-        }
-      },
-      {
-        "name": "verify_vaccine_exemption",
-        "protocol": "https://didcomm.org/present-proof/1.0/",
-        "startmessage": "request-presentation",
-        "details": {
-          "schema": "RuuJwd3JMffNwZ43DcJKN1:2:Vaccine_Exemption:1.4"
-        }
-      },
-      {
-        "name": "verify_trusted_traveler",
-        "protocol": "https://didcomm.org/present-proof/1.0/",
-        "startmessage": "request-presentation",
-        "details": {
-          "schema": "RuuJwd3JMffNwZ43DcJKN1:2:Trusted_Traveler:1.4",
-          "presentation_definition": [
-            {
-              "travel_verifier": "hl:zm9YZpCjPLPJ4Epc:z3TSgXTuaHxY2tsArhUreJ4ixgw9NW7DYuQ9QTPQyLHy"
-            },
-            {
-              "hospitality_verifier": "hl:zm9YZpCjPLPJ4Epc:z3TSgXTuaHxY2tsArhUreJ4ixgw9NW7DYuQ9QTPQyLHy"
-            }
-          ]
-        }
+  "protocols": [
+    {
+      "name": "connect",
+      "protocol": "https://didcomm.org/connections/1.0/",
+      "startmessage": "invitation",
+      "details": {}
+    },
+    {
+      "name": "issue_lab_order",
+      "protocol": "https://didcomm.org/issue-credential/1.0/",
+      "startmessage": "offer-credential",
+      "details": {
+        "schema": "RuuJwd3JMffNwZ43DcJKN1:2:Lab_Order:1.4",
+        "presentation_definition": "hl:zm9YZpCjPLPJ4Epc:z3TSgaEFFHxY2tsArhUreJ4ixgw9NW7DYuQ9QTPUJFDD"
       }
-    ],
+    },
+    {
+      "name": "issue_lab_result",
+      "protocol": "https://didcomm.org/issue-credential/1.0/",
+      "startmessage": "offer-credential",
+      "details": {
+        "schema": "RuuJwd3JMffNwZ43DcJKN1:2:Lab_Result:1.4",
+        "presentation_definition": "hl:zm9YZpCjPLPJ4Epc:z3TSgXTuaHxY2tsArhUreJ4ixgw9NW7DYuQ9QTPQOPPS"
+      }
+    },
+    {
+      "name": "issue_vaccine",
+      "protocol": "https://didcomm.org/issue-credential/1.0/",
+      "startmessage": "offer-credential",
+      "details": {
+        "schema": "RuuJwd3JMffNwZ43DcJKN1:2:Vaccination:1.4",
+        "presentation_definition": "hl:zm9YZpCjPLPJ4Epc:z3TSgXTuaHxY2tsArhUreJ4ixgw9NW7DYuQ9QTPQJKDe"
+      }
+    },
+    {
+      "name": "issue_vaccine_exemption",
+      "protocol": "https://didcomm.org/issue-credential/1.0/",
+      "startmessage": "offer-credential",
+      "details": {
+        "schema": "RuuJwd3JMffNwZ43DcJKN1:2:Vaccine_Exemption:1.4",
+        "presentation_definition": "hl:zm9YZpCjPLPJ4Epc:z3TSgXTuaHxY2tsArhUreJ4ixgw9NW7DYuQ9QTPQMJQd"
+      }
+    },
+    {
+      "name": "issue_trusted_traveler",
+      "protocol": "https://didcomm.org/issue-credential/1.0/",
+      "startmessage": "offer-credential",
+      "details": {
+        "schema": "RuuJwd3JMffNwZ43DcJKN1:2:Trusted_Traveler:1.4",
+        "presentation_definition": "http://localhost:3100/api/presentation-exchange"
+      }
+    },
+    {
+      "name": "verify_identity",
+      "protocol": "https://didcomm.org/present-proof/1.0/",
+      "startmessage": "request-presentation",
+      "details": {}
+    },
+    {
+      "name": "verify_lab_order",
+      "protocol": "https://didcomm.org/present-proof/1.0/",
+      "startmessage": "request-presentation",
+      "details": {
+        "schema": "RuuJwd3JMffNwZ43DcJKN1:2:Lab_Order:1.4"
+      }
+    },
+    {
+      "name": "verify_lab_result",
+      "protocol": "https://didcomm.org/present-proof/1.0/",
+      "startmessage": "request-presentation",
+      "details": {
+        "schema": "RuuJwd3JMffNwZ43DcJKN1:2:Lab_Result:1.4"
+      }
+    },
+    {
+      "name": "verify_vaccine",
+      "protocol": "https://didcomm.org/present-proof/1.0/",
+      "startmessage": "request-presentation",
+      "details": {
+        "schema": "RuuJwd3JMffNwZ43DcJKN1:2:Vaccination:1.4"
+      }
+    },
+    {
+      "name": "verify_vaccine_exemption",
+      "protocol": "https://didcomm.org/present-proof/1.0/",
+      "startmessage": "request-presentation",
+      "details": {
+        "schema": "RuuJwd3JMffNwZ43DcJKN1:2:Vaccine_Exemption:1.4"
+      }
+    },
+    {
+      "name": "verify_trusted_traveler",
+      "protocol": "https://didcomm.org/present-proof/1.0/",
+      "startmessage": "request-presentation",
+      "details": {
+        "schema": "RuuJwd3JMffNwZ43DcJKN1:2:Trusted_Traveler:1.4",
+        "presentation_definition": [
+          {
+            "travel_verifier": "hl:zm9YZpCjPLPJ4Epc:z3TSgXTuaHxY2tsArhUreJ4ixgw9NW7DYuQ9QTPQyLHy"
+          },
+          {
+            "hospitality_verifier": "hl:zm9YZpCjPLPJ4Epc:z3TSgXTuaHxY2tsArhUreJ4ixgw9NW7DYuQ9QTPQyLHy"
+          }
+        ]
+      }
+    }
+  ],
   "privileges": [
     {
       "grant": [
@@ -400,7 +419,7 @@
       }
     }
   ],
-  "command_drive": [
+  "actions": [
     {
       "name": "connect-holder-health-issuer",
       "role": [
@@ -410,6 +429,22 @@
       "type": "protocol",
       "data": {
         "protocol": "https://didcomm.org/connections/1.0/",
+        "startmessage": "invitation"
+      },
+      "next": {
+        "success": "ask-demographics",
+        "error": "some-kind-of-error-handler..."
+      }
+    },
+    {
+      "name": "connect-oob-holder-health-issuer",
+      "role": [
+        "health_issuer"
+      ],
+      "initial": true,
+      "type": "protocol",
+      "data": {
+        "protocol": "https://didcomm.org/outofband/1.1/",
         "startmessage": "invitation"
       },
       "next": {
@@ -428,7 +463,7 @@
         "startmessage": "question",
         "question_answer": [
           {
-            "question": "Have you received a Medical Release credential from the <your lab participant name here> before?"
+            "question": "Have you received a Medical Release credential from the <your lab participant here> before?"
           },
           {
             "question_detail": "Please select an option below:"
@@ -458,18 +493,31 @@
       "type": "decision",
       "data": {
         "input_name": "medical_release_option",
+        "input_type": "string",
         "options": [
           {
             "values": [
               "I need a new credential"
             ],
-            "next": "request-identity-presentation"
+            "operator": "equal",
+            "regex": {
+              "flags":"",
+              "source":"^[a-zA-Z\\s]*$"
+            },
+            "next": "request-identity-presentation",
+            "error": "validation-error-handler..."
           },
           {
             "values": [
               "I already have a credential"
             ],
-            "next": "request-presentation"
+            "operator": "equal",
+            "regex": {
+              "flags":"",
+              "source":"^[a-zA-Z\\s]*$"
+            },
+            "next": "request-presentation",
+            "error": "validation-error-handler..."
           }
         ]
       },
@@ -489,7 +537,7 @@
         "startmessage": ["request-presentation"]
       },
       "next": {
-        "success": "decision-country-of-origin",
+        "success": "issue-medical-release",
         "error": "some-kind-of-error-handler..."
       }
     },
@@ -504,14 +552,140 @@
         "startmessage": ["request-presentation"]
       },
       "next": {
-        "success": "decision-country-of-origin",
+        "success": "",
+        "error": "some-kind-of-error-handler..."
+      }
+    },
+    {
+      "name": "test-operators-number",
+      "role": [
+        "health_issuer"
+      ],
+      "type": "decision",
+      "data": {
+        "input_name": "age_test",
+        "input_type": "number",
+        "options": [
+          {
+            "values": [
+              16
+            ],
+            "operator": "equal",
+            "regex": {},
+            "next": "number-equal-16"
+          },
+          {
+            "values": [
+              18
+            ],
+            "operator": "less_than",
+            "regex": {},
+            "next": "number-less-than-18"
+          },
+          {
+            "values": [
+              21
+            ],
+            "operator": "less_than",
+            "regex": {},
+            "next": "number-less-than-21"
+          },
+          {
+            "values": [
+              55
+            ],
+            "operator": "less_than",
+            "regex": {},
+            "next": "number-less-than-55"
+          },
+          {
+            "values": [
+              55
+            ],
+            "operator": "greater_than_equal_to",
+            "regex": {},
+            "next": "number-greater-than-equal-55"
+          }
+        ]
+      },
+      "next": {
+        "success": "default",
+        "error": "some-kind-of-error-handler..."
+      }
+    },
+    {
+      "name": "test-operators-string",
+      "role": [
+        "health_issuer"
+      ],
+      "type": "decision",
+      "data": {
+        "input_name": "covid_test_result",
+        "input_type": "string",
+        "options": [
+          {
+            "values": [
+              "Negative"
+            ],
+            "operator": "equal",
+            "regex": {
+              "flags":"",
+              "source":"^[a-zA-Z\\s]*$"
+            },
+            "next": "string-equal"
+          },
+          {
+            "values": [
+              "Negative"
+            ],
+            "operator": "not_equal",
+            "regex": {},
+            "next": "string-not-equal"
+          }
+        ]
+      },
+      "next": {
+        "success": "default",
+        "error": "some-kind-of-error-handler..."
+      }
+    },
+    {
+      "name": "test-operators-boolean",
+      "role": [
+        "health_issuer"
+      ],
+      "type": "decision",
+      "data": {
+        "input_name": "some_boolean_test",
+        "input_type": "boolean",
+        "options": [
+          {
+            "values": [
+              true
+            ],
+            "operator": "equal",
+            "regex": {},
+            "next": "boolean-equal"
+          },
+          {
+            "values": [
+              true
+            ],
+            "operator": "not_equal",
+            "regex": {},
+            "next": "boolean-not-equal"
+          }
+        ]
+      },
+      "next": {
+        "success": "default",
         "error": "some-kind-of-error-handler..."
       }
     },
     {
       "name": "decision-country-of-origin",
       "role": [
-        "health_issuer"
+        "travel_issuer"
       ],
       "type": "decision",
       "data": {
@@ -519,52 +693,35 @@
         "options": [
           {
             "values": [
+              "usA"
             ],
             "next": "reject-country"
           },
           {
             "values": [
             ],
-            "next": "select-health-credentials"
+            "next": ""
           }
         ]
       },
       "next": {
-        "success": "select-health-credentials",
+        "success": "",
         "error": "some-kind-of-error-handler..."
       }
     },
     {
-      "name": "select-health-credentials",
+      "name": "issue-medical-release",
       "role": [
         "health_issuer"
       ],
-      "type": "decision",
+      "type": "protocol",
       "data": {
-        "input_name": "requested_health_credential",
-        "options": [
-          {
-            "values": [
-              "lab_result"
-            ],
-            "next": "validate-lab-result"
-          },
-          {
-            "values": [
-              "exemption"
-            ],
-            "next": "validate-exemption"
-          },
-          {
-            "values": [
-              "vaccination"
-            ],
-            "next": "validate-vaccination"
-          }
-        ]
+        "schema": "RuuJwd3JMffNwZ43DcJKN1:2:Medical_Release:1.1",
+        "protocol": "https://didcomm.org/issue-credential/1.0/",
+        "startmessage": "offer-credential"
       },
       "next": {
-        "success": "lab_result",
+        "success": "",
         "error": "some-kind-of-error-handler..."
       }
     },
@@ -580,7 +737,7 @@
         "startmessage": "offer-credential"
       },
       "next": {
-        "success": "request-health-proof",
+        "success": "",
         "error": "some-kind-of-error-handler..."
       }
     },
@@ -596,7 +753,7 @@
         "startmessage": "offer-credential"
       },
       "next": {
-        "success": "request-health-proof",
+        "success": "",
         "error": "some-kind-of-error-handler..."
       }
     },
@@ -612,7 +769,7 @@
         "startmessage": "offer-credential"
       },
       "next": {
-        "success": "request-health-proof",
+        "success": "",
         "error": "some-kind-of-error-handler..."
       }
     },
@@ -659,10 +816,11 @@
         "presentation_definition": "http://localhost:3100/api/presentation-exchange"
       },
       "next": {
-        "success": "issue-trusted-traveler",
+        "success": "",
         "error": "some-kind-of-error-handler..."
       }
     },
+
     {
       "name": "issue-trusted-traveler",
       "role": [
@@ -685,7 +843,10 @@
       "data": {
         "protocol": "https://didcomm.org/basic-message/1.0/",
         "startmessage": "send-message",
-        "content": "We're sorry, your country is not approved for entry by the government of <your country here>"
+        "content": "We're sorry, your country is not approved for entry by the government of Aruba"
+      },
+      "next": {
+        "success": ""
       }
     },
     {
@@ -706,6 +867,23 @@
           "credit_card_expiration",
           "credit_card_security_code"
         ]
+      }
+    },
+    {
+      "name": "send-basic-message",
+      "role": [
+        "health_issuer"
+      ],
+      "initial": true,
+      "type": "protocol",
+      "data": {
+        "protocol": "https://didcomm.org/basic-message/1.0/",
+        "startmessage": "basic-message",
+        "content": "Test message from send basic message button"
+      },
+      "next": {
+        "success": "ask-demographics",
+        "error": "some-kind-of-error-handler..."
       }
     }
   ]

@@ -69,6 +69,9 @@ Connection.init(
     updated_at: {
       type: DataTypes.DATE,
     },
+    invi_msg_id: {
+      type: DataTypes.TEXT,
+    },
   },
   {
     sequelize, // Pass the connection instance
@@ -169,6 +172,7 @@ const createOrUpdateConnection = async function (
   routing_state,
   inbound_connection_id,
   error_msg,
+  invi_msg_id,
 ) {
   try {
     const connection = await sequelize.transaction(
@@ -207,6 +211,7 @@ const createOrUpdateConnection = async function (
             error_msg: error_msg,
             created_at: timestamp,
             updated_at: timestamp,
+            invi_msg_id: invi_msg_id,
           })
         } else {
           console.log('Updating Connection')
@@ -230,6 +235,7 @@ const createOrUpdateConnection = async function (
               inbound_connection_id: inbound_connection_id,
               error_msg: error_msg,
               updated_at: timestamp,
+              invi_msg_id: invi_msg_id,
             },
             {
               where: {
@@ -330,6 +336,22 @@ const readInvitationByAlias = async function (alias) {
   }
 }
 
+const readInvitationByMessageId = async function (invi_msg_id) {
+  try {
+    const connection = await Connection.findAll({
+      where: {
+        state: 'invitation',
+        invi_msg_id,
+      },
+    })
+
+    console.log('Requested Invitation:', JSON.stringify(connection[0], null, 2))
+    return connection[0]
+  } catch (error) {
+    console.error('Could not find invitation in the database: ', error)
+  }
+}
+
 const updateConnection = async function (
   connection_id,
   state,
@@ -409,6 +431,7 @@ module.exports = {
   readConnection,
   readConnections,
   readInvitationByAlias,
+  readInvitationByMessageId,
   readInvitations,
   updateConnection,
   deleteConnection,
