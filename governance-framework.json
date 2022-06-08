@@ -68,7 +68,7 @@
     },
     {
       "name": "General Hospital",
-      "id": "3pTbxYsKQq3qitvnJyZeYJ",
+      "id": "R4Epm1heTnoKQfH72v2omq",
       "describe": {
         "label": "General Hospital",
         "sublabel": "General Hospital",
@@ -106,7 +106,7 @@
             "id": "did:example:hospital"
           },
           {
-            "id": "3pTbxYsKQq3qitvnJyZeYJ"
+            "id": "R4Epm1heTnoKQfH72v2omq"
           }
         ]
       }
@@ -429,6 +429,22 @@
       "type": "protocol",
       "data": {
         "protocol": "https://didcomm.org/connections/1.0/",
+        "startmessage": "invitation"
+      },
+      "next": {
+        "success": "ask-demographics",
+        "error": "some-kind-of-error-handler..."
+      }
+    },
+    {
+      "name": "connect-oob-holder-health-issuer",
+      "role": [
+        "health_issuer"
+      ],
+      "initial": true,
+      "type": "protocol",
+      "data": {
+        "protocol": "https://didcomm.org/outofband/1.1/",
         "startmessage": "invitation"
       },
       "next": {

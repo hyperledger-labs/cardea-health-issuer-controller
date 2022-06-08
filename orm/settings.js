@@ -117,6 +117,40 @@ updateOrganization = async function (value) {
   }
 }
 
+// Governance
+readSelectedGovernance = async function () {
+  try {
+    const governance = await Setting.findAll({
+      where: {
+        key: 'governance',
+      },
+    })
+    return governance[0]
+  } catch (error) {
+    console.error(
+      'Could not find any selected governance paths in the database: ',
+      error,
+    )
+  }
+}
+
+updateSelectedGovernance = async function (value) {
+  try {
+    const selectedGovernance = await Setting.update(
+      {value},
+      {
+        where: {
+          key: 'governance',
+        },
+      },
+    )
+    console.log('Selected governance path updated successfully.')
+    return selectedGovernance
+  } catch (error) {
+    console.error('Error updating the selected governance path: ', error)
+  }
+}
+
 module.exports = {
   readTheme,
   updateTheme,
@@ -124,4 +158,6 @@ module.exports = {
   updateSMTP,
   readOrganization,
   updateOrganization,
+  readSelectedGovernance,
+  updateSelectedGovernance,
 }

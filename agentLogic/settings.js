@@ -2,6 +2,7 @@ const crypto = require('crypto')
 const Settings = require('../orm/settings')
 const fs = require('fs')
 const Util = require('../util')
+const Governance = require('./governance')
 
 // Perform Agent Business Logic
 
@@ -130,6 +131,43 @@ const setManifest = async (short_name, name, theme_color, bg_color) => {
   }
 }
 
+// Governance
+const getSelectedGovernance = async () => {
+  try {
+    const selectedGovernance = await Settings.readSelectedGovernance()
+
+    return selectedGovernance
+  } catch (error) {
+    console.error('Error getting selected governance')
+    throw error
+  }
+}
+
+const setSelectedGovernance = async (data = {}) => {
+  try {
+    console.log('data AL')
+    console.log(data.governance_path)
+
+    const governance_file = await Governance.getGovernanceFile(
+      data.governance_path,
+    )
+
+    const value = {
+      governance_path: data.governance_path,
+      governance_file: governance_file.governance_file,
+    }
+
+    await Settings.updateSelectedGovernance(value)
+
+    const selectedGovernance = await Settings.readSelectedGovernance()
+
+    return selectedGovernance
+  } catch (error) {
+    console.error('Error updating selected governance')
+    throw error
+  }
+}
+
 const getSchemas = async () => {
   return {
     SCHEMA_LAB_ORDER: process.env.SCHEMA_LAB_ORDER,
@@ -149,4 +187,6 @@ module.exports = {
   setOrganization,
   setManifest,
   getSchemas,
+  getSelectedGovernance,
+  setSelectedGovernance,
 }
