@@ -40,18 +40,20 @@ async function emailService() {
 const sendMail = async (message) => {
   const transporter = await emailService()
 
-  console.log('sending email')
-  transporter.sendMail(message, (error, info) => {
-    if (error) {
-      console.log('Error occurred')
-      console.log(error.message)
-    }
-
-    console.log('Message sent successfully!')
-    console.log(nodemailer.getTestMessageUrl(info))
-
-    // Only needed when using pooled connections
-    transporter.close()
+  return new Promise((resolve, reject) => {
+    transporter.sendMail(message, (error, info) => {
+      if (error) {
+        console.log('Error occurred')
+        console.log(error.message)
+        reject('error')
+      } else {
+        console.log('Message sent successfully!')
+        console.log(nodemailer.getTestMessageUrl(info))
+        resolve(true)
+      }
+      // Only needed when using pooled connections
+      transporter.close()
+    })
   })
 }
 
