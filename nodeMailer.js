@@ -15,13 +15,17 @@ async function emailService() {
 
   const transporter = nodemailer.createTransport({
     host: currentSMTP.dataValues.value.host,
-    // (eldersonar) We enforce port 587 for TLS connection
+    // (eldersonar) Defaults to 587 if "secure" is false or no value provided or 465 if true
     port:
-      currentSMTP.dataValues.value.port === 587
-        ? currentSMTP.dataValues.value.port
-        : 587,
-    // (eldersonar) We enforce TLS connection. False for TLS
-    secure: currentSMTP.dataValues.value.encryption === 'tls' ? false : false,
+      currentSMTP.dataValues.value.encryption === false
+        ? 587
+        : !currentSMTP.dataValues.value.encryption
+        ? 587
+        : currentSMTP.dataValues.value.encryption,
+    // (eldersonar) False for STARTTLS (must use port 587), true for TLS (must use port 465)
+    secure: !currentSMTP.dataValues.value.encryption
+      ? false
+      : currentSMTP.dataValues.value.encryption,
     auth: {
       user: currentSMTP.dataValues.value.auth.mailUsername
         ? currentSMTP.dataValues.value.auth.mailUsername
