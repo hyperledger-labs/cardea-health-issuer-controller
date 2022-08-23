@@ -512,7 +512,7 @@ const messageHandler = async (ws, context, type, data = {}) => {
                 null,
                 'connect-oob-holder-health-issuer',
               )
-              if (!invitation) {
+              if (invitation.error) {
                 sendMessage(ws, 'INVITATIONS', 'INVITATIONS_ERROR', {
                   error: invitation.error,
                 })
