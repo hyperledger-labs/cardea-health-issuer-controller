@@ -41,24 +41,32 @@ const getSMTP = async () => {
 
 const setSMTP = async (data = {}) => {
   try {
-    if (
-      !data.auth.email ||
-      !data.auth.pass ||
-      !data.auth.mailUsername ||
-      !data.host
-    ) {
+    if (!data.auth.email || !data.auth.mailUsername || !data.host) {
       return false
+    } else {
+      const oldSMTP = await getSMTP()
+      const IV = crypto.randomBytes(8).toString('hex')
+
+      // If no password was provided in the form but there is already password in our database
+      if (
+        (!data.auth.pass || data.auth.pass === '************') &&
+        oldSMTP.value &&
+        oldSMTP.value.auth.pass
+      ) {
+        console.log('No password was provided')
+        data.auth.pass = oldSMTP.value.auth.pass
+        data.IV = oldSMTP.value.IV
+      } else {
+        console.log('Password was provided')
+        const encryptedPassword = Util.encrypt(data.auth.pass, IV)
+        data.IV = IV
+        data.auth.pass = encryptedPassword
+      }
+
+      await Settings.updateSMTP(data)
+      const updatedSMTP = await Settings.readSMTP()
+      return updatedSMTP
     }
-    
-    const IV = crypto.randomBytes(8).toString('hex')
-    const encryptedPassword = Util.encrypt(data.auth.pass, IV)
-
-    data.IV = IV
-    data.auth.pass = encryptedPassword
-
-    await Settings.updateSMTP(data)
-    const updatedSMTP = await Settings.readSMTP()
-    return updatedSMTP
   } catch (error) {
     console.error('Error updating SMTP')
     throw error

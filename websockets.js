@@ -615,12 +615,17 @@ const messageHandler = async (ws, context, type, data = {}) => {
           case 'GET_SMTP':
             if (check(rules, userRoles, 'settings:update')) {
               const smtpConfigs = await Settings.getSMTP()
-              if (smtpConfigs)
+              if (smtpConfigs) {
+                // (eldersonar) Remove IV from the SMTP object to avoid sensative data leak.
+                delete smtpConfigs.value.IV
+  
                 sendMessage(ws, 'SETTINGS', 'SETTINGS_SMTP', smtpConfigs)
-              else
+              }
+              else {
                 sendMessage(ws, 'SETTINGS', 'SETTINGS_ERROR', {
                   error: "ERROR: SMTP can't be fetched.",
                 })
+              }
             } else {
               sendMessage(ws, 'SETTINGS', 'SETTINGS_ERROR', {
                 error:
