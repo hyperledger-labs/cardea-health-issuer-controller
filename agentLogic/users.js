@@ -285,16 +285,16 @@ const createUser = async function (email, roles) {
 
   // Empty/data checks
   if (!email || !Array.isArray(roles) || !roles.length)
-    return { error: 'USER ERROR: All fields must be filled out.' }
+    return {error: 'USER ERROR: All fields must be filled out.'}
 
   if (!Util.validateEmail(email))
-    return { error: 'USER ERROR: Must be a valid email.' }
+    return {error: 'USER ERROR: Must be a valid email.'}
 
   try {
     // Checking for duplicate email
     const duplicateUser = await Users.readUserByEmail(email)
     if (duplicateUser)
-      return { error: 'USER ERROR: A user with this email already exists.' }
+      return {error: 'USER ERROR: A user with this email already exists.'}
 
     const user = await Users.createUser(email)
 
@@ -302,7 +302,7 @@ const createUser = async function (email, roles) {
       await Users.linkRoleAndUser(roles[i], user.user_id)
     }
 
-    const token = jwt.sign({ id: user.user_id }, process.env.JWT_SECRET, {
+    const token = jwt.sign({id: user.user_id}, process.env.JWT_SECRET, {
       expiresIn: '24h',
     })
 
@@ -333,7 +333,7 @@ const createUser = async function (email, roles) {
     )
 
     // Broadcast the message to all connections
-    Websockets.sendMessageToAll('USERS', 'USER_CREATED', { user: [newUser] })
+    Websockets.sendMessageToAll('USERS', 'USER_CREATED', {user: [newUser]})
 
     // Return true to trigger the success message
     return true
@@ -360,19 +360,19 @@ const updateUser = async function (
     // Checks for updating the user by admin
     if (!email) {
       console.log('ERROR: email is empty.')
-      return { error: 'USER ERROR: All fields must be filled out.' }
+      return {error: 'USER ERROR: All fields must be filled out.'}
     }
 
     if (roles) {
       if (!Array.isArray(roles) || !roles.length) {
         console.log('ERROR: All fields must be filled out.')
-        return { error: 'USER ERROR: Roles are empty.' }
+        return {error: 'USER ERROR: Roles are empty.'}
       }
     }
 
     if (!Util.validateEmail(email)) {
       console.log('ERROR: Must be a valid email.')
-      return { error: 'USER ERROR: Must be a valid email.' }
+      return {error: 'USER ERROR: Must be a valid email.'}
     }
 
     if (username)
@@ -389,7 +389,7 @@ const updateUser = async function (
     // Checking for duplicate email
     const duplicateEmail = await Users.readUserByEmail(email)
     if (duplicateEmail && duplicateEmail.user_id !== userID) {
-      return { error: 'USER ERROR: A user with this email already exists.' }
+      return {error: 'USER ERROR: A user with this email already exists.'}
     }
 
     // Checking for duplicate username
@@ -399,7 +399,7 @@ const updateUser = async function (
       username !== '' &&
       duplicateUsername.user_id !== userID
     ) {
-      return { error: 'USER ERROR: A user with this username already exists.' }
+      return {error: 'USER ERROR: A user with this username already exists.'}
     }
 
     const userToUpdate = await Users.readUser(userID)
@@ -436,11 +436,17 @@ const updateUser = async function (
         }
 
         try {
-          const newToken = jwt.sign({ id: userID }, process.env.JWT_SECRET, {
+          const newToken = jwt.sign({id: userID}, process.env.JWT_SECRET, {
             expiresIn: '10m',
           })
 
-          await Users.updateUserInfo(userID, username, email, password, newToken)
+          await Users.updateUserInfo(
+            userID,
+            username,
+            email,
+            password,
+            newToken,
+          )
 
           // Get email from SMTP config
           const currentSMTP = await SMTP.getSMTP()
@@ -490,7 +496,7 @@ const updateUser = async function (
     const updatedUser = await Users.readUser(userID)
 
     // Broadcast the message to all connections
-    Websockets.sendMessageToAll('USERS', 'USER_UPDATED', { updatedUser })
+    Websockets.sendMessageToAll('USERS', 'USER_UPDATED', {updatedUser})
 
     console.log('Updated user')
 
@@ -553,7 +559,7 @@ const resendAccountConfirmation = async function (email) {
   try {
     const user = await Users.readUserByEmail(email)
 
-    const token = jwt.sign({ id: user.user_id }, process.env.JWT_SECRET, {
+    const token = jwt.sign({id: user.user_id}, process.env.JWT_SECRET, {
       expiresIn: '24h',
     })
 
