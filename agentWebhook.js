@@ -129,6 +129,16 @@ router.post('/topic/questionanswer', async (req, res, next) => {
     await QuestionAnswer.adminMessage(answer)
   }
 })
+router.post('/topic/out_of_band/', async (req, res, next) => {
+  console.log('Aries Cloud Agent Webhook Message----Out of Band------')
+  console.log(req.body)
+  const connectionId = req.body.connection_id
+  const connectionUrl = req.body.connection_url
+  console.log('55555 connectionId', connectionId);
+  console.log('66666 connectionUrl', connectionUrl);
+
+  res.status(200).send('Ok')
+})
 
 module.exports = router
 

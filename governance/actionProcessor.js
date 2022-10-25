@@ -131,6 +131,7 @@ const actionStart = async (connection_id, stepName) => {
           console.log('oob invitation')
           invitation = await AgentLogic.Invitations.createOutOfBandInvitation()
 
+          console.log('222222222 Log of invitation from actionProcessor:', invitation);
           // (eldersonar) Writing connection state to DB
           await updateConnectionState(
             invitation.connection_id,

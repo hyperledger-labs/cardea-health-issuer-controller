@@ -512,6 +512,7 @@ const messageHandler = async (ws, context, type, data = {}) => {
                 null,
                 'connect-oob-holder-health-issuer',
               )
+              console.log("1111111111111111111111 log of invitation:", invitation);
               if (invitation.error) {
                 sendMessage(ws, 'INVITATIONS', 'INVITATIONS_ERROR', {
                   error: invitation.error,
