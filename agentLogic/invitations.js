@@ -119,7 +119,6 @@ const createOutOfBandInvitation = async () => {
 
     const OOBMessage = await AdminAPI.OOB.createOOBInvitation()
 
-    console.log('//// OOBMessage', OOBMessage)
     while (!connection && x < 10) {
       function sleep(ms) {
         return new Promise((resolveFunc) => setTimeout(resolveFunc, ms))
