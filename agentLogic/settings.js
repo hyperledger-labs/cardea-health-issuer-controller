@@ -49,7 +49,7 @@ const setSMTP = async (data = {}) => {
     ) {
       return false
     }
-    
+
     const IV = crypto.randomBytes(8).toString('hex')
     const encryptedPassword = Util.encrypt(data.auth.pass, IV)
 
