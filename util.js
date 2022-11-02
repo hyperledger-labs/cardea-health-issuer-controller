@@ -38,7 +38,7 @@ function validatePassword(password) {
 }
 
 function validateLogo(logo) {
-  const re = /\.(jpe?g|png|gif)$/gi // Only .png, .jpeg, .jpg, .webp
+  const re = /\.(jpe?g|png|gif|webp)$/gi // Only .png, .jpeg, .jpg, .webp
   return re.test(String(logo))
 }
 
