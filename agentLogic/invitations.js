@@ -114,10 +114,21 @@ const acceptInvitation = async (invitation_url) => {
 
 const createOutOfBandInvitation = async () => {
   try {
+    let connection
+    let x = 0
+
     const OOBMessage = await AdminAPI.OOB.createOOBInvitation()
-    const connection = await Connections.readInvitationByMessageId(
-      OOBMessage.invi_msg_id,
-    )
+
+    while (!connection && x < 10) {
+      function sleep(ms) {
+        return new Promise((resolveFunc) => setTimeout(resolveFunc, ms))
+      }
+      await sleep(100)
+      connection = await Connections.readInvitationByMessageId(
+        OOBMessage.invi_msg_id,
+      )
+      x++
+    }
 
     //Retrieve service endpoint from invitation
     // const serviceEndpoint = OOBMessage.invitation.service[0].serviceEndpoint

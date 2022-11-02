@@ -129,6 +129,14 @@ router.post('/topic/questionanswer', async (req, res, next) => {
     await QuestionAnswer.adminMessage(answer)
   }
 })
+router.post('/topic/out_of_band/', async (req, res, next) => {
+  console.log('Aries Cloud Agent Webhook Message----Out of Band------')
+
+  const outOfBand = req.body
+  console.log(outOfBand)
+
+  res.status(200).send('Ok')
+})
 
 module.exports = router
 
